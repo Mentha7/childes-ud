@@ -62,7 +62,11 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 1. incorporate new information, such as dependency structure to a tier in CHAT files
 2. add such a tier so that it can be converted to CoNLL-U deprels easily (wishful thinking?)
 
+## Potential Pitfalls
 
+### Tagset conversion
+The tags used in CHAT `%gra` tier and in UD may not be one-to-one. Still need to think of a way to use the annotations. 
+Make use of CoNLL-U tools to populate the layers in .cha files?
 ## Implementation
 
 ### Parsing Files
