@@ -41,18 +41,46 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 
 ## General Approach
 
+### .cha to .conllu
+
+1. extract utterances as sentences (Sentence)
+2. deal with CHILDES annotation symbols (remove but info should be kept somewhere, like in `MISC` as first value)
+3. saves metadata somewhere (incl. filename, headers for the file; speakers and timestamps for the utterances; token-level info goes into `MISC`)
+4. retrieve morphological/grammatical information from the tiers `%mor` and `%gra` if they exist, save to Sentence and/or Token; copy tier directly to sentence comment?
+5. Sentence should have Token, speaker, sent id, sentence-level comments...
+6. generate CoNLL-U format, make sure the resulting file is well-formatted
+
+### .conllu to .cha
+
+1. parse .conllu file
+2. retrieve metadata, create file using filename, write file header
+3. go through the sentences, reconstruct utterances from **Token** up and tiers
+4. `@End`
+
+### adding new information
+
+1. incorporate new information, such as dependency structure to a tier in CHAT files
+2. add such a tier so that it can be converted to CoNLL-U deprels easily (wishful thinking?)
+
+
+## Implementation
+
 ### Parsing the files
 
 ### Storage of information
 
 ### Generating files
 
-### Dependency Parser?
+### External Dependency Parser?
 
 ## References
 
 CoNLL-U format: https://universaldependencies.org/format.html
 
-https://github.com/zoeyliu18/process_CHILDES
+A somewhat similar project: https://github.com/zoeyliu18/process_CHILDES
 
 ## Schedule
+
+12 May: Creates a roadmap for the project. Gather some useful information.
+
+**Deadline** ?
