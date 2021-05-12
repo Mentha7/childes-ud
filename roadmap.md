@@ -65,11 +65,11 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 
 ## Implementation
 
-### Parsing the files
+### Parsing Files
 
-### Storage of information
+### Structuring Information 
 
-### Generating files
+### Modifying/Generating Files
 
 ### External Dependency Parser?
 
