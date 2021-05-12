@@ -81,6 +81,6 @@ A somewhat similar project: https://github.com/zoeyliu18/process_CHILDES
 
 ## Schedule
 
-12 May: Creates a roadmap for the project. Gather some useful information.
+12 May: Creates a roadmap for the project.
 
 **Deadline** ?
