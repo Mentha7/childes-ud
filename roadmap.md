@@ -9,7 +9,7 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 * `@` marks metadata 
   * `@Languages`, `@Participants`, `@ID`, `@Comment`, `@Begin`, `@End`...
 * `*` marks utterances
-  * `*CHI:	they are fighting .`
+  * `*CHI:  they are fighting .`
 * `%` marks tiers
   * `%mor`, `%gra`...
 * `:` is usually followed by a tab instead of a space character
