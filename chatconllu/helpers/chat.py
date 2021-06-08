@@ -1,67 +1,63 @@
 class ChatToken(object):
-    """docstring for ChatToken"""
-    def __init__(self, arg):
-        self.arg = arg
+	"""docstring for ChatToken"""
 
-    def index(self):
-        pass
+	__slots__ = ['index', 'surface', 'token', 'lemma', 'mor', 'gra', 'pos', 'head']
 
-    def surface(self):
-        pass
+	def __init__(self, index=0, surface=None, token=None, lemma=None, mor=None, gra=None, pos=None, head=None):
+		self.index = index
+		self.surface = surface
+		self.token = token
+		self.lemma = lemma
+		self.mor = mor
+		self.gra = gra
+		self.pos = pos
+		self.head = head
 
-    def token(self):
-        pass
-
-    def lemma(self):
-        pass
-
-    def mor(self):
-        pass
-
-    def gra(self):
-        pass
-
-    def pos(self):
-        pass
-
-    def head(self):
-        pass
 
 
 class ChatLabel(object):
-    """docstring for ChatLabel"""
-    def __init__(self, arg):
-        self.arg = arg
+	"""docstring for ChatLabel"""
+	def __init__(self, arg):
+		self.arg = arg
 
-    def form(self):
-        pass
+	def form(self):
+		pass
 
 
 class ChatSentence(object):
-    """Holds a Chat sentence.
-    Attributes:
-        items   - tokens and labels in the sentence (ordered)
-        tokens   - tokens in the sentence
-        # labels   - labels in the sentence
-        speaker   - the participant whouttered the sentence
-    """
-    def __init__(self, arg):
-        self.arg = arg
+	"""Holds a Chat sentence.
+	Attributes:
+		items   - tokens and labels in the sentence (ordered)
+		tokens   - tokens in the sentence
+		# labels   - labels in the sentence
+		speaker   - the participant whouttered the sentence
+	"""
+	__slots__ = ['form', 'items', 'tokens', 'speaker', 'mor', 'gra']
 
-    def tokens(self):
-        pass
+	def __init__(self, form=None, items=[], speaker=None, mor=[], gra=[]):
+		self.form = form
+		self.items = items
+		# self.tokens = tokens
+		self.speaker = speaker
+		self.mor = mor
+		self.gra = gra
 
-    def items(self):
-        pass
+	def add_tier_info(self, mor=[], gra=[]):
+		self.mor = mor
+		self.gra = gra
 
-    def __str__(self):
-        pass
+	def __str__(self):
+		return f"speaker:  {self.speaker}\n\
+		form:  {self.form}\n\
+		items:  {self.items}\n\
+		mor:  {self.mor}\n\
+		gra:  {self.gra}"
 
-    def __len__(self):
-        pass
+	def __len__(self):
+		return len(tokens)
 
 
 class ChatMeta(object):
-    """docstring for ChatMeta"""
-    def __init__(self, arg):
-        self.arg = arg
+	"""docstring for ChatMeta"""
+	def __init__(self, arg):
+		self.arg = arg
