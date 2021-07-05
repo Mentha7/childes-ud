@@ -6,6 +6,8 @@ import re
 import fileinput
 from pathlib import Path
 
+from tqdm import tqdm
+
 from collections import OrderedDict
 
 from logger import logger
@@ -13,7 +15,7 @@ from helpers.sentence import Sentence
 
 BROWN = "/home/jingwen/Desktop/thesis/Brown/"
 # BROWN = "/home/jingwen/Desktop/thesis/"
-FILE = "test.cha"
+# FILE = "test.cha"
 FILE = "test_angle.cha"
 # FILE = "019JC.cha"
 TMP_DIR = 'tmp'
@@ -89,8 +91,13 @@ def normalise_utterance(line: str):
 	best_guess = r"^\[\?\]"
 	error = r"^\[\^ e.*?]"
 	error_star = r"^\[\* .*?\]"
+	comment_on_main = r"^\[% .*?\]"
+	complex_local_event = r"^\[\^ .*?\]"
 	postcodes = r"^\[\+ .*?\]"
+	trailing_off = r"\+..."
 	ns = r"^\[\^ ns]"  # ?
+
+
 
 	omission = [pause,
 				 timed_pause,
@@ -99,6 +106,8 @@ def normalise_utterance(line: str):
 				 best_guess,
 				 error,
 				 error_star,
+				 comment_on_main,
+				 complex_local_event,
 				 postcodes,
 				 ns,
 				 ]
@@ -125,7 +134,7 @@ def normalise_utterance(line: str):
 			s = re.match(to_expand, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
-			prev_tokens = s.group(0)[1:-5].strip().split()
+			prev_tokens = s.group(0)[1:-5].strip().split()  # remove '<' and '> [?]'
 		elif re.match(to_replace, line[i:]):
 			s = re.match(to_replace, line[i:])
 			i += len(s.group(0))
@@ -133,6 +142,11 @@ def normalise_utterance(line: str):
 			tokens.extend(m.group(1).strip().split())
 			i += len(m.group(0))
 			prev_tokens = []
+		elif re.match(trailing_off, line[i:]):  # above punctuation block
+			tokens.extend(prev_tokens)
+			s = re.match(trailing_off, line[i:])
+			i += len(s.group(0))
+			prev_tokens = [s.group(0).strip()[1:]]  # remove '+'
 		elif re.match(punct_re, line[i:]):
 			tokens.extend(prev_tokens)
 			prev_tokens = [line[i]]
@@ -180,6 +194,9 @@ def check_token(surface):
 
 	return surface, clean
 
+def extract_token_info(clean: list, gra: list, mor: list):
+	pass
+
 
 def create_sentence(idx, lines):
 	"""Given lines, create a Sentence object.
@@ -187,7 +204,7 @@ def create_sentence(idx, lines):
 	"""
 	# ---- speaker ----
 	speaker = lines[0][1:4]
-	print(f"speaker: {speaker}")
+	# print(f"speaker: {speaker}")
 
 	# ---- tiers ----
 	tiers = [x.split('\t')[0] for x in lines[1:]]
@@ -202,7 +219,7 @@ def create_sentence(idx, lines):
 	# ---- clean form ----
 	clean = [check_token(t)[1] for t in tokens]
 	clean = list(filter(None, clean))  # remove empty strings
-	print(f"normalised utterance: {' '.join(clean)}")
+	# print(f"normalised utterance: {' '.join(clean)}")
 
 	# ---- tiers dict ----
 	tiers_dict = OrderedDict()
@@ -210,7 +227,7 @@ def create_sentence(idx, lines):
 	for t in lines[1:]:
 		tl = t.split('\t')
 		tier_name = tl[0][1:-1]
-		tiers_dict[tier_name] = tl[-1].replace('~', ' ').split(' ')  # separating multi-word tokens
+		tiers_dict[tier_name] = tl[-1].split(' ')  # don't replace '~' just yet
 		comments.append(f"# {tier_name}:\t{tl[-1]}")
 		# if tier_name != 'mor' and tier_name != 'xmor' and tier_name != 'gra':
 		# 	comments.append(t)
@@ -223,13 +240,13 @@ def create_sentence(idx, lines):
 	if ('mor' or 'xmor') and 'gra' in tiers_dict:
 		mor = tiers_dict.get('mor') if 'mor' in tiers_dict else tiers_dict.get('xmor')
 		gra = tiers_dict.get('gra')
-		print(len(clean), len(mor), len(gra))
-		if len(gra)!=len(mor):
-	  		print(f'======== sent_id:{idx+1} ========')
-	  		print(f"normalised utterance: {' '.join(clean)}")
-	  		print(f"clean:{len(clean)}, mor:{len(mor)}, gra:{len(gra)}")
-	  		print(mor)
-	  		print(gra)
+		# print(len(clean), len(mor), len(gra))
+		# if len(gra)!=len(mor):
+	 #  		print(f'======== sent_id:{idx+1} ========')
+	 #  		print(f"normalised utterance: {' '.join(clean)}")
+	 #  		print(f"clean:{len(clean)}, mor:{len(mor)}, gra:{len(gra)}")
+	 #  		print(mor)
+	 #  		print(gra)
 
 
 	return Sentence(speaker=speaker,
@@ -263,9 +280,9 @@ if __name__ == "__main__":
 	meta, utterances = parse_chat(FILE)
 
 	# ---- test print meta ----
-	for i, x in enumerate(meta.items()):
-		print(i, x)
-	print(len(meta))
+	# for i, x in enumerate(meta.items()):
+	# 	print(i, x)
+	# print(len(meta))
 	# ---- test print utterances----
 	# for i, l in enumerate(utterances[-2]):
 	# 	print(i, l)
@@ -274,12 +291,15 @@ if __name__ == "__main__":
 
 	# ---- test single utterance ----
 	# n = -1
-	# create_sentence(n, utterances[n])
+	# sent = create_sentence(n, utterances[n])
+	# print(sent.get_sent_id(), sent.text())
 
 
 	# ---- test file ----
-	for idx, utterance in enumerate(utterances):
-		create_sentence(idx, utterance)
+	for idx, utterance in enumerate(tqdm(utterances)):
+		sent = create_sentence(idx, utterance)
+		if sent.text() == ".": pass
+		else: print(sent.get_sent_id(), sent.text())
 
 
 	# ---- test regex ----
