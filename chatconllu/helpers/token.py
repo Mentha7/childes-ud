@@ -50,9 +50,40 @@ class Token(object):
 		"""
 		idx = str(self.index)
 		if self.multi:
-			idx = "-".join((str(self.index), str(self.multi)))
+			return self._multi_str()
 		fields = [str(getattr(self, x)) for x in self.__slots__[1:10]]
 		return ("\t".join([idx] + fields).replace('None', '_'))
+
+	def _multi_str(self):
+
+		s = ""
+
+		idx = "-".join((str(self.index), str(self.multi)))
+		form = self.form
+		fields = ['None', 'None', 'None', 'None', 'None', 'None', 'None', 'None']
+		s += "\t".join([idx, form] + fields).replace('None', '_')
+
+		for n, i in enumerate(range(int(self.index), int(self.multi)+1)):
+
+			s += "\n"
+
+			# form = self.lemma[n]
+			# fields = [str(getattr(self, x)[n]) if x is not None else 'None' for x in self.__slots__[2:9]]
+			# s += "\t".join([str(i), form] + fields).replace('None', '_')
+
+			form=None if not self.lemma[n] else self.lemma[n]
+			lemma=None if not self.lemma[n] else self.lemma[n]
+			upos=None if not self.upos[n] else self.upos[n]
+			xpos=None if not self.xpos[n] else self.xpos[n]
+			feats=None if not self.feats[n] else "|".join(self.feats[n])
+			head=None if not self.head[n] else self.head[n]
+			deprel=None if not self.deprel[n] else self.deprel[n]
+			deps=None if not self.deps[n] else self.deps[n]
+			misc=self.misc
+			s += f"{str(i)}\t{form}\t{lemma}\t{upos}\t{xpos}\t{feats}\t{head}\t{deprel}\t{deps}\t{misc}"
+			s = s.replace('None', '_')
+
+		return s
 
 	def ud_upos():
 		pass

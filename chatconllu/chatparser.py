@@ -20,9 +20,6 @@ FILE = "test_angle.cha"
 TMP_DIR = 'tmp'
 
 utterance = re.compile('^\\*')
-# square_brackets = ['^\\[', '.*\\]$']
-# sqr = re.compile('|'.join(e for e in square_brackets))
-
 
 def list_files(dir):
 	return (x for x in Path(dir).glob("**/*.cha") if not x.name.startswith("._"))
@@ -45,7 +42,6 @@ def parse_chat(filename):
 		- starts with %: tiers (n)
 		note:
 		- field and value are separated by tabs
-		- labels are in square brackets
 	"""
 
 	meta = {}
@@ -95,8 +91,6 @@ def normalise_utterance(line: str):
 	postcodes = r"^\[\+ .*?\]"  # [+ xxx]
 	trailing_off = r"\+..."  # +...
 
-
-
 	omission = [pause,
 				 timed_pause,
 				 retracing,
@@ -108,11 +102,11 @@ def normalise_utterance(line: str):
 				 complex_local_event,
 				 postcodes,
 				 ]
+
 	# ---- compile regex patterns ----
 	to_omit = re.compile('|'.join(o for o in omission))  # <whatever> [/?] or <whatever> [//]
 	to_expand = re.compile(r"^<.*?> \[\?\]")
 	to_replace = re.compile(r"^\[::? ")
-
 
 	tokens = []
 	prev_tokens = []
@@ -173,8 +167,8 @@ def check_token(surface):
 						untranscribed,
 						phono_fragments,
 						]
-	to_omit = re.compile("|".join(unidentifiable))
 
+	to_omit = re.compile("|".join(unidentifiable))
 
 	clean=''
 	if re.match(to_omit, surface):   # phonological forms
@@ -191,6 +185,7 @@ def check_token(surface):
 
 	return surface, clean
 
+
 def extract_token_info(clean: list, gra: list, mor: list):
 
 	tokens = []
@@ -198,9 +193,10 @@ def extract_token_info(clean: list, gra: list, mor: list):
 	if len(gra) == len(mor):
 		assert len(clean) == len(mor)
 
-		print('*: ', ' '.join(clean), '\n')
-		print("gra: ", gra, '\n')
-		print("mor: ", mor, '\n')
+		# # ---- test print ----
+		# print('*: ', ' '.join(clean), '\n')
+		# print("gra: ", gra, '\n')
+		# print("mor: ", mor, '\n')
 
 		for i, t in enumerate(clean):
 
@@ -228,18 +224,18 @@ def extract_token_info(clean: list, gra: list, mor: list):
 			deprel = gra[i].split('|')[-1].lower()
 			deps = f"{head}:{deprel}"
 
-
-			print(f"index:\t{index}")
-			print(f"token:\t{form}")
-			print(f"lemma:\t{lemma}")
-			print(f"upos:\t{upos}")
-			print(f"xpos:\t{xpos}")
-			print(f"feats:\t{feats}")
-			print(f"head:\t{head}")
-			print(f"deprel:\t{deprel}")
-			print(f"deps:\t{deps}")
-			print(f"misc:\t{misc}")
-			print()
+			# # ---- test print ----
+			# print(f"index:\t{index}")
+			# print(f"token:\t{form}")
+			# print(f"lemma:\t{lemma}")
+			# print(f"upos:\t{upos}")
+			# print(f"xpos:\t{xpos}")
+			# print(f"feats:\t{feats}")
+			# print(f"head:\t{head}")
+			# print(f"deprel:\t{deprel}")
+			# print(f"deps:\t{deps}")
+			# print(f"misc:\t{misc}")
+			# print()
 
 			tok = Token(index=index,
 						form=form,
@@ -290,7 +286,7 @@ def extract_token_info(clean: list, gra: list, mor: list):
 				feats = [l.split('|')[-1].split('&')[1:] for l in mor[i].split('~')]
 				head = [gra[x].split('|')[1] for x in range(index, end_index+1)]
 				deprel = [gra[x].split('|')[-1].lower() for x in range(index, end_index+1)]
-				deps = f"{head}:{deprel}"
+				deps = [f"{h}:{deprel[x]}" for x, h in enumerate(head)]
 				multi = end_index
 
 				# ---- increment indices ----
@@ -298,18 +294,18 @@ def extract_token_info(clean: list, gra: list, mor: list):
 				gra_index = index
 				gra_index += 1
 
-				print(f"index:\t{index}")
-				print(f"token:\t{form}")
-				print(f"lemma:\t{lemma}")
-				print(f"upos:\t{upos}")
-				print(f"xpos:\t{xpos}")
-				print(f"feats:\t{feats}")
-				print(f"head:\t{head}")
-				print(f"deprel:\t{deprel}")
-				print(f"deps:\t{deps}")
-				print(f"misc:\t{misc}")
-				print(f"multi:\t{multi}")
-				print()
+				# # ---- test print ----
+				# print(f"index:\t{index}")
+				# print(f"token:\t{form}")
+				# print(f"lemma:\t{lemma}")
+				# print(f"upos:\t{upos}")
+				# print(f"xpos:\t{xpos}")
+				# print(f"feats:\t{feats}")
+				# print(f"head:\t{head}")
+				# print(f"deprel:\t{deprel}")
+				# print(f"deps:\t{deps}")
+				# print(f"misc:\t{misc}")
+				# print()
 
 			else:
 				# ---- create token ----
@@ -328,19 +324,19 @@ def extract_token_info(clean: list, gra: list, mor: list):
 				i += 1
 				gra_index += 1
 
-				print(f"index:\t{index}")
-				print(f"token:\t{form}")
-				print(f"lemma:\t{lemma}")
-				print(f"upos:\t{upos}")
-				print(f"xpos:\t{xpos}")
-				print(f"feats:\t{feats}")
-				print(f"head:\t{head}")
-				print(f"deprel:\t{deprel}")
-				print(f"deps:\t{deps}")
-				print(f"misc:\t{misc}")
-				print(f"multi:\t{multi}")
-				print()
-
+				# # ---- test print ----
+				# print(f"index:\t{index}")
+				# print(f"token:\t{form}")
+				# print(f"lemma:\t{lemma}")
+				# print(f"upos:\t{upos}")
+				# print(f"xpos:\t{xpos}")
+				# print(f"feats:\t{feats}")
+				# print(f"head:\t{head}")
+				# print(f"deprel:\t{deprel}")
+				# print(f"deps:\t{deps}")
+				# print(f"misc:\t{misc}")
+				# print(f"multi:\t{multi}")
+				# print()
 
 			tok = Token(index=index,
 						form=form,
@@ -358,8 +354,8 @@ def extract_token_info(clean: list, gra: list, mor: list):
 		# ---- test prints ----
 		print(f"* utterance: {' '.join(clean)}\n")
 		# print(f"clean:{len(clean)}, mor:{len(mor)}, gra:{len(gra)}")
-		print(mor, '\n')
-		print(gra, '\n')
+		# print(mor, '\n')
+		# print(gra, '\n')
 
 	return tokens
 
@@ -456,7 +452,7 @@ if __name__ == "__main__":
 	# ---- test single utterance ----
 	n = -1
 	sent = create_sentence(n, utterances[n])
-	print(sent.get_sent_id(), sent.text())
+	# print(sent.get_sent_id(), sent.text())
 
 
 
