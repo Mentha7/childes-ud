@@ -40,3 +40,4 @@ class Sentence(object):
 
 	def get_sent_id(self):
 		return self.sent_id
+

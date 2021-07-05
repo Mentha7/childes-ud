@@ -213,8 +213,8 @@ def extract_token_info(clean: list, gra: list, mor: list):
 			multi = None
 
 			index = gra[i].split('|')[0]
-			form = t
-			lemma = mor[i].split('|')[-1].split('&')[0]
+			form = t.split('-')[0]
+			lemma = mor[i].split('|')[-1].split('&')[0].split('-')[0]
 			# use a mapping for upos and xpos, naively store the values for now
 			upos = mor[i].split('|')[0].split(':')[0]
 			xpos = mor[i].split('|')[0]
@@ -278,8 +278,8 @@ def extract_token_info(clean: list, gra: list, mor: list):
 
 				# ---- create multi-word token ----
 				index = index
-				form = clean[i]
-				lemma = [l.split('|')[-1].split('&')[0] for l in mor[i].split('~')]
+				form = clean[i].split('-')[0]
+				lemma = [l.split('|')[-1].split('&')[0].split('-')[0] for l in mor[i].split('~')]
 				upos = [l.split('|')[0].split(':')[0] for l in mor[i].split('~')]
 				xpos = [l.split('|')[0] for l in mor[i].split('~')]
 
@@ -310,8 +310,8 @@ def extract_token_info(clean: list, gra: list, mor: list):
 			else:
 				# ---- create token ----
 				index = int(gra[gra_index].split('|')[0])
-				form = clean[i]
-				lemma = mor[i].split('|')[-1].split('&')[0]
+				form = clean[i].split('-')[0]
+				lemma = mor[i].split('|')[-1].split('&')[0].split('-')[0]
 				upos = mor[i].split('|')[0].split(':')[0]
 				xpos = mor[i].split('|')[0]
 
@@ -392,7 +392,7 @@ def create_sentence(idx, lines):
 		tiers_dict[tier_name] = tl[-1].split(' ')  # don't replace '~' just yet
 		comments.append(f"# {tier_name}:\t{tl[-1]}")
 		# if tier_name != 'mor' and tier_name != 'xmor' and tier_name != 'gra':
-		# 	comments.append(t)
+		#   comments.append(t)
 	# print(comments)
 	# print(tiers_dict.keys())
 	# print(tiers_dict.items())
@@ -402,10 +402,9 @@ def create_sentence(idx, lines):
 	if ('mor' or 'xmor') and 'gra' in tiers_dict:
 		mor = tiers_dict.get('mor') if 'mor' in tiers_dict else tiers_dict.get('xmor')
 		gra = tiers_dict.get('gra')
-	toks = extract_token_info(clean, gra, mor)
-	for tok in toks:
-		# print(tok)
-		print(tok.conllu_str())
+		toks = extract_token_info(clean, gra, mor)
+		for tok in toks:
+			print(tok.conllu_str())
 
 
 
@@ -441,24 +440,25 @@ if __name__ == "__main__":
 
 	# ---- test print meta ----
 	# for i, x in enumerate(meta.items()):
-	# 	print(i, x)
+	#   print(i, x)
 	# print(len(meta))
 	# ---- test print utterances----
 	# for i, l in enumerate(utterances[-2]):
-	# 	print(i, l)
+	#   print(i, l)
 	# print(len(utterances))
 
 
 	# ---- test single utterance ----
-	n = -1
-	sent = create_sentence(n, utterances[n])
+	# n = -1
+	# sent = create_sentence(n, utterances[n])
 	# print(sent.get_sent_id(), sent.text())
 
 
 
 	# ---- test file ----
-	# for idx, utterance in enumerate(utterances):
-	# 	sent = create_sentence(idx, utterance)
+	for idx, utterance in enumerate(utterances):
+		print("---- sent ----")
+		sent = create_sentence(idx, utterance)
 		# if sent.text() == ".": pass
 		# else: print(sent.get_sent_id(), sent.text())
 

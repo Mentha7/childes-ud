@@ -48,11 +48,13 @@ class Token(object):
 		"""Writes token as one line in conllu file. If Token is multi, write span.
 		   Adopted from conllu.py.
 		"""
+		s = ""
 		idx = str(self.index)
 		if self.multi:
 			return self._multi_str()
-		fields = [str(getattr(self, x)) for x in self.__slots__[1:10]]
-		return ("\t".join([idx] + fields).replace('None', '_'))
+		s += f"{idx}\t{self.form}\t{self.lemma}\t{self.upos}\t{self.xpos}\t{self.feats}\t{self.head}\t{self.deprel}\t{self.deps}\t{self.misc}"
+		s = s.replace('None', '_')
+		return s
 
 	def _multi_str(self):
 
@@ -71,15 +73,16 @@ class Token(object):
 			# fields = [str(getattr(self, x)[n]) if x is not None else 'None' for x in self.__slots__[2:9]]
 			# s += "\t".join([str(i), form] + fields).replace('None', '_')
 
-			form=None if not self.lemma[n] else self.lemma[n]
-			lemma=None if not self.lemma[n] else self.lemma[n]
-			upos=None if not self.upos[n] else self.upos[n]
-			xpos=None if not self.xpos[n] else self.xpos[n]
-			feats=None if not self.feats[n] else "|".join(self.feats[n])
-			head=None if not self.head[n] else self.head[n]
-			deprel=None if not self.deprel[n] else self.deprel[n]
-			deps=None if not self.deps[n] else self.deps[n]
+			form=self.lemma[n]
+			lemma=self.lemma[n]
+			upos=self.upos[n]
+			xpos=self.xpos[n]
+			feats="|".join(self.feats[n])
+			head=self.head[n]
+			deprel=self.deprel[n]
+			deps=self.deps[n]
 			misc=self.misc
+
 			s += f"{str(i)}\t{form}\t{lemma}\t{upos}\t{xpos}\t{feats}\t{head}\t{deprel}\t{deps}\t{misc}"
 			s = s.replace('None', '_')
 
@@ -91,3 +94,5 @@ class Token(object):
 	def ud_xpos():
 		pass
 
+	def ud_feats():
+		pass
