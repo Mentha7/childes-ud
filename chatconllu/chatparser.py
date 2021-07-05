@@ -6,12 +6,11 @@ import re
 import fileinput
 from pathlib import Path
 
-from tqdm import tqdm
-
 from collections import OrderedDict
 
 from logger import logger
 from helpers.sentence import Sentence
+from helpers.token import Token
 
 BROWN = "/home/jingwen/Desktop/thesis/Brown/"
 # BROWN = "/home/jingwen/Desktop/thesis/"
@@ -193,7 +192,176 @@ def check_token(surface):
 	return surface, clean
 
 def extract_token_info(clean: list, gra: list, mor: list):
-	pass
+
+	tokens = []
+
+	if len(gra) == len(mor):
+		assert len(clean) == len(mor)
+
+		print('*: ', ' '.join(clean), '\n')
+		print("gra: ", gra, '\n')
+		print("mor: ", mor, '\n')
+
+		for i, t in enumerate(clean):
+
+			index = -1
+			form = ''
+			lemma = None
+			upos = None
+			xpos = None
+			feats = None
+			head = None
+			deprel = None
+			deps = None
+			misc = None
+			multi = -1
+
+			index = gra[i].split('|')[0]
+			form = t
+			lemma = mor[i].split('|')[-1].split('&')[0]
+			# use a mapping for upos and xpos, naively store the values for now
+			upos = mor[i].split('|')[0].split(':')[0]
+			xpos = mor[i].split('|')[0]
+
+			feats = mor[i].split('|')[-1].split('&')[1:]
+			head = gra[i].split('|')[1]
+			deprel = gra[i].split('|')[-1].lower()
+			deps = f"{head}:{deprel}"
+
+
+			print(f"index:\t{index}")
+			print(f"token:\t{form}")
+			print(f"lemma:\t{lemma}")
+			print(f"upos:\t{upos}")
+			print(f"xpos:\t{xpos}")
+			print(f"feats:\t{feats}")
+			print(f"head:\t{head}")
+			print(f"deprel:\t{deprel}")
+			print(f"deps:\t{deps}")
+			print(f"misc:\t{misc}")
+			print()
+
+			tok = Token(index=index,
+						form=form,
+						lemma=lemma,
+						upos=upos,
+						xpos=xpos,
+						feats=feats,
+						head=head,
+						deprel=deprel,
+						deps=deps,
+						misc=misc,
+						multi=multi)
+			tokens.append(tok)
+
+	else:  # dealing with multi-word tokens
+		assert len(clean) == len(mor)
+		# ---- finds '~' in mor tier, take care of token indices ----
+		idx = [i for i, g in enumerate(mor) if '~' in g]
+		i =  0
+		gra_index = 0
+		while i < len(clean):
+			index = None
+			form = ''
+			lemma = None
+			upos = None
+			xpos = None
+			feats = None
+			head = None
+			deprel = None
+			deps = None
+			misc = None
+			multi = None
+			if i in idx:  # multi-word
+				j = idx.index(i)
+				index = int(gra[i+j].split('|')[0])
+				num = len(mor[i].split('~'))-1
+				print(mor[i].split('~'))
+				end_index = index + num
+				print(clean[i], i, j, num, index, end_index)
+
+				# ---- create multi-word token ----
+				index = index
+				form = clean[i]
+				lemma = [l.split('|')[-1].split('&')[0] for l in mor[i].split('~')]
+				upos = [l.split('|')[0].split(':')[0] for l in mor[i].split('~')]
+				xpos = [l.split('|')[0] for l in mor[i].split('~')]
+
+				feats = [l.split('|')[-1].split('&')[1:] for l in mor[i].split('~')]
+				head = [gra[x].split('|')[1] for x in range(index, end_index+1)]
+				deprel = [gra[x].split('|')[-1].lower() for x in range(index, end_index+1)]
+				deps = f"{head}:{deprel}"
+				multi = end_index
+
+				# ---- increment indices ----
+				i += 1
+				gra_index = index
+				gra_index += 1
+
+				print(f"index:\t{index}")
+				print(f"token:\t{form}")
+				print(f"lemma:\t{lemma}")
+				print(f"upos:\t{upos}")
+				print(f"xpos:\t{xpos}")
+				print(f"feats:\t{feats}")
+				print(f"head:\t{head}")
+				print(f"deprel:\t{deprel}")
+				print(f"deps:\t{deps}")
+				print(f"misc:\t{misc}")
+				print(f"multi:\t{multi}")
+				print()
+
+			else:
+				# ---- create token ----
+				index = int(gra[gra_index].split('|')[0])
+				form = clean[i]
+				lemma = mor[i].split('|')[-1].split('&')[0]
+				upos = mor[i].split('|')[0].split(':')[0]
+				xpos = mor[i].split('|')[0]
+
+				feats = mor[i].split('|')[-1].split('&')[1:]
+				head = gra[gra_index].split('|')[1]
+				deprel = gra[gra_index].split('|')[-1].lower()
+				deps = f"{head}:{deprel}"
+
+				# ---- increment indices ----
+				i += 1
+				gra_index += 1
+
+				print(f"index:\t{index}")
+				print(f"token:\t{form}")
+				print(f"lemma:\t{lemma}")
+				print(f"upos:\t{upos}")
+				print(f"xpos:\t{xpos}")
+				print(f"feats:\t{feats}")
+				print(f"head:\t{head}")
+				print(f"deprel:\t{deprel}")
+				print(f"deps:\t{deps}")
+				print(f"misc:\t{misc}")
+				print(f"multi:\t{multi}")
+				print()
+
+
+			tok = Token(index=index,
+						form=form,
+						lemma=lemma,
+						upos=upos,
+						xpos=xpos,
+						feats=feats,
+						head=head,
+						deprel=deprel,
+						deps=deps,
+						misc=misc,
+						multi=multi)
+			tokens.append(tok)
+
+		# ---- test prints ----
+		print(f"* utterance: {' '.join(clean)}\n")
+		# print(f"clean:{len(clean)}, mor:{len(mor)}, gra:{len(gra)}")
+		print(mor, '\n')
+		print(gra, '\n')
+
+	return tokens
 
 
 def create_sentence(idx, lines):
@@ -238,13 +406,11 @@ def create_sentence(idx, lines):
 	if ('mor' or 'xmor') and 'gra' in tiers_dict:
 		mor = tiers_dict.get('mor') if 'mor' in tiers_dict else tiers_dict.get('xmor')
 		gra = tiers_dict.get('gra')
-		# print(len(clean), len(mor), len(gra))
-		# if len(gra)!=len(mor):
-	 #  		print(f'======== sent_id:{idx+1} ========')
-	 #  		print(f"normalised utterance: {' '.join(clean)}")
-	 #  		print(f"clean:{len(clean)}, mor:{len(mor)}, gra:{len(gra)}")
-	 #  		print(mor)
-	 #  		print(gra)
+	toks = extract_token_info(clean, gra, mor)
+	for tok in toks:
+		# print(tok)
+		print(tok.conllu_str())
+
 
 
 	return Sentence(speaker=speaker,
@@ -288,16 +454,17 @@ if __name__ == "__main__":
 
 
 	# ---- test single utterance ----
-	# n = -1
-	# sent = create_sentence(n, utterances[n])
-	# print(sent.get_sent_id(), sent.text())
+	n = -1
+	sent = create_sentence(n, utterances[n])
+	print(sent.get_sent_id(), sent.text())
+
 
 
 	# ---- test file ----
-	for idx, utterance in enumerate(tqdm(utterances)):
-		sent = create_sentence(idx, utterance)
-		if sent.text() == ".": pass
-		else: print(sent.get_sent_id(), sent.text())
+	# for idx, utterance in enumerate(utterances):
+	# 	sent = create_sentence(idx, utterance)
+		# if sent.text() == ".": pass
+		# else: print(sent.get_sent_id(), sent.text())
 
 
 	# ---- test regex ----
