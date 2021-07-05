@@ -204,7 +204,7 @@ def extract_token_info(clean: list, gra: list, mor: list):
 
 		for i, t in enumerate(clean):
 
-			index = -1
+			index = None
 			form = ''
 			lemma = None
 			upos = None
@@ -214,7 +214,7 @@ def extract_token_info(clean: list, gra: list, mor: list):
 			deprel = None
 			deps = None
 			misc = None
-			multi = -1
+			multi = None
 
 			index = gra[i].split('|')[0]
 			form = t
