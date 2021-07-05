@@ -86,16 +86,15 @@ def normalise_utterance(line: str):
 	# ---- define patterns to omit ----
 	pause = r"^\(\.+\)"  # (.), (..), (...)
 	timed_pause = r"^\((\d+?:)?(\d+?)?\.(\d+?)?\)"  # ((min:)(sec).(decimals))
-	retracing = r"^<.*?> \[/[/?]\]"
-	repetitions = r"^\[x \d+\]"
-	best_guess = r"^\[\?\]"
-	error = r"^\[\^ e.*?]"
-	error_star = r"^\[\* .*?\]"
-	comment_on_main = r"^\[% .*?\]"
-	complex_local_event = r"^\[\^ .*?\]"
-	postcodes = r"^\[\+ .*?\]"
-	trailing_off = r"\+..."
-	ns = r"^\[\^ ns]"  # ?
+	retracing = r"^<.*?> \[/[/?]\]"  # <xx xx> [//] or [/?]
+	repetitions = r"^\[x \d+\]"  # [x (number)]
+	best_guess = r"^\[\?\]"  # [?]
+	error = r"^\[\^ e.*?]"  # [^ exxxx]
+	error_star = r"^\[\* .*?\]"  # [* xxx]
+	comment_on_main = r"^\[% .*?\]"  # [% xxx]
+	complex_local_event = r"^\[\^ .*?\]"  # [^ xxx]
+	postcodes = r"^\[\+ .*?\]"  # [+ xxx]
+	trailing_off = r"\+..."  # +...
 
 
 
@@ -109,7 +108,6 @@ def normalise_utterance(line: str):
 				 comment_on_main,
 				 complex_local_event,
 				 postcodes,
-				 ns,
 				 ]
 	# ---- compile regex patterns ----
 	to_omit = re.compile('|'.join(o for o in omission))  # <whatever> [/?] or <whatever> [//]
@@ -130,7 +128,7 @@ def normalise_utterance(line: str):
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
 			prev_tokens = []
-		elif re.match(to_expand, line[i:]):
+		elif re.match(to_expand, line[i:]):  # expand contents in <>
 			s = re.match(to_expand, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
@@ -147,7 +145,7 @@ def normalise_utterance(line: str):
 			s = re.match(trailing_off, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[1:]]  # remove '+'
-		elif re.match(punct_re, line[i:]):
+		elif re.match(punct_re, line[i:]):  # punctuations
 			tokens.extend(prev_tokens)
 			prev_tokens = [line[i]]
 			i += 1
