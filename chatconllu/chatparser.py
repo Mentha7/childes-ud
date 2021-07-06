@@ -8,9 +8,9 @@ from pathlib import Path
 
 from collections import OrderedDict
 
-from logger import logger
-from helpers.sentence import Sentence
-from helpers.token import Token
+from chatconllu.logger import logger
+from chatconllu.helpers.sentence import Sentence
+from chatconllu.helpers.token import Token
 
 BROWN = "/home/jingwen/Desktop/thesis/Brown/"
 # BROWN = "/home/jingwen/Desktop/thesis/"
@@ -22,6 +22,8 @@ TMP_DIR = 'tmp'
 utterance = re.compile('^\\*')
 
 def list_files(dir):
+	"""Recursively lists all files ending with .cha in the given directory.
+	"""
 	return (x for x in Path(dir).glob("**/*.cha") if not x.name.startswith("._"))
 
 
@@ -37,11 +39,12 @@ def read_file(filename):
 
 def parse_chat(filename):
 	""" Read file line by line, if line:
-		- starts with @: metadata
-		- starts with *: utterance (1)
-		- starts with %: tiers (n)
-		note:
+		- starts with @: is header
+		- starts with *: is main line (utterance)
+		- starts with %: one of n dependent tiers
+		Note:
 		- field and value are separated by tabs
+		- lines starting with tab character is a continuation of the last line
 	"""
 
 	meta = {}
@@ -55,14 +58,14 @@ def parse_chat(filename):
 		for i, l in enumerate(f.readlines()):
 			l = l.strip('\n')
 			if l.startswith('@'):
-				meta[i] = l
+				meta[i] = l  # needs to remember line number for positioning back the headers
 			elif l:
 				while l.startswith('\t'):  # tab marks continuation of last line
 					lines[-1] += l.replace('\t', ' ')  # replace initial tab with a space
 					break
 				else:
 					lines.append(l)
-			elif lines:
+			elif lines:  # if empty line, store the utterance, clear the list
 				utterances.append(lines)
 				lines = []
 
@@ -87,9 +90,10 @@ def normalise_utterance(line: str):
 	error = r"^\[\^ e.*?]"  # [^ exxxx]
 	error_star = r"^\[\* .*?\]"  # [* xxx]
 	comment_on_main = r"^\[% .*?\]"  # [% xxx]
-	complex_local_event = r"^\[\^ .*?\]"  # [^ xxx]
+	complex_local_event = r"^\[\^.*?\]"  # [^ xxx] [^c]
 	postcodes = r"^\[\+ .*?\]"  # [+ xxx]
 	trailing_off = r"\+..."  # +...
+	# sign_without_speech = "0"
 
 	omission = [pause,
 				 timed_pause,
@@ -111,6 +115,12 @@ def normalise_utterance(line: str):
 	tokens = []
 	prev_tokens = []
 	positions = {}
+
+	if line is None:
+		return None, None
+
+	if line == "0 .":
+		return tokens, positions
 
 	i = 0
 	while i < len(line):
@@ -190,7 +200,10 @@ def extract_token_info(clean: list, gra: list, mor: list):
 
 	tokens = []
 
-	if len(gra) == len(mor):
+	if not gra and not mor:
+		print("Hey!!!!!!!!!!!!!!!!!")
+
+	elif len(gra) == len(mor):
 		assert len(clean) == len(mor)
 
 		# # ---- test print ----
@@ -214,10 +227,10 @@ def extract_token_info(clean: list, gra: list, mor: list):
 
 			index = gra[i].split('|')[0]
 			form = t.split('-')[0]
-			lemma = mor[i].split('|')[-1].split('&')[0].split('-')[0]
+			lemma = mor[i].split('|')[-1].split('&')[0].split('-')[0].replace('+', '')
 			# use a mapping for upos and xpos, naively store the values for now
-			upos = mor[i].split('|')[0].split(':')[0]
-			xpos = mor[i].split('|')[0]
+			upos = mor[i].split('|')[0].split(':')[0].replace('+', '')
+			xpos = mor[i].split('|')[0].replace('+', '')
 
 			feats = mor[i].split('|')[-1].split('&')[1:]
 			head = gra[i].split('|')[1]
@@ -272,16 +285,16 @@ def extract_token_info(clean: list, gra: list, mor: list):
 				j = idx.index(i)
 				index = int(gra[i+j].split('|')[0])
 				num = len(mor[i].split('~'))-1
-				print(mor[i].split('~'))
+				# print(mor[i].split('~'))
 				end_index = index + num
-				print(clean[i], i, j, num, index, end_index)
+				# print(clean[i], i, j, num, index, end_index)
 
 				# ---- create multi-word token ----
 				index = index
-				form = clean[i].split('-')[0]
-				lemma = [l.split('|')[-1].split('&')[0].split('-')[0] for l in mor[i].split('~')]
-				upos = [l.split('|')[0].split(':')[0] for l in mor[i].split('~')]
-				xpos = [l.split('|')[0] for l in mor[i].split('~')]
+				form = clean[i].split('-')[0].replace('+', '')
+				lemma = [l.split('|')[-1].split('&')[0].split('-')[0].replace('+', '') for l in mor[i].split('~')]
+				upos = [l.split('|')[0].split(':')[0].replace('+', '') for l in mor[i].split('~')]
+				xpos = [l.split('|')[0].replace('+', '') for l in mor[i].split('~')]
 
 				feats = [l.split('|')[-1].split('&')[1:] for l in mor[i].split('~')]
 				head = [gra[x].split('|')[1] for x in range(index, end_index+1)]
@@ -310,9 +323,9 @@ def extract_token_info(clean: list, gra: list, mor: list):
 			else:
 				# ---- create token ----
 				index = int(gra[gra_index].split('|')[0])
-				form = clean[i].split('-')[0]
-				lemma = mor[i].split('|')[-1].split('&')[0].split('-')[0]
-				upos = mor[i].split('|')[0].split(':')[0]
+				form = clean[i].split('-')[0].replace('+', '')
+				lemma = mor[i].split('|')[-1].split('&')[0].split('-')[0].replace('+', '')
+				upos = mor[i].split('|')[0].split(':')[0].replace('+', '')
 				xpos = mor[i].split('|')[0]
 
 				feats = mor[i].split('|')[-1].split('&')[1:]
@@ -402,9 +415,11 @@ def create_sentence(idx, lines):
 	if ('mor' or 'xmor') and 'gra' in tiers_dict:
 		mor = tiers_dict.get('mor') if 'mor' in tiers_dict else tiers_dict.get('xmor')
 		gra = tiers_dict.get('gra')
-		toks = extract_token_info(clean, gra, mor)
-		for tok in toks:
-			print(tok.conllu_str())
+	else:
+		print(lines[0][6:])
+	toks = extract_token_info(clean, gra, mor)
+	for tok in toks:
+		print(tok.conllu_str())
 
 
 
@@ -457,7 +472,7 @@ if __name__ == "__main__":
 
 	# ---- test file ----
 	for idx, utterance in enumerate(utterances):
-		print("---- sent ----")
+		print(f"---- sent {idx} ----")
 		sent = create_sentence(idx, utterance)
 		# if sent.text() == ".": pass
 		# else: print(sent.get_sent_id(), sent.text())
