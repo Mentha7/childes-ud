@@ -1,6 +1,6 @@
 # part-of-speech tags
 
-The part-of-speech codes used by the MOR program is different from UPOS of Universal Dependencies. 
+The part-of-speech codes used by the MOR program are different from UPOS of Universal Dependencies. 
 
 ## comparison
 
