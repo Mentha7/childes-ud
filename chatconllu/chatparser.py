@@ -16,8 +16,12 @@ BROWN = "/home/jingwen/Desktop/thesis/Brown/"
 # BROWN = "/home/jingwen/Desktop/thesis/"
 TEST = "tests/"
 FILE = "test.cha"
-# FILE = "test_angle.cha"
-# FILE = "019JC.cha"
+FILE = "test_angle.cha"
+FILE = "29307exs.cha"
+FILE = "07.cha"
+FILE = "020319.cha"
+# FILE = "1db.cha"
+
 TMP_DIR = 'tmp'
 
 utterance = re.compile('^\\*')
@@ -85,7 +89,7 @@ def normalise_utterance(line: str):
 	# ---- define patterns to omit ----
 	pause = r"^\(\.+\)"  # (.), (..), (...)
 	timed_pause = r"^\((\d+?:)?(\d+?)?\.(\d+?)?\)"  # ((min:)(sec).(decimals))
-	retracing = r"^<.*?> \[/[/?]\]"  # <xx xx> [//] or [/?]
+	retracing = r"^<.*?> \[/(?:[/?])?\]"  # <xx xx> [//] or [/?]
 	repetitions = r"^\[x \d+\]"  # [x (number)]
 	best_guess = r"^\[\?\]"  # [?]
 	error = r"^\[\^ e.*?]"  # [^ exxxx]
@@ -108,10 +112,22 @@ def normalise_utterance(line: str):
 				 postcodes,
 				 ]
 
+	best_guess_n = r"^<.*?> \[\?\]"  # best guess
+
+	expansion = [best_guess_n,
+				]
+
 	# ---- compile regex patterns ----
 	to_omit = re.compile('|'.join(o for o in omission))  # <whatever> [/?] or <whatever> [//]
-	to_expand = re.compile(r"^<.*?> \[\?\]")
+	to_expand = re.compile('|'.join(e for e in expansion))
+
 	to_replace = re.compile(r"^\[::? ")
+
+	retracing_no_angle_brackets = re.compile(r"^\[/(?:[/?])?\]")  # [//] or [/?] or [/]
+
+	overlap = re.compile(r"^\[?[<>]\]")
+
+	special_terminators = re.compile(r'^\+(?:/(?:/\.|[.?])|"/\.)')
 
 	tokens = []
 	prev_tokens = []
@@ -132,11 +148,24 @@ def normalise_utterance(line: str):
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
 			prev_tokens = []
+			print(s.group(0))
+		elif re.match(retracing_no_angle_brackets, line[i:]):
+			s = re.match(retracing_no_angle_brackets, line[i:])
+			i += len(s.group(0))
+			prev_tokens = []
+			print(s.group(0))
 		elif re.match(to_expand, line[i:]):  # expand contents in <>
 			s = re.match(to_expand, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
+			print(s.group(0))
 			prev_tokens = s.group(0)[1:-5].strip().split()  # remove '<' and '> [?]'
+		elif re.match(overlap, line[i:]):
+			s = re.match(overlap, line[i:])
+			tokens.extend(prev_tokens)
+			i += len(s.group(0))
+			print(s.group(0))
+			prev_tokens = s.group(0)[1:-5].strip().split()
 		elif re.match(to_replace, line[i:]):
 			s = re.match(to_replace, line[i:])
 			i += len(s.group(0))
@@ -144,11 +173,19 @@ def normalise_utterance(line: str):
 			tokens.extend(m.group(1).strip().split())
 			i += len(m.group(0))
 			prev_tokens = []
+			print(s.group(0))
 		elif re.match(trailing_off, line[i:]):  # above punctuation block
 			tokens.extend(prev_tokens)
 			s = re.match(trailing_off, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[1:]]  # remove '+'
+			print(s.group(0))
+		elif re.match(special_terminators, line[i:]):
+			tokens.extend(prev_tokens)
+			s = re.match(special_terminators, line[i:])
+			i += len(s.group(0))
+			prev_tokens = [s.group(0).strip()[-1]]
+			print(s.group(0))
 		elif re.match(punct_re, line[i:]):  # punctuations
 			tokens.extend(prev_tokens)
 			prev_tokens = [line[i]]
@@ -156,8 +193,8 @@ def normalise_utterance(line: str):
 		else:  # normal tokens
 			tokens.extend(prev_tokens)
 			m = re.match(until_eow, line[i:])
-			prev_tokens = [m.group(0)]
-			i += len(m.group(0))
+			prev_tokens = [m.group(0)] if m else []
+			i += len(m.group(0)) if m else 1
 
 	tokens.extend(prev_tokens)
 
@@ -322,19 +359,19 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 
 			j += 1
 
-			# ---- test print ----
-			print(f"index:\t{index}")
-			print(f"token:\t{form}")
-			print(f"lemma:\t{lemma}")
-			print(f"upos:\t{upos}")
-			print(f"xpos:\t{xpos}")
-			print(f"feats:\t{feats}")
-			print(f"head:\t{head}")
-			print(f"deprel:\t{deprel}")
-			print(f"deps:\t{deps}")
-			print(f"misc:\t{misc}")
-			print(f"multi:\t{multi}")
-			print()
+			# # ---- test print ----
+			# print(f"index:\t{index}")
+			# print(f"token:\t{form}")
+			# print(f"lemma:\t{lemma}")
+			# print(f"upos:\t{upos}")
+			# print(f"xpos:\t{xpos}")
+			# print(f"feats:\t{feats}")
+			# print(f"head:\t{head}")
+			# print(f"deprel:\t{deprel}")
+			# print(f"deps:\t{deps}")
+			# print(f"misc:\t{misc}")
+			# print(f"multi:\t{multi}")
+			# print()
 
 		elif gra:
 			assert len(gra) == len(clean)
@@ -352,7 +389,7 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 		if re.match(punctuations, form):
 			upos = "PUNCT"
 
-		print(f"new: {index} {form} {surface}")
+		# print(f"new: {index} {form} {surface}")
 
 		tok = Token(index=index,
 					form=form,
@@ -407,7 +444,7 @@ def create_sentence(idx, lines):
 		# if tier_name != 'mor' and tier_name != 'xmor' and tier_name != 'gra':
 		#   comments.append(t)
 	# print(comments)
-	print(tiers_dict.keys())
+	# print(tiers_dict.keys())
 	# print(tiers_dict.items())
 
 	# ---- gra, mor ----
@@ -445,6 +482,8 @@ def to_conllu(filename, meta, utterances):
 			sent, _ = create_sentence(idx, utterance)
 			if not sent.toks:
 				continue
+			if sent.text() == '.':
+				continue
 			print(f"writing sent {sent.get_sent_id()} to file...")
 			f.write(f"# sent_id = {sent.get_sent_id()}\n")
 			f.write(f"# text = {sent.text()}\n")
@@ -456,14 +495,14 @@ def to_conllu(filename, meta, utterances):
 
 
 if __name__ == "__main__":
-	# logger.info(f"listing all .cha files in {BROWN}...")
-	# files = list_files(BROWN)
-	# try:
-	#   while True:
-	#       i = next(files)
-	#       print(i)
-	# except StopIteration:
-	#   pass
+	logger.info(f"listing all .cha files in {TEST}...")
+	files = list_files(TEST)
+	try:
+	  while True:
+	      i = next(files)
+	      print(i)
+	except StopIteration:
+	  pass
 
 	# ---- read file ----
 	logger.info(f"reading {FILE}...")
