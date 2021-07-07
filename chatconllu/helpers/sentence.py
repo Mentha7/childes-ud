@@ -9,6 +9,7 @@ class Sentence(object):
                  'clean',
                  'comments',
                  'sent_id',
+                 'toks',
                 ]
 
     def __init__(self,
@@ -20,6 +21,7 @@ class Sentence(object):
                  clean=None,
                  comments=None,
                  sent_id=None,
+                 toks=None
                  ):
         self.speaker=speaker
         self.tiers=tiers
@@ -29,6 +31,7 @@ class Sentence(object):
         self.clean=clean
         self.comments=comments
         self.sent_id=sent_id
+        self.toks=toks
 
     def __str__(self):
 
@@ -41,3 +44,8 @@ class Sentence(object):
     def get_sent_id(self):
         return self.sent_id
 
+    def conllu_str(self):
+        s = ""
+        for tok in self.toks:
+            s += tok.conllu_str()
+        return s

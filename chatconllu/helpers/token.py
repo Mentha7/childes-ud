@@ -11,7 +11,8 @@ class Token(object):
                  'deprel',
                  'deps',
                  'misc',
-                 'multi'
+                 'multi',
+                 'surface',
                  ]
 
     def __init__(self,
@@ -26,9 +27,10 @@ class Token(object):
                  deps=None,
                  misc=None,
                  multi=0,
+                 surface=None,
                  ):
 
-        self.index = int(index)
+        self.index = index
         self.form = form
         self.lemma = None if not lemma else lemma
         self.upos = None if not upos else upos
@@ -39,10 +41,17 @@ class Token(object):
         self.deps = None if not deps else deps
         self.misc = None if not misc else misc
         self.multi = multi
+        self.surface = surface
 
     def __str__(self):
         fields = [str(getattr(self, x)) for x in self.__slots__[:]]
         return ("\n".join(fields))
+
+    def text(self):
+        return self.form
+
+    def surface_form(self):
+        return self.surface
 
     def conllu_str(self):
         """Writes token as one line in conllu file. If Token is multi, write span.
@@ -52,8 +61,8 @@ class Token(object):
         idx = str(self.index)
         if self.multi:
             return self._multi_str()
-        feats = None if not self.feats else "|".join(self.feats)
-        s += f"{idx}\t{self.form}\t{self.lemma}\t{self.upos}\t{self.xpos}\t{feats}\t{self.head}\t{self.deprel}\t{self.deps}\t{self.misc}"
+        feats = 'None' if not self.feats else "|".join(self.feats)
+        s += f"{idx}\t{self.form}\t{self.lemma}\t{self.upos}\t{self.xpos}\t{feats}\t{self.head}\t{self.deprel}\t{self.deps}\t{self.misc}\n"
         s = s.replace('None', '_')
         return s
 
@@ -78,7 +87,7 @@ class Token(object):
             lemma=self.lemma[n]
             upos=self.upos[n]
             xpos=self.xpos[n]
-            feats="|".join(self.feats[n])
+            feats="|".join(self.feats[n]) if self.feats[n] else 'None'
             head=self.head[n]
             deprel=self.deprel[n]
             deps=self.deps[n]
@@ -86,7 +95,7 @@ class Token(object):
 
             s += f"{str(i)}\t{form}\t{lemma}\t{upos}\t{xpos}\t{feats}\t{head}\t{deprel}\t{deps}\t{misc}"
             s = s.replace('None', '_')
-
+        s+="\n"
         return s
 
     def ud_upos():
