@@ -19,7 +19,7 @@ FILE = "test.cha"
 FILE = "test_angle.cha"
 FILE = "29307exs.cha"
 FILE = "07.cha"
-FILE = "020319.cha"
+# FILE = "020319.cha"
 # FILE = "1db.cha"
 
 TMP_DIR = 'tmp'
@@ -234,6 +234,57 @@ def check_token(surface):
 	return surface, clean
 
 
+def to_upos(mor_code):
+	# define a mapping between UPOS tags and MOR codes.
+	mor2upos = {
+		"adj":"ADJ",
+		"adj:pred":"ADJ",
+		"post":"ADP",
+		"prep":"ADP",
+		"adv":"ADV",
+		"adv:tem":"ADV",
+		"aux":"AUX",
+		"coord":"CCONJ",
+		"qn":"DET",
+		"det:poss":"DET",
+		"det:art":"DET",
+		"det:dem":"DET",
+		"det:int":"DET",
+		"det:num":"DET",
+		"co":"INTJ",
+		"n":"NOUN",
+		"n:let":"NOUN",
+		"n:pt":"NOUN",
+		"on":"NOUN",
+		"part":"PART",
+		"pro:dem":"PRON",
+		"pro:exist":"PRON",
+		"pro:indef":"PRON",
+		"pro:int":"PRON",
+		"pro:obj":"PRON",
+		"pro:per":"PRON",
+		"pro:poss":"PRON",
+		"pro:refl":"PRON",
+		"pro:rel":"PRON",
+		"pro:sub":"PRON",
+		"pro:per":"PRON",
+		"pro":"PRON",
+		"n:prop":"PROPN",
+		"conj":"SCONJ",
+		"comp":"SCONJ",
+		"num":"NUM",
+		"v":"VERB",
+		"inf":"VERB",
+		"cop":"VERB",
+		"mod":"VERB",
+		"fil":"INTJ",  # ?
+		"neg":"ADV"  # ?
+	}
+	upos = mor2upos[mor_code] if mor_code in mor2upos else mor_code
+	return upos
+
+
+
 def extract_token_info(checked_tokens: list, gra: list, mor: list):
 
 	punctuations = re.compile("([,.;?!:”])")
@@ -290,7 +341,9 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 
 					# ---- create multi-word token ----
 					lemma = [l.split('|')[-1].split('&')[0].split('-')[0].replace('+', '') for l in mor[j].split('~')]
-					upos = [l.split('|')[0].split(':')[0].replace('+', '') for l in mor[j].split('~')]
+					upos = [to_upos(l.split('|')[0].replace('+', '')) for l in mor[j].split('~')]
+					upos = [to_upos(u.split(':')[0]) for u in upos if ':' in u]
+
 					xpos = [l.split('|')[0].replace('+', '') for l in mor[j].split('~')]
 
 					feats = [l.split('|')[-1].split('&')[1:] if l else 'None' for l in mor[j].split('~')]
@@ -321,7 +374,8 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 					# ---- create token ----
 					index = int(gra[gra_index].split('|')[0])
 					lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0].replace('+', '')
-					upos = mor[j].split('|')[0].split(':')[0].replace('+', '')
+					upos = to_upos(mor[j].split('|')[0].replace('+', ''))
+					upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
 					xpos = mor[j].split('|')[0]
 
 					feats = mor[j].split('|')[-1].split('&')[1:]
@@ -336,7 +390,8 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 				index = gra[j].split('|')[0]
 				lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0].replace('+', '')
 				# use a mapping for upos and xpos, naively store the values for now
-				upos = mor[j].split('|')[0].split(':')[0].replace('+', '')
+				upos = to_upos(mor[j].split('|')[0].replace('+', ''))
+				upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
 				xpos = mor[j].split('|')[0].replace('+', '')
 
 				feats = mor[j].split('|')[-1].split('&')[1:]
@@ -352,7 +407,8 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 			index = j + 1
 			lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0].replace('+', '')
 			# use a mapping for upos and xpos, naively store the values for now
-			upos = mor[j].split('|')[0].split(':')[0].replace('+', '')
+			upos = to_upos(mor[j].split('|')[0].replace('+', ''))
+			upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
 			xpos = mor[j].split('|')[0].replace('+', '')
 
 			feats = mor[j].split('|')[-1].split('&')[1:]
