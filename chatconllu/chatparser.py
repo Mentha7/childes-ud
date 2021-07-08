@@ -17,9 +17,9 @@ BROWN = "/home/jingwen/Desktop/thesis/Brown/"
 TEST = "tests/"
 FILE = "test.cha"
 FILE = "test_angle.cha"
-FILE = "29307exs.cha"
-FILE = "07.cha"
-# FILE = "020319.cha"
+# FILE = "29307exs.cha"
+# FILE = "07.cha"
+FILE = "020319.cha"
 # FILE = "1db.cha"
 
 TMP_DIR = 'tmp'
@@ -274,7 +274,7 @@ def to_upos(mor_code):
 		"comp":"SCONJ",
 		"num":"NUM",
 		"v":"VERB",
-		"inf":"VERB",
+		"inf":"PART",
 		"cop":"VERB",
 		"mod":"VERB",
 		"fil":"INTJ",  # ?
@@ -342,7 +342,7 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 					# ---- create multi-word token ----
 					lemma = [l.split('|')[-1].split('&')[0].split('-')[0].replace('+', '') for l in mor[j].split('~')]
 					upos = [to_upos(l.split('|')[0].replace('+', '')) for l in mor[j].split('~')]
-					upos = [to_upos(u.split(':')[0]) for u in upos if ':' in u]
+					upos = [to_upos(u.split(':')[0]) for u in upos]
 
 					xpos = [l.split('|')[0].replace('+', '') for l in mor[j].split('~')]
 

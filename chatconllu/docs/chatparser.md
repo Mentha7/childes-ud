@@ -18,36 +18,46 @@ create_sentence(idx, lines)
 ```
 
 
-## Progress
+## :melon: Progress
 
 * Info in `%mor` and `%gra` needs to be associated to the correct tokens.
 * Token structure, ideally each token writes to a line in conllu.
+* Write a **well-formed** .conllu from .cha, test on multiple corpora:
+	- no %gra and no %mor
+	- only %gra
+	- only %mor
+	- both %gra and %mor
+	- other dependent tiers where needed
+		+ can be written as sentence comments, e.g. `%com`, `%exp`
 
-## Next Up
+* Where to put headers in .conllu?
+	- headers are currently put in the beginning of the conllu file as comments.
+
+## :melon: Next Up
 
 
 ### Things to think about:
 
 * Write a **well-formed** .conllu from .cha, test on multiple corpora:
-    - no %gra and no %mor
-    - only %gra
-    - only %mor
-    - both %gra and %mor
-    - other dependent tiers where needed
-        + can be written as sentence comments, e.g. `%com`, `%exp`
-
-* Where to put headers in .conllu?
+	- remaining issues:
+		+ multi-word tokens' `form` is not there, currently using `lemma` instead
+		+ double-check the MOR-UPOS mapping
+		+ not all MOR codes are turned into UPOS tags
+		+ XPOS mapping to be added
+		+ deprels mapping to be added
+		+ can't get the right regex for
+			+ `*CHI:	< 结果 开 冰箱 > [<] < 就 > [//] 他 就 面包 拿 (.) 挤 好多 喔 [^c] .` -- **Chang2/BookReading/07.cha**
 
 * How to store info in square brackets, e.g. `[+ IMIT]` so that they can be put back to their original position:
-    - book keeping the process of utterance and token normalisation
-        + utterance: sentence-level (need to remember position and info)
-            * stores in previous Token.misc
-            * store info in `MISC` field, use `|` as separator
-        + token: transform clean form back to surface form
-            * store surface form in `MISC` field
+	- book keeping the process of utterance and token normalisation
+		+ utterance: sentence-level (need to remember position and info)
+			* stores in previous Token.misc
+			* store info in `MISC` field, use `|` as separator
+		+ token: transform clean form back to surface form
+			* store surface form in `MISC` field
 
 
-## Problem
+## :melon: Problems
 
 ### Grouping utterances with their dependent tiers
 

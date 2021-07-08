@@ -1,19 +1,19 @@
 # roadmap
 
-## Goal
+## :strawberry: Goal
 Write scripts/a commandline tool for **as lossless as possible** conversion between .cha and .conllu files. 
 
-## Formats of Interest
+## :strawberry: Formats of Interest
 
 ### CHAT
 #### Annotation Scheme
 
 * `@` marks metadata 
-    * `@Languages`, `@Participants`, `@ID`, `@Comment`, `@Begin`, `@End`...
+	* `@Languages`, `@Participants`, `@ID`, `@Comment`, `@Begin`, `@End`...
 * `*` marks utterances
-    * `*CHI:  they are fighting .`
+	* `*CHI:  they are fighting .`
 * `%` marks tiers
-    * `%mor`, `%gra`...
+	* `%mor`, `%gra`...
 * `:` is usually followed by a tab instead of a space character
 
 #### Things to notice
@@ -24,16 +24,16 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 #### Annotation Scheme
 * `#` marks comments, e.g. `#sent_id`
 * 10-column tab-separated format
-    * `ID`: token index, starting from 1; for multi-word tokens could be a range; could be a decimal number (>0) for empty nodes
-    * `FORM`: token
-    * `LEMMA`:lemma/stem of token
-    * `UPOS`: universal POS
-    * `XPOS`: language-specific POS, `_` if not specified
-    * `FEATS`: list of morphological features, separated by `|`
-    * `HEAD`: head of the current token, `0` marks the root
-    * `DEPREL`: universal dependency relation
-    * `DEPS`: head-deprel pairs.
-    * `MISC`: miscellaneous, other annotations pertaining to the current token
+	* `ID`: token index, starting from 1; for multi-word tokens could be a range; could be a decimal number (>0) for empty nodes
+	* `FORM`: token
+	* `LEMMA`:lemma/stem of token
+	* `UPOS`: universal POS
+	* `XPOS`: language-specific POS, `_` if not specified
+	* `FEATS`: list of morphological features, separated by `|`
+	* `HEAD`: head of the current token, `0` marks the root
+	* `DEPREL`: universal dependency relation
+	* `DEPS`: head-deprel pairs.
+	* `MISC`: miscellaneous, other annotations pertaining to the current token
 * 1 empty line in-between sentences
 * 1 empty line at EoF
 * no trailing whitespace at EoL
@@ -41,7 +41,7 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 * fields other than FORM, LEMMA, and MISC must not contain space characters
 * no format-level distinction is made for the rare cases where the FORM or LEMMA is the literal underscore `_`
 
-## General Approach
+## :strawberry: General Approach
 
 ### .cha to .conllu
 
@@ -64,12 +64,13 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 1. incorporate new information, such as dependency structure to a tier in CHAT files
 2. add such a tier so that it can be converted to CoNLL-U deprels easily (wishful thinking?)
 
-## Potential Pitfalls
+## :strawberry: Potential Pitfalls
 
 ### Tagset conversion
 The tags used in CHAT `%gra` tier and in UD may not be one-to-one. Still need to think of a way to use the annotations. 
 Make use of CoNLL-U tools to populate the layers in .cha files?
-## Implementation
+
+## :strawberry: Implementation
 
 ### Parsing Files
 
@@ -79,13 +80,13 @@ Make use of CoNLL-U tools to populate the layers in .cha files?
 
 ### External Dependency Parser?
 
-## References
+## :strawberry: References
 
 CoNLL-U format: https://universaldependencies.org/format.html
 
 A somewhat similar project: https://github.com/zoeyliu18/process_CHILDES
 
-## Schedule
+## :strawberry:Schedule
 
 12 May: Creates a roadmap for the project.
 
