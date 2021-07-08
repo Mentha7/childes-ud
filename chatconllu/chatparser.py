@@ -1,7 +1,7 @@
 """
 Utilities to parse .cha files.
 """
-import sys
+import sys, os
 import re
 import fileinput
 from pathlib import Path
@@ -23,6 +23,7 @@ FILE = "test_angle.cha"
 # FILE = "1db.cha"
 
 TMP_DIR = 'tmp'
+OUT_DIR = 'out'
 
 utterance = re.compile('^\\*')
 
@@ -35,7 +36,8 @@ def list_files(dir, format="cha"):
 def read_file(filepath):
 	""" Writes a new .cha file for easier parsing.
 	"""
-	fn = filepath.with_suffix("")
+	Path(TMP_DIR).mkdir(parents=True, exist_ok=True)
+	fn = filepath.stem
 	with open(Path(TMP_DIR, f'{fn}_new.cha'), 'w', encoding='utf-8') as f:
 		for line in fileinput.input(filepath, inplace=False):  # need to change path
 			match = utterance.match(line)
@@ -54,25 +56,39 @@ def parse_chat(filepath):
 
 	meta = {}
 	utterances = []
-	fn = filepath.with_suffix("")
+	fn = filepath.stem
 
 	with open(Path(TMP_DIR, f'{fn}_new.cha'), 'r', encoding='utf-8') as f:
 
 		lines = []
+		file_lines = f.readlines()
 
-		for i, l in enumerate(f.readlines()):
+		for i, l in enumerate(file_lines):
 			l = l.strip('\n')
 			if l.startswith('@'):
+				j = i + 1
+				while j < len(file_lines):
+					if file_lines[j].startswith('\t'):
+						meta[j] = file_lines[j].strip()  # replace initial tab with a space
+						break
+					else:
+						break
 				meta[i] = l  # needs to remember line number for positioning back the headers
+
 			elif l:
 				while l.startswith('\t'):  # tab marks continuation of last line
-					lines[-1] += l.replace('\t', ' ')  # replace initial tab with a space
+					try:
+						lines[-1] += l.replace('\t', ' ')  # replace initial tab with a space
+					except IndexError:
+						print(i, l)
 					break
 				else:
 					lines.append(l)
 			elif lines:  # if empty line, store the utterance, clear the list
 				utterances.append(lines)
 				lines = []
+
+		meta = OrderedDict(sorted(meta.items()))
 
 	return meta, utterances
 
@@ -89,19 +105,22 @@ def normalise_utterance(line: str):
 	# ---- define patterns to omit ----
 	pause = r"^\(\.+\)"  # (.), (..), (...)
 	timed_pause = r"^\((\d+?:)?(\d+?)?\.(\d+?)?\)"  # ((min:)(sec).(decimals))
-	retracing = r"^<.*?> \[/(?:[/?])?\]"  # <xx xx> [//] or [/?]
+	retracing = r"^<.*?>( )?\[/(?:[/?])?\]"  # <xx xx> [//] or [/?]
 	repetitions = r"^\[x \d+\]"  # [x (number)]
-	alternative_transcriptions = r"^\[=\? \w+(')?\w+\]"  # [=? some text include's]
-	explanations = r"^\[= \w+( \w+)*?\]"  # [= some text]
+	alternative_transcriptions = r'^\[=\? [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'  # [=? some text include's]
+	explanations = r'^\[= [ ()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'  # [= some text]
 	best_guess = r"^\[\?\]"  # [?]
 	error = r"^\[\^ e.*?]"  # [^ exxxx]
-	error_star = r"^\[\* .*?\]"  # [* xxx]
+	error_star = r"^\[\*.*?\]"  # [* xxx]
 	comment_on_main = r"^\[% .*?\]"  # [% xxx]
 	complex_local_event = r"^\[\^.*?\]"  # [^ xxx] [^c]
 	postcodes = r"^\[\+ .*?\]"  # [+ xxx]
 	trailing_off = r"\+..."  # +...
 	self_completion = r"^\+, "
 	stressing = r"^\[!!?\]"
+	quoted_utterance = r"^\+\""
+	quotation_follows = r"^\+\"/\."
+	paralinguistics_prosodics = r'^\[=! [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'
 	# sign_without_speech = "0"
 
 	omission = [pause,
@@ -118,6 +137,9 @@ def normalise_utterance(line: str):
 				 postcodes,
 				 self_completion,
 				 stressing,
+				 quotation_follows,
+				 quoted_utterance,
+				 paralinguistics_prosodics,
 				 ]
 
 	best_guess_n = r"^<.*?> \[\?\]"  # best guess
@@ -129,13 +151,24 @@ def normalise_utterance(line: str):
 	to_omit = re.compile('|'.join(o for o in omission))  # <whatever> [/?] or <whatever> [//]
 	to_expand = re.compile('|'.join(e for e in expansion))
 
-	to_replace = re.compile(r"^\[::? ")
+	to_replace = re.compile(r"^\[::?( )?")
+	# to_replace_token = re.compile(r"^\[::? [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]")
 
-	retracing_no_angle_brackets = re.compile(r"^\[/(?:[/?])?\]")  # [//] or [/?] or [/]
+	retracing_no_angle_brackets = r"^\[/(?:[/?])?\]"  # [//] or [/?] or [/]
+	# best_guess_followed_by_retrace = r"^\[\?\] \[/(?:[/?])?\]"
+	# explanations_retrace = r"^\[= [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]"
+	x_retrace = r"^\[[=%?] [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]"
+
+	delete_previous = [retracing_no_angle_brackets,
+						x_retrace,
+						]
+	delete_prev = re.compile('|'.join(d for d in delete_previous))
 
 	overlap = re.compile(r"^\[?[<>]\]")
 
 	special_terminators = re.compile(r'^\+(?:/(?:/\.|[.?])|"/\.)')
+
+	strip_quotation = re.compile(r"^“.*( )??”")
 
 	tokens = []
 	prev_tokens = []
@@ -151,28 +184,34 @@ def normalise_utterance(line: str):
 	while i < len(line):
 		if line[i] == " ":
 			i += 1
+		elif re.match(delete_prev, line[i:]):
+			s = re.match(delete_prev, line[i:])
+			i += len(s.group(0))
+			prev_tokens = []
+			# print(s.group(0))
+		elif re.match(special_terminators, line[i:]):
+			tokens.extend(prev_tokens)
+			s = re.match(special_terminators, line[i:])
+			i += len(s.group(0))
+			prev_tokens = [s.group(0).strip()[-1]]
+			# print(s.group(0))
 		elif re.match(to_omit, line[i:]):
 			s = re.match(to_omit, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
 			prev_tokens = []
-			print(s.group(0))
-		elif re.match(retracing_no_angle_brackets, line[i:]):
-			s = re.match(retracing_no_angle_brackets, line[i:])
-			i += len(s.group(0))
-			prev_tokens = []
-			print(s.group(0))
+			# print(s.group(0))
 		elif re.match(to_expand, line[i:]):  # expand contents in <>
 			s = re.match(to_expand, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
-			print(s.group(0))
+			# print(s.group(0))
 			prev_tokens = s.group(0)[1:-5].strip().split()  # remove '<' and '> [?]'
 		elif re.match(overlap, line[i:]):
 			s = re.match(overlap, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
-			print(s.group(0))
+			# print(s.group(0))
 			prev_tokens = s.group(0)[1:-5].strip().split()
 		elif re.match(to_replace, line[i:]):
 			s = re.match(to_replace, line[i:])
@@ -181,19 +220,19 @@ def normalise_utterance(line: str):
 			tokens.extend(m.group(1).strip().split())
 			i += len(m.group(0))
 			prev_tokens = []
-			print(s.group(0))
+			# print(s.group(0))
+		elif re.match(strip_quotation, line[i:]):
+			tokens.extend(prev_tokens)
+			s = re.match(strip_quotation, line[i:])
+			i += len(s.group(0))
+			prev_tokens = s.group(0).strip()[1:-1].split()  # remove '+'
+			# print(s.group(0))
 		elif re.match(trailing_off, line[i:]):  # above punctuation block
 			tokens.extend(prev_tokens)
 			s = re.match(trailing_off, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[1:]]  # remove '+'
-			print(s.group(0))
-		elif re.match(special_terminators, line[i:]):
-			tokens.extend(prev_tokens)
-			s = re.match(special_terminators, line[i:])
-			i += len(s.group(0))
-			prev_tokens = [s.group(0).strip()[-1]]
-			print(s.group(0))
+			# print(s.group(0))
 		elif re.match(punct_re, line[i:]):  # punctuations
 			tokens.extend(prev_tokens)
 			prev_tokens = [line[i]]
@@ -203,6 +242,25 @@ def normalise_utterance(line: str):
 			m = re.match(until_eow, line[i:])
 			prev_tokens = [m.group(0)] if m else []
 			i += len(m.group(0)) if m else 1
+		for m, pt in enumerate(prev_tokens):
+			# print(pt)
+			if re.match(delete_prev, pt):
+				prev_tokens.pop(m-1)
+			if re.match(to_replace, pt):
+				ind = m+1
+				while ind < len(prev_tokens):
+					if prev_tokens[ind].endswith(']'):
+						new = ''.join(x for x in prev_tokens[m+1] if x.isalpha())
+						break
+					else:
+						ind += 1
+				# print(f"new:{new}")
+				prev_tokens[ind] = new
+				prev_tokens.pop(m)
+				prev_tokens.pop(m-1)
+			# print(prev_tokens)
+			if re.match(to_omit, pt):
+				prev_tokens.remove(pt)
 
 	tokens.extend(prev_tokens)
 
@@ -231,7 +289,8 @@ def check_token(surface):
 		return surface, clean
 
 	# define special symbols translation dict
-	clean = surface.replace('(', '').replace(')', '')
+	clean = surface.replace(' ', '')
+	clean = clean.replace('(', '').replace(')', '')
 	clean = clean.replace('@q', '')  # @q is meta-lingustic use
 	clean = clean.replace('@o', '')  # @o is onomatopoeia
 	clean = clean.replace('0', '')  # 0token is omitted token
@@ -306,7 +365,7 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 	clean = list(filter(None, clean))  # remove empty strings
 
 	## ---- test prints ----
-	print(f"\n* utterance: {' '.join(clean)}\n")
+	# print(f"\n* utterance: {' '.join(clean)}\n")
 	# print(mor)
 
 	j = 0  # j keeps track of clean tokens
@@ -333,7 +392,12 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 		if form == "":
 			index = None
 		elif gra and mor:
-			assert len(clean) == len(mor)
+			try:
+				assert len(clean) == len(mor)
+			except AssertionError:
+				logger.info(f"\n* utterance: {' '.join(clean)}\n")
+				logger.info(f"")
+
 			if len(gra) != len(mor):
 				# ---- finds '~' in mor tier, take care of token indices ----
 				idx = [x for x, g in enumerate(mor) if '~' in g]
@@ -344,7 +408,7 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 					num = len(mor[j].split('~'))-1  # length of parts - 1
 					# print(mor[i].split('~'))
 					end_index = index + num
-					print(f"multi:{clean[j]}, i:{i}, j:{j}, num:{num}, index:{index}, end_index:{end_index}")
+					# logger.info(f"multi:{clean[j]}, i:{i}, j:{j}, num:{num}, index:{index}, end_index:{end_index}")
 
 					# ---- create multi-word token ----
 					lemma = [l.split('|')[-1].split('&')[0].split('-')[0].replace('+', '') for l in mor[j].split('~')]
@@ -539,12 +603,16 @@ def to_conllu(filename, meta, utterances):
 		f.write("\n")
 		# write each sentence
 		for idx, utterance in enumerate(utterances):
-			sent, _ = create_sentence(idx, utterance)
+			try:
+				sent, _ = create_sentence(idx, utterance)
+			except IndexError:
+				logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
+				quit()
 			if not sent.toks:
 				continue
 			if sent.text() == '.':
 				continue
-			print(f"writing sent {sent.get_sent_id()} to file...")
+			# logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
 			f.write(f"# sent_id = {sent.get_sent_id()}\n")
 			f.write(f"# text = {sent.text()}\n")
 			f.write(f"# speaker = {sent.speaker}\n")
@@ -554,10 +622,12 @@ def to_conllu(filename, meta, utterances):
 			f.write("\n")
 
 
-def chat2conllu(files):
+def chat2conllu(files, remove=True):
 	for f in files:
+		# if f.with_suffix(".conllu").is_file():
+		# 	continue
 		# ---- create a new .cha file ----
-		logger.info(f"reading {f} and generating a new .cha file...")
+		# logger.info(f"reading {f} and generating a new .cha file...")
 		read_file(f)
 
 		# ---- parse chat ----
@@ -580,7 +650,12 @@ def chat2conllu(files):
 		fn = f.with_suffix(".conllu")
 		to_conllu(fn, meta, utterances)
 
-		quit()
+		if remove:
+			tmp_file = Path(TMP_DIR, f"{f.stem}_new").with_suffix(".cha")
+			if tmp_file.is_file():
+				os.remove(tmp_file)
+
+		# quit()
 
 
 
@@ -590,45 +665,11 @@ def conllu2chat(files):
 
 
 if __name__ == "__main__":
-	TEST = "/home/jingwen/Desktop/thesis/Brown/Adam"
+	TEST = "/home/jingwen/Desktop/thesis/Aksu"
 	logger.info(f"listing all files in {TEST}...")
 	files = list_files(TEST)
 	chat2conllu(files)
-
-	# # ---- read file ----
-	# logger.info(f"reading {FILE}...")
-	# read_file(FILE)
+	# path = Path("/home/jingwen/Desktop/thesis/Brown/Sarah/020322.cha")
+	# chat2conllu([path], remove=False)
 
 
-	# # ---- parse chat ----
-	# logger.info(f"parsing {FILE}...")
-	# meta, utterances = parse_chat(FILE)
-
-	# ---- test print meta ----
-	# for i, x in enumerate(meta.items()):
-	#   print(i, x)
-	# print(len(meta))
-	# ---- test print utterances----
-	# for i, l in enumerate(utterances[-2]):
-	#   print(i, l)
-	# print(len(utterances))
-
-
-	# ---- test single utterance ----
-	# n = -1
-	# sent, _ = create_sentence(n, utterances[n])
-	# print(sent.get_sent_id(), sent.text())
-
-
-	# ---- test file ----
-	# for idx, utterance in enumerate(utterances):
-	#   print(f"---- sent {idx} ----")
-	#   sent, _ = create_sentence(idx, utterance)
-		# if sent.text() == ".": pass
-		# else: print(sent.get_sent_id(), sent.text())
-
-
-	# ---- test to_conllu() ----
-	to_conllu(FILE, meta, utterances)
-
-	# ---- test regex ----
