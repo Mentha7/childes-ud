@@ -26,8 +26,8 @@ The part-of-speech codes used by the MOR program are different from UPOS of Univ
 
 There are still some %mor codes left:
 
-- `fil`: filler  --> INTJ?
-- `neg`: negations/negative --> ADV?
+- :fire: `fil`: filler  --> INTJ?
+- :fire: `neg`: negations/negative --> ADV?
 
 ## :kiwi: references
 

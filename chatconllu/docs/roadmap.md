@@ -9,11 +9,11 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 #### Annotation Scheme
 
 * `@` marks metadata 
-	* `@Languages`, `@Participants`, `@ID`, `@Comment`, `@Begin`, `@End`...
+    * `@Languages`, `@Participants`, `@ID`, `@Comment`, `@Begin`, `@End`...
 * `*` marks utterances
-	* `*CHI:  they are fighting .`
+    * `*CHI:  they are fighting .`
 * `%` marks tiers
-	* `%mor`, `%gra`...
+    * `%mor`, `%gra`...
 * `:` is usually followed by a tab instead of a space character
 
 #### Things to notice
@@ -24,16 +24,16 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 #### Annotation Scheme
 * `#` marks comments, e.g. `#sent_id`
 * 10-column tab-separated format
-	* `ID`: token index, starting from 1; for multi-word tokens could be a range; could be a decimal number (>0) for empty nodes
-	* `FORM`: token
-	* `LEMMA`:lemma/stem of token
-	* `UPOS`: universal POS
-	* `XPOS`: language-specific POS, `_` if not specified
-	* `FEATS`: list of morphological features, separated by `|`
-	* `HEAD`: head of the current token, `0` marks the root
-	* `DEPREL`: universal dependency relation
-	* `DEPS`: head-deprel pairs.
-	* `MISC`: miscellaneous, other annotations pertaining to the current token
+    * `ID`: token index, starting from 1; for multi-word tokens could be a range; could be a decimal number (>0) for empty nodes
+    * `FORM`: token
+    * `LEMMA`:lemma/stem of token
+    * `UPOS`: universal POS
+    * `XPOS`: language-specific POS, `_` if not specified
+    * `FEATS`: list of morphological features, separated by `|`
+    * `HEAD`: head of the current token, `0` marks the root
+    * `DEPREL`: universal dependency relation
+    * `DEPS`: head-deprel pairs.
+    * `MISC`: miscellaneous, other annotations pertaining to the current token
 * 1 empty line in-between sentences
 * 1 empty line at EoF
 * no trailing whitespace at EoL
