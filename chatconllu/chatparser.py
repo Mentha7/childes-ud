@@ -12,37 +12,37 @@ from logger import logger
 from helpers.sentence import Sentence
 from helpers.token import Token
 
-BROWN = "/home/jingwen/Desktop/thesis/Brown/"
+BROWN = "/home/jingwen/Desktop/thesis/Brown"
 # BROWN = "/home/jingwen/Desktop/thesis/"
-TEST = "tests/"
+TEST = "tests"
 FILE = "test.cha"
 FILE = "test_angle.cha"
 # FILE = "29307exs.cha"
 # FILE = "07.cha"
-FILE = "020319.cha"
+# FILE = "020319.cha"
 # FILE = "1db.cha"
 
 TMP_DIR = 'tmp'
 
 utterance = re.compile('^\\*')
 
-def list_files(dir):
+def list_files(dir, format="cha"):
 	"""Recursively lists all files ending with .cha in the given directory.
 	"""
-	return (x for x in Path(dir).glob("**/*.cha") if not x.name.startswith("._"))
+	return (x for x in Path(dir).glob(f"**/*.{format}") if not x.name.startswith("._"))
 
 
-def read_file(filename):
+def read_file(filepath):
 	""" Writes a new .cha file for easier parsing.
 	"""
-	fn = filename.split('.')[0]
+	fn = filepath.with_suffix("")
 	with open(Path(TMP_DIR, f'{fn}_new.cha'), 'w', encoding='utf-8') as f:
-		for line in fileinput.input(Path(TEST, filename), inplace=False):  # need to change path
+		for line in fileinput.input(filepath, inplace=False):  # need to change path
 			match = utterance.match(line)
 			print('\n'+ line.strip('\n').replace('    ', '\t') if match or line == '@End\n' else line.strip('\n').replace('    ', '\t'), file=f)
 
 
-def parse_chat(filename):
+def parse_chat(filepath):
 	""" Read file line by line, if line:
 		- starts with @: is header
 		- starts with *: is main line (utterance)
@@ -54,7 +54,7 @@ def parse_chat(filename):
 
 	meta = {}
 	utterances = []
-	fn = filename.split('.')[0]
+	fn = filepath.with_suffix("")
 
 	with open(Path(TMP_DIR, f'{fn}_new.cha'), 'r', encoding='utf-8') as f:
 
@@ -91,6 +91,8 @@ def normalise_utterance(line: str):
 	timed_pause = r"^\((\d+?:)?(\d+?)?\.(\d+?)?\)"  # ((min:)(sec).(decimals))
 	retracing = r"^<.*?> \[/(?:[/?])?\]"  # <xx xx> [//] or [/?]
 	repetitions = r"^\[x \d+\]"  # [x (number)]
+	alternative_transcriptions = r"^\[=\? \w+(')?\w+\]"  # [=? some text include's]
+	explanations = r"^\[= \w+( \w+)*?\]"  # [= some text]
 	best_guess = r"^\[\?\]"  # [?]
 	error = r"^\[\^ e.*?]"  # [^ exxxx]
 	error_star = r"^\[\* .*?\]"  # [* xxx]
@@ -98,18 +100,24 @@ def normalise_utterance(line: str):
 	complex_local_event = r"^\[\^.*?\]"  # [^ xxx] [^c]
 	postcodes = r"^\[\+ .*?\]"  # [+ xxx]
 	trailing_off = r"\+..."  # +...
+	self_completion = r"^\+, "
+	stressing = r"^\[!!?\]"
 	# sign_without_speech = "0"
 
 	omission = [pause,
 				 timed_pause,
 				 retracing,
 				 repetitions,
+				 alternative_transcriptions,
+				 explanations,
 				 best_guess,
 				 error,
 				 error_star,
 				 comment_on_main,
 				 complex_local_event,
 				 postcodes,
+				 self_completion,
+				 stressing,
 				 ]
 
 	best_guess_n = r"^<.*?> \[\?\]"  # best guess
@@ -274,7 +282,7 @@ def to_upos(mor_code):
 		"comp":"SCONJ",
 		"num":"NUM",
 		"v":"VERB",
-		"inf":"PART",
+		"inf":"VERB",
 		"cop":"VERB",
 		"mod":"VERB",
 		"fil":"INTJ",  # ?
@@ -282,7 +290,6 @@ def to_upos(mor_code):
 	}
 	upos = mor2upos[mor_code] if mor_code in mor2upos else mor_code
 	return upos
-
 
 
 def extract_token_info(checked_tokens: list, gra: list, mor: list):
@@ -481,9 +488,6 @@ def create_sentence(idx, lines):
 	# ---- tokens ----
 	tokens, positions = normalise_utterance(lines[0].split('\t')[-1])  # normalise line (speaker removed)
 
-	# labels = list(filter(sqr.match, tokens))
-	# tmp = [t for t in tokens if t not in labels]
-
 	# ---- clean form ----
 	clean = [check_token(t)[1] for t in tokens]
 	clean = list(filter(None, clean))  # remove empty strings
@@ -528,7 +532,7 @@ def create_sentence(idx, lines):
 
 
 def to_conllu(filename, meta, utterances):
-	with open(filename.replace('.cha', '.conllu'), mode='w', encoding='utf-8') as f:
+	with open(filename, mode='w', encoding='utf-8') as f:
 		# write meta as headers
 		for k, v in meta.items():
 			f.write(f"# {k}\t{v}\n")
@@ -550,24 +554,55 @@ def to_conllu(filename, meta, utterances):
 			f.write("\n")
 
 
+def chat2conllu(files):
+	for f in files:
+		# ---- create a new .cha file ----
+		logger.info(f"reading {f} and generating a new .cha file...")
+		read_file(f)
+
+		# ---- parse chat ----
+		logger.info(f"parsing {f}...")
+		meta, utterances = parse_chat(f)
+
+		# ---- test print meta ----
+		# print(len(meta))
+		# for i, x in enumerate(meta.items()):
+		# 	print(i, x)
+		# # ---- test print utterances----
+		# print(len(utterances))
+		# for i, l in enumerate(utterances[1019]):
+		# 	print(i, l)
+		# # ---- test single utterance ----
+		# n = 1019
+		# sent, _ = create_sentence(n, utterances[n])
+		# print(sent.get_sent_id(), sent.text())
+
+		fn = f.with_suffix(".conllu")
+		to_conllu(fn, meta, utterances)
+
+		quit()
+
+
+
+
+def conllu2chat(files):
+	pass
+
+
 if __name__ == "__main__":
-	logger.info(f"listing all .cha files in {TEST}...")
+	TEST = "/home/jingwen/Desktop/thesis/Brown/Adam"
+	logger.info(f"listing all files in {TEST}...")
 	files = list_files(TEST)
-	try:
-	  while True:
-	      i = next(files)
-	      print(i)
-	except StopIteration:
-	  pass
+	chat2conllu(files)
 
-	# ---- read file ----
-	logger.info(f"reading {FILE}...")
-	read_file(FILE)
+	# # ---- read file ----
+	# logger.info(f"reading {FILE}...")
+	# read_file(FILE)
 
 
-	# ---- parse chat ----
-	logger.info(f"parsing {FILE}...")
-	meta, utterances = parse_chat(FILE)
+	# # ---- parse chat ----
+	# logger.info(f"parsing {FILE}...")
+	# meta, utterances = parse_chat(FILE)
 
 	# ---- test print meta ----
 	# for i, x in enumerate(meta.items()):
