@@ -74,13 +74,12 @@ def parse_chat(filepath):
 					else:
 						break
 				meta[i] = l  # needs to remember line number for positioning back the headers
+				continue
 
 			elif l:
 				while l.startswith('\t'):  # tab marks continuation of last line
-					try:
+					if lines:
 						lines[-1] += l.replace('\t', ' ')  # replace initial tab with a space
-					except IndexError:
-						print(i, l)
 					break
 				else:
 					lines.append(l)
@@ -105,7 +104,7 @@ def normalise_utterance(line: str):
 	# ---- define patterns to omit ----
 	pause = r"^\(\.+\)"  # (.), (..), (...)
 	timed_pause = r"^\((\d+?:)?(\d+?)?\.(\d+?)?\)"  # ((min:)(sec).(decimals))
-	retracing = r"^<.*?>( )?\[/(?:[/?])?\]"  # <xx xx> [//] or [/?]
+	retracing = r"^(<.*?>){1}( )?\[/(?:[/?])?\]"  # <xx xx> [//] or [/?] or [/]
 	repetitions = r"^\[x \d+\]"  # [x (number)]
 	alternative_transcriptions = r'^\[=\? [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'  # [=? some text include's]
 	explanations = r'^\[= [ ()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'  # [= some text]
@@ -117,9 +116,11 @@ def normalise_utterance(line: str):
 	postcodes = r"^\[\+ .*?\]"  # [+ xxx]
 	trailing_off = r"\+..."  # +...
 	self_completion = r"^\+, "
+	other_completion = r"^\+\+"
 	stressing = r"^\[!!?\]"
 	quoted_utterance = r"^\+\""
 	quotation_follows = r"^\+\"/\."
+	quick_uptake = r"^\+\^"
 	paralinguistics_prosodics = r'^\[=! [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'
 	# sign_without_speech = "0"
 
@@ -136,15 +137,18 @@ def normalise_utterance(line: str):
 				 complex_local_event,
 				 postcodes,
 				 self_completion,
+				 other_completion,
 				 stressing,
 				 quotation_follows,
 				 quoted_utterance,
+				 quick_uptake,
 				 paralinguistics_prosodics,
 				 ]
 
 	best_guess_n = r"^<.*?> \[\?\]"  # best guess
-
+	over = r"^<.*?> \[?[<>]?\]"
 	expansion = [best_guess_n,
+				 over,
 				]
 
 	# ---- compile regex patterns ----
@@ -200,12 +204,12 @@ def normalise_utterance(line: str):
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
 			prev_tokens = []
-			# print(s.group(0))
+			print(s.group(0))
 		elif re.match(to_expand, line[i:]):  # expand contents in <>
 			s = re.match(to_expand, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
-			# print(s.group(0))
+			print(s.group(0))
 			prev_tokens = s.group(0)[1:-5].strip().split()  # remove '<' and '> [?]'
 		elif re.match(overlap, line[i:]):
 			s = re.match(overlap, line[i:])
@@ -665,7 +669,7 @@ def conllu2chat(files):
 
 
 if __name__ == "__main__":
-	TEST = "/home/jingwen/Desktop/thesis/Aksu"
+	TEST = "/home/jingwen/Desktop/thesis/Chang2"
 	logger.info(f"listing all files in {TEST}...")
 	files = list_files(TEST)
 	chat2conllu(files)
