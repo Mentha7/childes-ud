@@ -282,7 +282,7 @@ def to_upos(mor_code):
 		"comp":"SCONJ",
 		"num":"NUM",
 		"v":"VERB",
-		"inf":"VERB",
+		"inf":"PART",
 		"cop":"VERB",
 		"mod":"VERB",
 		"fil":"INTJ",  # ?
