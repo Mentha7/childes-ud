@@ -1,9 +1,9 @@
 # roadmap
 
-## :strawberry: Goal
+## Goal
 Write scripts/a commandline tool for **as lossless as possible** conversion between .cha and .conllu files. 
 
-## :strawberry: Formats of Interest
+## Formats of Interest
 
 ### CHAT
 #### Annotation Scheme
@@ -41,7 +41,7 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 * fields other than FORM, LEMMA, and MISC must not contain space characters
 * no format-level distinction is made for the rare cases where the FORM or LEMMA is the literal underscore `_`
 
-## :strawberry: General Approach
+## General Approach
 
 ### .cha to .conllu
 
@@ -64,13 +64,13 @@ Write scripts/a commandline tool for **as lossless as possible** conversion betw
 1. incorporate new information, such as dependency structure to a tier in CHAT files
 2. add such a tier so that it can be converted to CoNLL-U deprels easily (wishful thinking?)
 
-## :strawberry: Potential Pitfalls
+## Potential Pitfalls
 
 ### Tagset conversion
 The tags used in CHAT `%gra` tier and in UD may not be one-to-one. Still need to think of a way to use the annotations. 
 Make use of CoNLL-U tools to populate the layers in .cha files?
 
-## :strawberry: Implementation
+## Implementation
 
 ### Parsing Files
 
@@ -80,13 +80,13 @@ Make use of CoNLL-U tools to populate the layers in .cha files?
 
 ### External Dependency Parser?
 
-## :strawberry: References
+## References
 
 CoNLL-U format: https://universaldependencies.org/format.html
 
 A somewhat similar project: https://github.com/zoeyliu18/process_CHILDES
 
-## :strawberry:Schedule
+## Schedule
 
 12 May: Creates a roadmap for the project.
 

@@ -1,12 +1,12 @@
 # dependency relations
 
-## :coconut: GRASP - Syntactic Dependency Analysis Grammatical Relations 
+## GRASP - Syntactic Dependency Analysis Grammatical Relations 
 
-#### **Predicate-Head Relations** :coconut:
+#### **Predicate-Head Relations**
 
 1. Subject: `SUBJ`
 2. Clausal Subject: `CSUBJ` 
-	- e. g. `That Eric cried moved Bush.`
+    - e. g. `That Eric cried moved Bush.`
 3. Object: `OBJ`
 4. Object2: `OBJ2` : second/indirect object
 5. Complement: `COMP`: identifies clausal complement of a verb 
@@ -15,9 +15,9 @@
 8. Clausal Object: `COBJ`
 9. Prepositional Object: `POBJ`
 10. Serial: `SRL`: serial verbs
-	- e. g. `go play` , `come see`
+    - e. g. `go play` , `come see`
 
-#### **Argument-Head Relations** :coconut:
+#### **Argument-Head Relations**
 
 1. Adjunct: `JCT`
 2. Clausal Conjunct: `CJCT`
@@ -36,27 +36,27 @@
 15. Negation: `NEG`
 16. Infinitive: `INF`: infinitive particle (`to`)
 17. Link: `LINK`
-	- e. g. Wait **until** the noodles are cool.
+    - e. g. Wait **until** the noodles are cool.
 18. Tag: `TAG`: tag question
-	- e. g. You know how to swim, **don't you?**
+    - e. g. You know how to swim, **don't you?**
 
-#### **Extra-Clausal Elements** :coconut:
+#### **Extra-Clausal Elements**
 1. Communicator: `COM` 
-	- e. g. `hey`, `okay`...
+    - e. g. `hey`, `okay`...
 2. Begin: `BEG`: initial clause-external element.
-	- e. g. vocative, topic ...
+    - e. g. vocative, topic ...
 3. End: `END` : sentence-final particles, single word tags `right?`
 4. Incomplete Root: `INCROOT` : usual `ROOT` missing.
 5. Omission: `OM`
 
-#### **Cosmetic Relations** :coconut:
+#### **Cosmetic Relations**
 1. Punctuation: `PUNCT`
 2. Local Punctuation: `LP`
 3. `BEGP`: Telation between  mark and `BEG`
 4. `ENDP`: Gelation between mark and `END`.
 5. `ROOT`
-	
-#### **Series Relations** :coconut:
+    
+#### **Series Relations**
 1. Name: `NAME`
 2. Date: `DATE`
 3. Enumeration: `ENUM`

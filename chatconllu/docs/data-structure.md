@@ -1,11 +1,11 @@
 # data structure
 
-## :lemon: Meta
+## Meta
 - handles lines starting with `@` in .cha files
 - to .conllu: first n lines as is, begin with `#`
 - back to .cha: remove `#`, use as is
 
-## :lemon: Utterance (Sentence)
+## Utterance (Sentence)
 
 - sent_id  #
 - participant code  #
@@ -18,17 +18,17 @@
 **Writer**
 
 1. to .conllu: 
-	- `#sent_id`
-	- `#comments`
-	- normalised sentence
-	- tokens
-	- empty line
+    - `#sent_id`
+    - `#comments`
+    - normalised sentence
+    - tokens
+    - empty line
 2. to .cha: 
-	- `*{participant code}:\t` utterance original form
-	- `%{tier}:\t` tiers in order
+    - `*{participant code}:\t` utterance original form
+    - `%{tier}:\t` tiers in order
 
 
-## :lemon: Token
+## Token
 
 - conllu_id: index in normalised string
 - conllu_word: 'clean' word form / punctuation symbol

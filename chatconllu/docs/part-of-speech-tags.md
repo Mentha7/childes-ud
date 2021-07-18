@@ -2,7 +2,7 @@
 
 The part-of-speech codes used by the MOR program are different from UPOS of Universal Dependencies. 
 
-## :grapes: comparison
+## comparison
 
 |**UPOS**|**MOR POS Code**                          |**Notes**|
 |:------:|:-----------------------------------------|:--------|
@@ -29,7 +29,7 @@ There are still some %mor codes left:
 - :fire: `fil`: filler  --> INTJ?
 - :fire: `neg`: negations/negative --> ADV?
 
-## :grapes: references
+## references
 
 - [Universal POS tags](https://universaldependencies.org/u/pos/index.html)
 - [MOR POS Codes](https://talkbank.org/manuals/MOR.html#_Toc65933283)
