@@ -12,11 +12,11 @@ file_fmt = "%(levelname)s\t[%(asctime)s]\
 						\t\t%(filename)s:%(lineno)s\n%(funcName)s:\n%(message)s\n"
 file_formatter = logging.Formatter(file_fmt, datefmt="%d-%m %H:%M")
 
-shell_fmt = "%(funcName)s:\n%(message)s\n"
-shell_formatter = logging.Formatter(shell_fmt)
+# shell_fmt = "%(funcName)s:\n%(message)s\n"
+# shell_formatter = logging.Formatter(shell_fmt)
 
 
-shell_handler.setFormatter(shell_formatter)
+# shell_handler.setFormatter(shell_formatter)
 file_handler.setFormatter(file_formatter)
 
 logger.setLevel(logging.DEBUG)

@@ -4,6 +4,7 @@ Utilities to parse .cha files.
 import sys, os
 import re
 import fileinput
+from typing import List, Tuple, Dict
 from pathlib import Path
 
 from collections import OrderedDict
@@ -16,33 +17,63 @@ from helpers.token import Token
 _TMP_DIR = 'tmp'
 _OUT_DIR = 'out'
 
-utterance = re.compile('^\\*')
+UTTERANCE = re.compile('^\\*')
 
-def list_files(directory, format="cha"):
-	"""Recursively lists all files ending with .cha in the given directory.
+def list_files(directory: str, format="cha") -> List['pathlib.PosixPath']:
+	"""Recursively lists all files ending with the given format in the given directory.
+
+	Parameters:
+	-----------
+	directory: The directory to recursively search for the files with the given format.
+	format: The file format/extension to search for, only "cha" and "conllu" should
+			be supplied.
+
+	Return value: A list of filepaths.
+
 	"""
 	return [x for x in Path(directory).glob(f"**/*.{format}") if not x.name.startswith("._")]
 
 
-def read_file(filepath):
-	""" Writes a new .cha file for easier parsing.
+def read_file(filepath: 'pathlib.PosixPath'):
+	""" Writes a new .cha file such that utterances and their dependent tiers grouped together while
+	different utterances are separated by an empty line.
 	"""
 	Path(_TMP_DIR).mkdir(parents=True, exist_ok=True)
 	fn = filepath.stem
 	with open(Path(_TMP_DIR, f'{fn}_new.cha'), 'w', encoding='utf-8') as f:
-		for line in fileinput.input(filepath, inplace=False):  # need to change path
-			match = utterance.match(line)
+		for line in fileinput.input(filepath, inplace=False):
+			match = UTTERANCE.match(line)
 			print('\n'+ line.strip('\n').replace('    ', '\t') if match or line == '@End\n' else line.strip('\n').replace('    ', '\t'), file=f)
 
 
-def parse_chat(filepath):
-	""" Read file line by line, if line:
-		- starts with @: is header
-		- starts with *: is main line (utterance)
-		- starts with %: one of n dependent tiers
-		Note:
+def parse_chat(filepath: 'pathlib.PosixPath') -> Tuple[OrderedDict, List[List[str]]]:
+	"""Reads the new .cha file created by read_file(filepath) line by line, returns
+	a tuple: (meta, utterances).
+
+	The new .cha file has utterances and their dependent tiers grouped together while
+	different utterances are separated by an empty line.
+
+	Read file line by line, if line:
+		- starts with @: is header/comment, store line number:line content to `meta` dict
+		- elif line is not empty: line is part of one utterance, append to `lines` list [*note]
+		- is empty
+			- utterance is complete, append to `utterance` list
+			- clear `lines` for next utterance
+	*note:
 		- field and value are separated by tabs
 		- lines starting with tab character is a continuation of the last line
+
+	Parameters:
+	-----------
+	filepath: the path to the original .cha file, which will be converted to the path to the
+			  new .cha file inside this method.
+
+	Return value: A tuple (meta, utterances).
+				- `meta` is an ordered dictionary with line numbers as keys and headers/comments
+				as values.
+				- `utterances` is a list of utterances, each utterance is a
+				list of strings corresponding to the lines of one utterance group. The first line is always the
+				main utterance, the other lines are the dependent tiers.
 	"""
 
 	meta = {}
@@ -60,7 +91,7 @@ def parse_chat(filepath):
 				j = i + 1
 				while j < len(file_lines):
 					if file_lines[j].startswith('\t'):
-						meta[j] = file_lines[j].strip()  # replace initial tab with a space
+						meta[j] = file_lines[j].strip()  # keep the tab for putting back the chat file as is
 						break
 					else:
 						break
@@ -74,7 +105,7 @@ def parse_chat(filepath):
 					break
 				else:
 					lines.append(l)
-			elif lines:  # if empty line, store the utterance, clear the list
+			elif lines:  # if empty line is met, store the utterance, clear the list
 				utterances.append(lines)
 				lines = []
 
@@ -83,8 +114,9 @@ def parse_chat(filepath):
 	return meta, utterances
 
 
-def normalise_utterance(line: str):
-	"""Adopted and modified from coltekin/childes-tr/misc/parse-chat.py
+def normalise_utterance(line: str) -> Tuple[List, Dict]:
+	"""Adopted and modified from coltekin/childes-tr/misc/parse-chat.py.
+	Normalises a given utterance with CHILDES symbols to a clean form.
 	"""
 
 	until_rangleb = re.compile("([^>]+)>")
@@ -175,39 +207,44 @@ def normalise_utterance(line: str):
 	if line == "0 .":
 		return tokens, positions
 
+	logger.debug(f"----utterance----:\n{line}")
+
 	i = 0
 	while i < len(line):
 		if line[i] == " ":
 			i += 1
+		elif re.match(to_expand, line[i:]):  # expand contents in <>
+			s = re.match(to_expand, line[i:])
+			tokens.extend(prev_tokens)
+			i += len(s.group(0))
+			logger.debug(f"to expand pattern: {s.group(0)}")
+			prev_tokens = s.group(0)[1:-5].strip().split()  # remove '<' and '> [?]'
+			logger.debug(f"\texpansion: {prev_tokens}")
 		elif re.match(delete_prev, line[i:]):
+			logger.debug(f"previous to be deleted: {prev_tokens}")
 			s = re.match(delete_prev, line[i:])
 			i += len(s.group(0))
-			prev_tokens = []
-			# print(s.group(0))
+			prev_tokens = []  # forget previous tokens
+			logger.debug(f"delete previous: {s.group(0)}")
 		elif re.match(special_terminators, line[i:]):
 			tokens.extend(prev_tokens)
 			s = re.match(special_terminators, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[-1]]
-			# print(s.group(0))
+			# logger.debug(f"special_terminators: {s.group(0)} to {prev_tokens}")
 		elif re.match(to_omit, line[i:]):
 			s = re.match(to_omit, line[i:])
-			tokens.extend(prev_tokens)
+			tokens.extend(prev_tokens)  # keep previous tokens
 			i += len(s.group(0))
 			prev_tokens = []
-			# print(s.group(0))
-		elif re.match(to_expand, line[i:]):  # expand contents in <>
-			s = re.match(to_expand, line[i:])
-			tokens.extend(prev_tokens)
-			i += len(s.group(0))
-			# print(s.group(0))
-			prev_tokens = s.group(0)[1:-5].strip().split()  # remove '<' and '> [?]'
+			# logger.debug(f"keep previous tokens and omit: {s.group(0)}")
 		elif re.match(overlap, line[i:]):
 			s = re.match(overlap, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
-			# print(s.group(0))
+			logger.debug(f"overlap pattern: {s.group(0)}")
 			prev_tokens = s.group(0)[1:-5].strip().split()
+			# logger.debug(f"\toverlap: {prev_tokens}")
 		elif re.match(to_replace, line[i:]):
 			s = re.match(to_replace, line[i:])
 			i += len(s.group(0))
@@ -215,32 +252,37 @@ def normalise_utterance(line: str):
 			tokens.extend(m.group(1).strip().split())
 			i += len(m.group(0))
 			prev_tokens = []
-			# print(s.group(0))
+			logger.debug(f"to replace pattern: {s.group(0)}")
+			logger.debug(f"\tto replace: {m.group(1).strip().split()}")
 		elif re.match(strip_quotation, line[i:]):
 			tokens.extend(prev_tokens)
 			s = re.match(strip_quotation, line[i:])
 			i += len(s.group(0))
 			prev_tokens = s.group(0).strip()[1:-1].split()  # remove '+'
-			# print(s.group(0))
+			# logger.debug(f"strip quotation: {s.group(0)} to {prev_tokens}")
 		elif re.match(trailing_off, line[i:]):  # above punctuation block
 			tokens.extend(prev_tokens)
 			s = re.match(trailing_off, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[1:]]  # remove '+'
-			# print(s.group(0))
-		elif re.match(punct_re, line[i:]):  # punctuations
+			# logger.debug(f"trailing off pattern: {s.group(0)} to {prev_tokens}")
+		elif re.match(punct_re, line[i:]):  # punctuations, doesn't handle more than 1 place like '...'
 			tokens.extend(prev_tokens)
 			prev_tokens = [line[i]]
 			i += 1
+			# logger.debug(f"single punctuation pattern: {prev_tokens}")
 		else:  # normal tokens
 			tokens.extend(prev_tokens)
 			m = re.match(until_eow, line[i:])
 			prev_tokens = [m.group(0)] if m else []
 			i += len(m.group(0)) if m else 1
-		for m, pt in enumerate(prev_tokens):
+			# logger.debug(f"normal token: {prev_tokens}")
+		for m, pt in enumerate(prev_tokens):  # loop over collected 'tokens' for patterns
 			# print(pt)
 			if re.match(delete_prev, pt):
+				logger.debug(f"inner delete previous before: {prev_tokens}")
 				prev_tokens.pop(m-1)
+				logger.debug(f"inner delete previous after pop: {prev_tokens}")
 			if re.match(to_replace, pt):
 				ind = m+1
 				while ind < len(prev_tokens):
@@ -250,12 +292,19 @@ def normalise_utterance(line: str):
 					else:
 						ind += 1
 				# print(f"new:{new}")
+				logger.debug(f"inner replace: to {new}")
+				logger.debug(f"inner replace before: {prev_tokens}")
 				prev_tokens[ind] = new
+				logger.debug(f"inner replace after adding {new} at index {ind}: {prev_tokens}")
 				prev_tokens.pop(m)
+				logger.debug(f"inner replace after pop index {m}: {prev_tokens}")
 				prev_tokens.pop(m-1)
+				logger.debug(f"inner replace after pop index {m-1}: {prev_tokens}")
 			# print(prev_tokens)
 			if re.match(to_omit, pt):
+				logger.debug(f"inner omit before remove: {prev_tokens}")
 				prev_tokens.remove(pt)
+				logger.debug(f"inner omit after remove: {prev_tokens}")
 
 	tokens.extend(prev_tokens)
 
