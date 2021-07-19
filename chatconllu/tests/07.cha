@@ -1,0 +1,474 @@
+@UTF8
+@PID:	11312/a-00000007-1
+@Begin
+@Languages:	zho
+@Participants:	CHI Target_Child, MOT Mother, INV Investigator
+@ID:	zho|Chang2|CHI|3;04.|female|||Target_Child|||
+@ID:	zho|Chang2|MOT||female|||Mother|||
+@ID:	zho|Chang2|INV|||||Investigator|||
+@Comment:	Birth of CHI 05-JUN-94
+@Date:	13-OCT-1997
+@Types:	cross, book, TD
+*CHI:	乖乖 狗 卡儿 [^c] .
+%mor:	adj|guai1&DIM=good n|gou3=dog n:prop|ka3er2 .
+%gra:	1|2|MOD 2|0|INCROOT 3|2|APP 4|2|PUNCT
+*MOT:	对 ‡ 乖 狗狗 卡儿 [^c] .
+%mor:	adj|dui4=correct beg|beg adj|guai1=good n|gou3&DIM=dog
+	n:prop|ka3er2 .
+%gra:	1|0|BEG 2|1|BEGP 3|4|MOD 4|0|INCROOT 5|4|APP 6|4|PUNCT
+*MOT:	(.) 你 要 讲 还 我 讲 [^c] ?
+%mor:	pro:per|ni3=you v:aux|yao4=should v|jiang3=say adv|hai2=still
+	pro:per|wo3=I v|jiang3=say ?
+%gra:	1|3|SUBJ 2|3|AUX 3|0|ROOT 4|6|JCT 5|6|SUBJ 6|3|SRL 7|3|PUNCT
+*CHI:	你 讲 [^c] .
+%mor:	pro:per|ni3=you v|jiang3=say .
+%gra:	1|2|SUBJ 2|0|ROOT 3|2|PUNCT
+*MOT:	我 讲 啊 [^c] .
+%mor:	pro:per|wo3=I v|jiang3=say sfp|a1 .
+%gra:	1|2|SUBJ 2|0|ROOT 3|2|SFP 4|2|PUNCT
+*CHI:	嗯 [^c] .
+%mor:	co|en1=okay .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	卡儿 [^c] .
+%mor:	n:prop|ka3er2 .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*CHI:	++ 你 好 乖 [^c] .
+%mor:	pro:per|ni3=you adv|hao3=very adj|guai1=good .
+%gra:	1|3|SUBJ 2|3|JCT 3|0|PROOT 4|3|PUNCT
+*MOT:	你 要 好 [//] 好好 照顾 [^c] +...
+%mor:	pro:per|ni3=you v|yao4=want adj|hao3&DIM=good v|zhao4gu4=look_after
+	+...
+%gra:	1|2|SUBJ 2|4|CJCT 3|4|JCT 4|0|ROOT 5|4|PUNCT
+*CHI:	++ 小 baby@s:eng 啊 [^c] .
+%mor:	adj|xiao3=small L2|baby sfp|a1 .
+%gra:	1|2|MOD 2|0|INCROOT 3|2|SFP 4|2|PUNCT
+*MOT:	我 很 快 就 < 回来 > [>] [^c] .
+%mor:	pro:per|wo3=I adv|hen3=much adv|kuai4=quickly adv|jiu4=just
+	v|hui2lai2=come_back .
+%gra:	1|5|SUBJ 2|5|JCT 3|5|JCT 4|5|JCT 5|0|ROOT 6|5|PUNCT
+*CHI:	< 回来 > [<] [^c] .
+%mor:	v|hui2lai2=come_back .
+%gra:	1|0|ROOT 2|1|PUNCT
+*MOT:	对 [^c] .
+%mor:	adj|dui4=correct .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	妈妈 就 跟 卡儿 说 +"/.
+%mor:	n:relat|ma1&DIM=mother adv|jiu4=just prep|gen1=with n:prop|ka3er2
+	v|shuo1=say +"/.
+%gra:	1|5|SUBJ 2|5|JCT 3|5|JCT 4|3|PREPO 5|0|ROOT 6|5|PUNCT
+*MOT:	+" 你 好 乖 .
+%mor:	pro:per|ni3=you adv|hao3=very adj|guai1=good .
+%gra:	1|3|SUBJ 2|3|JCT 3|0|PROOT 4|3|PUNCT
+*MOT:	baby@s:eng 在 干 什么 [^c] ?
+%mor:	L2|baby adv|zai4=currently v|gan4=do pro:wh|shen2me=what ?
+%gra:	1|3|SUBJ 2|3|JCT 3|0|ROOT 4|3|OBJ 5|3|PUNCT
+*CHI:	0 .
+%com:	CHI makes sucking sound
+*MOT:	对 [^c] .
+%mor:	adj|dui4=correct .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*CHI:	喝 嘴嘴 [^c] .
+%mor:	v|he1=drink n|zui3&DIM=mouth .
+%gra:	1|0|ROOT 2|1|OBJ 3|1|PUNCT
+*MOT:	喝 嘴嘴 [^c] .
+%mor:	v|he1=drink n|zui3&DIM=mouth .
+%gra:	1|0|ROOT 2|1|OBJ 3|1|PUNCT
+*MOT:	好 ‡ 马上 就 回来 哦 [^c] .
+%mor:	adj|hao3=good beg|beg adv|ma3shang4=immediately adv|jiu4=just
+	v|hui2lai2=come_back sfp|o1 .
+%gra:	1|0|BEG 2|1|BEGP 3|5|JCT 4|5|JCT 5|0|ROOT 6|5|SFP 7|5|PUNCT
+*MOT:	结果 他 看 到 妈妈 走 了, 他 就 怎样 [^c] ?
+%mor:	adv|jie2guo3=consequently pro:per|ta1=he v|kan4=look
+	v:resc|dao4=arrive n:relat|ma1&DIM=mother v:dirc|zou3=go_away asp|le
+	cm|cm pro:per|ta1=he adv|jiu4=just adv:wh|zen3yang4=no_matter_how ?
+%gra:	1|3|JCT 2|3|SUBJ 3|11|CJCT 4|3|VR 5|6|SUBJ 6|3|COMP 7|3|ASP 8|11|LP
+	9|11|SUBJ 10|11|JCT 11|0|INCROOT 12|11|PUNCT
+*CHI:	结果 他 看 到 妈妈 走 了, 他 就 喔 爬 起来 了 [^c] .
+%mor:	adv|jie2guo3=consequently pro:per|ta1=he v|kan4=look
+	v:resc|dao4=arrive n:relat|ma1&DIM=mother v:dirc|zou3=go_away asp|le
+	cm|cm pro:per|ta1=he adv|jiu4=just co|wo4=surprise v|pa2=crawl
+	v:dirc|qi3lai2=get_up asp|le .
+%gra:	1|3|JCT 2|3|SUBJ 3|12|CJCT 4|3|VR 5|6|SUBJ 6|3|COMP 7|3|ASP 8|12|LP
+	9|12|SUBJ 10|12|JCT 11|12|JCT 12|0|ROOT 13|12|VD 14|12|ASP 15|12|PUNCT
+*MOT:	然后 他 跟 狗狗 说 什么 [^c] ?
+%mor:	conj|ran2hou4=thereupon pro:per|ta1=he prep|gen1=with
+	n|gou3&DIM=dog v|shuo1=say pro:wh|shen2me=what ?
+%gra:	1|5|LINK 2|5|SUBJ 3|5|JCT 4|3|PREPO 5|0|ROOT 6|5|OBJ 7|5|PUNCT
+*CHI:	狗狗 ‡ 我 要 下去 [^c] .
+%mor:	n|gou3&DIM=dog beg|beg pro:per|wo3=I v:aux|yao4=should
+	v:dirc|xia4qu4=down .
+%gra:	1|0|BEG 2|1|BEGP 3|5|SUBJ 4|5|AUX 5|0|ROOT 6|5|PUNCT
+*MOT:	狗狗 ‡ 我 要 跟 你 下 楼 去 玩 „ 对不对 [^c] ?
+%mor:	n|gou3&DIM=dog beg|beg pro:per|wo3=I v:aux|yao4=should
+	prep|gen1=with pro:per|ni3=you cl|xia4 n|lou2=storey v:dirc|qu4=go
+	v|wan2=play end|end adj|dui4&QUE=correct ?
+%gra:	1|0|BEG 2|1|BEGP 3|9|SUBJ 4|9|AUX 5|9|JCT 6|8|MOD 7|8|CLASS 8|5|PREPO
+	9|0|ROOT 10|9|SRL 11|12|ENDP 12|9|END 13|9|PUNCT
+*MOT:	那 他们 先 去 哪里 [^c] ?
+%mor:	conj|na4=so pro:per|ta1-PL=he adv|xian1=earlier v:dirc|qu4=go
+	pro:wh|na3li3=where ?
+%gra:	1|4|LINK 2|4|SUBJ 3|4|JCT 4|0|ROOT 5|4|OBJ 6|4|PUNCT
+*CHI:	到 妈妈 房间 的 跳 [x 3] [^c] .
+%mor:	v:resc|dao4=arrive n:relat|ma1&DIM=mother n|fang2jian1=room poss|de
+	v|tiao4=jump .
+%gra:	1|0|ROOT 2|3|MOD 3|1|OBJ 4|3|POSS 5|1|SRL 6|1|PUNCT
+*MOT:	跳 [x 3] xxx 喔 [^c] .
+%mor:	v|tiao4=jump co|wo4=surprise .
+%gra:	1|0|ROOT 2|1|SFP 3|1|PUNCT
+*MOT:	然后 [^c] +...
+%mor:	conj|ran2hou4=thereupon +...
+%gra:	1|0|INCROOT 2|1|PUNCT
+%com:	tape has problems
+*MOT:	哦 ‡ <看 到 了> [/] 看 到 了 [^c] .
+%mor:	co|o1=chant beg|beg v|kan4=look v:resc|dao4=arrive asp|le .
+%gra:	1|0|BEG 2|1|BEGP 3|0|ROOT 4|3|VR 5|3|ASP 6|3|PUNCT
+*MOT:	xxx 那 他 当 xxx „ 好不好 [^c] ?
+%mor:	conj|na4=so pro:per|ta1=he v|dang1=assume end|end
+	co:int|hao3bu2hao3=okay ?
+%gra:	1|3|LINK 2|3|SUBJ 3|0|ROOT 4|5|ENDP 5|3|END 6|3|PUNCT
+*CHI:	好 [^c] .
+%mor:	adj|hao3=good .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	那 他 呢 [^c] ?
+%mor:	conj|na4=so pro:per|ta1=he sfp|ne ?
+%gra:	1|2|LINK 2|0|INCROOT 3|2|SFP 4|2|PUNCT
+*CHI:	他 当 王子 [^c] .
+%mor:	pro:per|ta1=he v|dang1=assume n|wang2zi3=kings_son .
+%gra:	1|2|SUBJ 2|0|ROOT 3|2|OBJ 4|2|PUNCT
+*MOT:	他 当 王子 [^c] .
+%mor:	pro:per|ta1=he v|dang1=assume n|wang2zi3=kings_son .
+%gra:	1|2|SUBJ 2|0|ROOT 3|2|OBJ 4|2|PUNCT
+*MOT:	喔 ‡ 好 [^c] .
+%mor:	co|wo4=surprise beg|beg adj|hao3=good .
+%gra:	1|0|BEG 2|1|BEGP 3|0|INCROOT 4|3|PUNCT
+*MOT:	然后 呢 [^c] ?
+%mor:	conj|ran2hou4=thereupon sfp|ne ?
+%gra:	1|0|INCROOT 2|1|SFP 3|1|PUNCT
+*CHI:	结果 < 他 > [/] 他 就 去 地下室 .
+%mor:	adv|jie2guo3=consequently pro:per|ta1=he adv|jiu4=just
+	v:dirc|qu4=go n|di4xia4shi4=basement .
+%gra:	1|4|JCT 2|4|SUBJ 3|4|JCT 4|0|ROOT 5|4|OBJ 6|4|PUNCT
+*CHI:	然后 bubu@o 放 下去 了 [^c] .
+%mor:	conj|ran2hou4=thereupon on|bubu v|fang4=place v:dirc|xia4qu4=down
+	asp|le .
+%gra:	1|3|LINK 2|3|JCT 3|0|ROOT 4|3|VD 5|3|ASP 6|3|PUNCT
+*MOT:	这样子 啊 [^c] .
+%mor:	adv|zhe4yang4zi=like_this sfp|a1 .
+%gra:	1|0|INCROOT 2|1|SFP 3|1|PUNCT
+*MOT:	那 卡儿 怎么 办 [^c] ?
+%mor:	pro:dem|na4=that n:prop|ka3er2 adv:wh|zen3me=how v|ban4=handle ?
+%gra:	1|2|DET 2|4|SUBJ 3|4|JCT 4|0|ROOT 5|4|PUNCT
+*CHI:	dui@o [x 4] [^c] .
+%mor:	on|dui .
+%gra:	1|0|INCROOT 2|1|PUNCT
+%com:	CHI makes jumping sound
+*MOT:	要 去 干嘛 [^c] ?
+%mor:	v:aux|yao4=should v:dirc|qu4=go v|gan4ma2=do_what ?
+%gra:	1|2|AUX 2|0|ROOT 3|2|SRL 4|2|PUNCT
+*CHI:	救 baby@s:eng [^c] .
+%mor:	v|jiu4=relief L2|baby .
+%gra:	1|0|ROOT 2|1|OBJ 3|1|PUNCT
+*MOT:	救 baby@s:eng 啊 [^c] .
+%mor:	v|jiu4=relief L2|baby sfp|a1 .
+%gra:	1|0|ROOT 2|1|OBJ 3|1|SFP 4|1|PUNCT
+*MOT:	赶快 来 救 我 啊 [^c] .
+%mor:	adv|gan3kuai4=hastily v:dirc|lai2=come v|jiu4=relief pro:per|wo3=I
+	sfp|a1 .
+%gra:	1|2|JCT 2|0|ROOT 3|2|SRL 4|3|OBJ 5|2|SFP 6|2|PUNCT
+*MOT:	对 [^c] .
+%mor:	adj|dui4=correct .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	我们 <慢慢 翻> [/] 慢慢 翻 [^c] .
+%mor:	pro:per|wo3-PL=I adj|man4&DIM=slow v|fan1=flip .
+%gra:	1|3|SUBJ 2|3|JCT 3|0|ROOT 4|3|PUNCT
+*MOT:	然后 呢 [^c] ?
+%mor:	conj|ran2hou4=thereupon sfp|ne ?
+%gra:	1|0|INCROOT 2|1|SFP 3|1|PUNCT
+*CHI:	<结果 他 要> [/] xxx (.) 结果 他 要 xxx .
+%mor:	adv|jie2guo3=consequently pro:per|ta1=he v|yao4=want .
+%gra:	1|3|JCT 2|3|SUBJ 3|0|ROOT 4|3|PUNCT
+*CHI:	我 要 数 xxx [^c] .
+%mor:	pro:per|wo3=I v|yao4=want n|shu4=number .
+%gra:	1|2|SUBJ 2|0|ROOT 3|2|OBJ 4|2|PUNCT
+*CHI:	< 一 二 > [//] (.) 一 二 三 四 五 六 [^c] +/.
+%mor:	num|yi1=one num|er4=two num|san1=three num|si4=four num|wu3=five
+	num|liu4=six +/.
+%gra:	1|0|INCROOT 2|1|ENUM 3|1|ENUM 4|1|ENUM 5|1|ENUM 6|1|ENUM 7|1|PUNCT
+*MOT:	六 个 什么 东西 [^c] ?
+%mor:	num|liu4=six cl|ge4 pro:wh|shen2me=what n|dong1xi=thing ?
+%gra:	1|2|QUANT 2|4|CLASS 3|4|MOD 4|0|INCROOT 5|4|PUNCT
+*CHI:	七 [^c] .
+%mor:	num|qi1=seven .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	七 个 什么 东西 [^c] ?
+%mor:	num|qi1=seven cl|ge4 pro:wh|shen2me=what n|dong1xi=thing ?
+%gra:	1|2|QUANT 2|4|CLASS 3|4|MOD 4|0|INCROOT 5|4|PUNCT
+*CHI:	xxx 桔色的 鱼 [^c] .
+%mor:	adj|jv2se4-ISH=orange n|yu2=fish .
+%gra:	1|2|MOD 2|0|INCROOT 3|2|PUNCT
+*MOT:	然后 呢 [^c] ?
+%mor:	conj|ran2hou4=thereupon sfp|ne ?
+%gra:	1|0|INCROOT 2|1|SFP 3|1|PUNCT
+*CHI:	一 二 三 四 五 六 七 八 九 [^c] .
+%mor:	num|yi1=one num|er4=two num|san1=three num|si4=four num|wu3=five
+	num|liu4=six num|qi1=seven num|ba1=eight num|jiu3=nine .
+%gra:	1|0|INCROOT 2|1|ENUM 3|1|ENUM 4|1|ENUM 5|1|ENUM 6|1|ENUM 7|1|ENUM
+	8|1|ENUM 9|1|ENUM 10|1|PUNCT
+*MOT:	九 个 什么 东西 呢 [^c] ?
+%mor:	num|jiu3=nine cl|ge4 pro:wh|shen2me=what n|dong1xi=thing sfp|ne ?
+%gra:	1|2|QUANT 2|4|CLASS 3|4|MOD 4|0|INCROOT 5|4|SFP 6|4|PUNCT
+*CHI:	一 二 三 四 五 六 [^c] .
+%mor:	num|yi1=one num|er4=two num|san1=three num|si4=four num|wu3=five
+	num|liu4=six .
+%gra:	1|0|INCROOT 2|1|ENUM 3|1|ENUM 4|1|ENUM 5|1|ENUM 6|1|ENUM 7|1|PUNCT
+*CHI:	六 个 [^c] .
+%mor:	num|liu4=six cl|ge4 .
+%gra:	1|2|QUANT 2|0|INCROOT 3|2|PUNCT
+*CHI:	< 一 二 > [//] (.) 一 二 三 四 五 [^c] .
+%mor:	num|yi1=one num|er4=two num|san1=three num|si4=four num|wu3=five .
+%gra:	1|0|INCROOT 2|1|ENUM 3|1|ENUM 4|1|ENUM 5|1|ENUM 6|1|PUNCT
+*MOT:	五 个 黑色的 鱼 „ 对不对 [^c] ?
+%mor:	num|wu3=five cl|ge4 adj|hei1se4-ISH=black n|yu2=fish end|end
+	adj|dui4&QUE=correct ?
+%gra:	1|2|QUANT 2|4|CLASS 3|4|MOD 4|0|INCROOT 5|6|ENDP 6|4|END 7|4|PUNCT
+*MOT:	好 啦 ‡ 游 完 泳 了 .
+%mor:	adj|hao3=good sfp|la1 beg|beg v|you2=swim v:resc|wan2=finish
+	v|yong3=swim asp|le .
+%gra:	1|0|BEG 2|1|SFP 3|1|BEGP 4|0|ROOT 5|4|VR 6|4|SRL 7|4|ASP 8|4|PUNCT
+*MOT:	然后 再 来 怎么 样 [^c] ?
+%mor:	conj|ran2hou4=thereupon adv|zai4=again v:dirc|lai2=come
+	adv:wh|zen3me=how cl|yang4=kind ?
+%gra:	1|3|LINK 2|3|JCT 3|0|ROOT 4|5|JCT 5|3|OBJ 6|3|PUNCT
+*CHI:	跳舞 (.) .
+%mor:	v|tiao4wu3=dance .
+%gra:	1|0|ROOT 2|1|PUNCT
+*CHI:	结果 跳 完 舞 就 (.) 肚子 饿 了 [^c] .
+%mor:	adv|jie2guo3=consequently v|tiao4=jump v:resc|wan2=finish
+	n|wu3=dance prep|jiu4=regarding n|du4zi=belly adj|e4=hungry asp|le .
+%gra:	1|2|JCT 2|0|ROOT 3|2|VR 4|7|SUBJ 5|7|JCT 6|5|PREPO 7|2|JCT 8|2|ASP
+	9|2|PUNCT
+*MOT:	就 肚子 饿 了 [^c] .
+%mor:	adv|jiu4=just n|du4zi=belly adj|e4=hungry asp|le .
+%gra:	1|3|JCT 2|3|SUBJ 3|0|INCROOT 4|3|ASP 5|3|PUNCT
+*CHI:	哎哟 [^c] !
+%mor:	co|ai1yo1=arrgh !
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	哎哟 肚子 饿 了 < 赶快 要 吃 什么 东西 啊 > [>] [^c] ?
+%mor:	co|ai1yo1=arrgh n|du4zi=belly adj|e4=hungry asp|le
+	adv|gan3kuai4=hastily v:aux|yao4=should v|chi1=eat
+	pro:wh|shen2me=what n|dong1xi=thing sfp|a1 ?
+%gra:	1|0|INCROOT 2|3|SUBJ 3|1|PROOT 4|1|ASP 5|7|JCT 6|7|AUX 7|1|SRL 8|9|MOD
+	9|7|OBJ 10|1|SFP 11|1|PUNCT
+*CHI:	< 结果 开 冰箱 > [<] < 就 > [//] 他 就 面包 拿 (.) 挤 好多 喔 [^c] .
+%mor:	adv|jie2guo3=consequently v:resc|kai1=open
+	n|bing1xiang1=refrigerator pro:per|ta1=he adv|jiu4=just
+	n|mian4bao1=bun prep|na2=with v|ji3=squeeze quant|hao3duo1=many
+	co|wo4=surprise .
+%gra:	1|2|JCT 2|0|ROOT 3|2|OBJ 4|8|SUBJ 5|8|JCT 6|8|SUBJ 7|8|JCT 8|2|SRL
+	9|8|COBJ 10|9|SFP 11|2|PUNCT
+*MOT:	好多 什么 东西 [^c] ?
+%mor:	quant|hao3duo1=many pro:wh|shen2me=what n|dong1xi=thing ?
+%gra:	1|3|QUANT 2|3|MOD 3|0|INCROOT 4|3|PUNCT
+*CHI:	xxx .
+*MOT:	butter@s:eng [^c] .
+%mor:	L2|butter .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*CHI:	butter@s:eng [^c] .
+%mor:	L2|butter .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	butter@s:eng [^c] .
+%mor:	L2|butter .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	好 啦 ‡ 挤 好 了 .
+%mor:	adj|hao3=good sfp|la1 beg|beg v|ji3=squeeze adj|hao3=good asp|le .
+%gra:	1|0|BEG 2|1|SFP 3|1|BEGP 4|0|ROOT 5|4|JCT 6|4|ASP 7|4|PUNCT
+*MOT:	他 还 要 吃 什么 [^c] ?
+%mor:	pro:per|ta1=he adv|hai2=still v:aux|yao4=should v|chi1=eat
+	pro:wh|shen2me=what ?
+%gra:	1|4|SUBJ 2|4|JCT 3|4|AUX 4|0|ROOT 5|4|OBJ 6|4|PUNCT
+*CHI:	吃 葡萄 还有 那 个 (.) chocolate@s:eng .
+%mor:	v|chi1=eat n|pu2tao2=grape conj|hai2you3=as_well_as det|na4=that
+	cl|ge4 L2|chocolate .
+%gra:	1|0|ROOT 2|1|OBJ 3|6|LINK 4|6|DET 5|6|CLASS 6|1|OBJ 7|1|PUNCT
+*CHI:	还有 喝 milk@s:eng .
+%mor:	conj|hai2you3=as_well_as v|he1=drink L2|milk .
+%gra:	1|2|JCT 2|0|ROOT 3|2|OBJ 4|2|PUNCT
+*CHI:	还有 吃 东西 (.) .
+%mor:	conj|hai2you3=as_well_as v|chi1=eat n|dong1xi=thing .
+%gra:	1|2|LINK 2|0|ROOT 3|2|OBJ 4|2|PUNCT
+*CHI:	哇 ‡ 吃 得 满 嘴 都 是 [^c] .
+%mor:	co|wa1=wah beg|beg v|chi1=eat stative|de=be_able_to
+	adv|man3=entirely n|zui3=mouth adv|dou1=all v:cop|shi4=is .
+%gra:	1|0|BEG 2|1|BEGP 3|6|CJCT 4|3|LINK 5|6|JCT 6|8|SUBJ 7|8|JCT 8|0|ROOT
+	9|8|PUNCT
+*MOT:	乱七八糟 了 .
+%mor:	adj|luan4qi1ba1zao1=messy asp|le .
+%gra:	1|0|INCROOT 2|1|ASP 3|1|PUNCT
+*MOT:	那 么 乱 .
+%mor:	conj|na4=so sfp|me adv|luan4=carelessly .
+%gra:	1|0|INCROOT 2|1|SFP 3|1|PTOP 4|1|PUNCT
+*MOT:	< 怎么 办 呢 > [>] [^c] ?
+%mor:	adv:wh|zen3me=how v|ban4=handle sfp|ne ?
+%gra:	1|2|JCT 2|0|ROOT 3|2|SFP 4|2|PUNCT
+*CHI:	< 你 看 他 的 脚 > [<] .
+%mor:	pro:per|ni3=you v|kan4=look pro:per|ta1=he poss|de n|jiao3=foot .
+%gra:	1|2|SUBJ 2|0|ROOT 3|5|MOD 4|3|POSS 5|2|OBJ 6|2|PUNCT
+*CHI:	乱七八糟的 [^c] .
+%mor:	adj|luan4qi1ba1zao1-ISH=messy .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	0 [=! laughs] .
+*MOT:	那 怎么 办 呢 [^c] ?
+%mor:	conj|na4=so adv:wh|zen3me=how v|ban4=handle sfp|ne ?
+%gra:	1|3|JCT 2|3|JCT 3|0|ROOT 4|3|SFP 5|3|PUNCT
+*CHI:	你 看 他 的 脚 乱七八糟的 [^c] .
+%mor:	pro:per|ni3=you v|kan4=look pro:per|ta1=he poss|de n|jiao3=foot
+	adj|luan4qi1ba1zao1-ISH=messy .
+%gra:	1|2|SUBJ 2|0|ROOT 3|5|MOD 4|3|POSS 5|6|SUBJ 6|2|COMP 7|2|PUNCT
+*INV:	哇 ‡ 他 的 脚 乱七八糟的 [^c] .
+%mor:	co|wa1=wah beg|beg pro:per|ta1=he poss|de n|jiao3=foot
+	adj|luan4qi1ba1zao1-ISH=messy .
+%gra:	1|0|BEG 2|1|BEGP 3|5|MOD 4|3|POSS 5|6|SUBJ 6|0|PROOT 7|6|PUNCT
+*MOT:	那 这样 脏 怎么 办 呢 [^c] ?
+%mor:	pro:dem|na4=that adv|zhe4yang4=like_this adj|zang1=dirty
+	adv:wh|zen3me=how v|ban4=handle sfp|ne ?
+%gra:	1|5|SUBJ 2|3|JCT 3|5|JCT 4|5|JCT 5|0|ROOT 6|5|SFP 7|5|PUNCT
+*CHI:	他 吃 得 满 嘴 都 是 [^c] .
+%mor:	pro:per|ta1=he v|chi1=eat stative|de=be_able_to adv|man3=entirely
+	n|zui3=mouth adv|dou1=all v:cop|shi4=is .
+%gra:	1|2|SUBJ 2|5|CJCT 3|2|LINK 4|5|JCT 5|7|SUBJ 6|7|JCT 7|0|ROOT 8|7|PUNCT
+*INV:	哦 [^c] .
+%mor:	co|o1=chant .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	脏脏的 怎么 办 呢 [^c] ?
+%mor:	adj|zang1&DIM-ISH=dirty adv:wh|zen3me=how v|ban4=handle sfp|ne ?
+%gra:	1|3|JCT 2|3|JCT 3|0|ROOT 4|3|SFP 5|3|PUNCT
+*CHI:	脏脏的 去 洗 个 手 吧 [^c] .
+%mor:	adj|zang1&DIM-ISH=dirty v:dirc|qu4=go v|xi3=wash cl|ge4
+	n|shou3=hand sfp|ba .
+%gra:	1|2|JCT 2|0|ROOT 3|2|SRL 4|5|CLASS 5|3|OBJ 6|2|SFP 7|2|PUNCT
+*MOT:	好 吧 [^c] .
+%mor:	adj|hao3=good sfp|ba .
+%gra:	1|0|INCROOT 2|1|SFP 3|1|PUNCT
+*MOT:	然后 呢 放 水 放 水 [^c] .
+%mor:	conj|ran2hou4=thereupon sfp|ne v|fang4=place n|shui3=water
+	v|fang4=place n|shui3=water .
+%gra:	1|0|INCROOT 2|1|SFP 3|2|SRL 4|3|OBJ 5|3|SRL 6|5|OBJ 7|1|PUNCT
+*CHI:	然后 < 他 > [//] (.) 结果 他 就 哈咻 [^c] .
+%mor:	conj|ran2hou4=thereupon adv|jie2guo3=consequently pro:per|ta1=he
+	adv|jiu4=just on|ha1xiu1=sneeze .
+%gra:	1|5|LINK 2|3|JCT 3|5|SUBJ 4|5|JCT 5|0|INCROOT 6|5|PUNCT
+%com:	CHI sneezes
+*MOT:	为什么 哈咻 了 呢 [^c] ?
+%mor:	adv:wh|wei4shen2me=how_come on|ha1xiu1=sneeze asp|le sfp|ne ?
+%gra:	1|2|JCT 2|0|INCROOT 3|2|ASP 4|2|SFP 5|2|PUNCT
+*MOT:	< 为什么 > [>] [^c] ?
+%mor:	adv:wh|wei4shen2me=how_come ?
+%gra:	1|0|INCROOT 2|1|PUNCT
+*CHI:	< 他 用 > [<] 肥皂 在 嘴巴 里 < 结果 > [>] [^c] +...
+%mor:	pro:per|ta1=he v|yong4=use n|fei2zao4=soap prep|zai4=at
+	n|zui3ba0=mouth post|li3=inside adv|jie2guo3=consequently +...
+%gra:	1|2|SUBJ 2|0|ROOT 3|2|OBJ 4|2|JCT 5|6|POSTO 6|4|PREPO 7|2|JCT 8|2|PUNCT
+*MOT:	< 然后 就 会 > [>] 变 成 这样子 [^c] .
+%mor:	conj|ran2hou4=thereupon adv|jiu4=just v:aux|hui4=will
+	v|bian4=change v:resc|cheng2=become adv|zhe4yang4zi=like_this .
+%gra:	1|4|LINK 2|4|JCT 3|4|AUX 4|0|ROOT 5|4|VR 6|4|JCT 7|4|PUNCT
+*CHI:	哈 咻 [^c] .
+%mor:	co|ha1=ha on|shiu1=helicopter .
+%gra:	1|2|COM 2|0|INCROOT 3|2|PUNCT
+*MOT:	这样 哈咻 啊 痒痒 啊 [^c] .
+%mor:	adv|zhe4yang4=like_this on|ha1xiu1=sneeze sfp|a1
+	adj|yang3&DIM=itching sfp|a1 .
+%gra:	1|2|JCT 2|0|INCROOT 3|2|SFP 4|2|PTOP 5|2|SFP 6|2|PUNCT
+*CHI:	哈咻 [^c] !
+%mor:	on|ha1xiu1=sneeze !
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	喔 ‡ 好 [x 3] [^c] .
+%mor:	co|wo4=surprise beg|beg adj|hao3=good .
+%gra:	1|0|BEG 2|1|BEGP 3|0|INCROOT 4|3|PUNCT
+*MOT:	然后 呢 [^c] ?
+%mor:	conj|ran2hou4=thereupon sfp|ne ?
+%gra:	1|0|INCROOT 2|1|SFP 3|1|PUNCT
+*CHI:	唉 [^c] .
+%mor:	co|ai1=sigh .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	唉 [^c] .
+%mor:	co|ai1=sigh .
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	这样 就 累 了 „ 对不对 [^c] ?
+%mor:	adv|zhe4yang4=like_this adv|jiu4=just v|lei4=tire asp|le end|end
+	adj|dui4&QUE=correct ?
+%gra:	1|3|JCT 2|3|JCT 3|0|ROOT 4|3|ASP 5|6|ENDP 6|3|END 7|3|PUNCT
+*CHI:	结果 狗狗 就 帮 他 吹 头发 xxx [^c] .
+%mor:	adv|jie2guo3=consequently n|gou3&DIM=dog adv|jiu4=just v|bang1=help
+	pro:per|ta1=he v|chui1=blow n|tou2fa1=head_hair .
+%gra:	1|4|JCT 2|4|SUBJ 3|4|JCT 4|0|ROOT 5|4|OBJ 6|4|SRL 7|6|OBJ 8|4|PUNCT
+*MOT:	很 舒服 哦 .
+%mor:	adv|hen3=much adj|shu1fu2=comfortable co|o1=chant .
+%gra:	1|2|JCT 2|0|INCROOT 3|2|SFP 4|2|PUNCT
+*MOT:	然后 呢 [^c] ?
+%mor:	conj|ran2hou4=thereupon sfp|ne ?
+%gra:	1|0|INCROOT 2|1|SFP 3|1|PUNCT
+*CHI:	然后 他 帮 他 (.) 收 东西 [^c] .
+%mor:	conj|ran2hou4=thereupon pro:per|ta1=he v|bang1=help pro:per|ta1=he
+	v|shou1=gather n|dong1xi=thing .
+%gra:	1|3|LINK 2|3|SUBJ 3|0|ROOT 4|3|OBJ 5|3|SRL 6|5|OBJ 7|3|PUNCT
+*MOT:	对 ‡ 把 他 收 好 .
+%mor:	adj|dui4=correct beg|beg prep|ba3=object_marker pro:per|ta1=he
+	v|shou1=gather adj|hao3=good .
+%gra:	1|0|BEG 2|1|BEGP 3|5|JCT 4|3|PREPO 5|0|ROOT 6|5|JCT 7|5|PUNCT
+*MOT:	因为 怎么 样 [^c] ?
+%mor:	conj|yin1wei4=because adv:wh|zen3me=how cl|yang4=kind ?
+%gra:	1|3|LINK 2|3|JCT 3|0|INCROOT 4|3|PUNCT
+*CHI:	收 好 了 [^c] .
+%mor:	v|shou1=gather adj|hao3=good asp|le .
+%gra:	1|0|ROOT 2|1|JCT 3|1|ASP 4|1|PUNCT
+*MOT:	因为 怎么 样 [^c] ?
+%mor:	conj|yin1wei4=because adv:wh|zen3me=how cl|yang4=kind ?
+%gra:	1|3|LINK 2|3|JCT 3|0|INCROOT 4|3|PUNCT
+*CHI:	结果 < 一直 > [/] (.) 一直 收 .
+%mor:	adv|jie2guo3=consequently adv|yi1zhi2=continuously v|shou1=gather .
+%gra:	1|3|JCT 2|3|JCT 3|0|ROOT 4|3|PUNCT
+*CHI:	结果 [^c] +...
+%mor:	n|jie2guo3=result +...
+%gra:	1|0|INCROOT 2|1|PUNCT
+*MOT:	喔 ‡ 怎么 样 [^c] ?
+%mor:	co|wo4=surprise beg|beg adv:wh|zen3me=how cl|yang4=kind ?
+%gra:	1|0|BEG 2|1|BEGP 3|4|JCT 4|0|INCROOT 5|4|PUNCT
+*CHI:	妈妈 回来 了 [^c] .
+%mor:	n:relat|ma1&DIM=mother v|hui2lai2=come_back asp|le .
+%gra:	1|2|SUBJ 2|0|ROOT 3|2|ASP 4|2|PUNCT
+*CHI:	妈妈 笑 著 说 [//] xxx 走 到 这里 就 说 (.) +"/.
+%mor:	n:relat|ma1&DIM=mother v|xiao4=smile asp|zhe v:dirc|zou3=go_away
+	v:resc|dao4=arrive post|zhe4li3=here adv|jiu4=just v|shuo1=say +"/.
+%gra:	1|2|SUBJ 2|8|CJCT 3|2|ASP 4|2|VD 5|6|POSTO 6|2|JCT 7|8|JCT 8|0|ROOT
+	9|8|PUNCT
+*CHI:	+" 卡儿 ‡ 你 好 乖 [^c] .
+%mor:	n:prop|ka3er2 beg|beg pro:per|ni3=you adv|hao3=very adj|guai1=good
+	.
+%gra:	1|0|BEG 2|1|BEGP 3|5|SUBJ 4|5|JCT 5|0|PROOT 6|5|PUNCT
+*MOT:	对 ‡ 好 [^c] .
+%mor:	adj|dui4=correct beg|beg adj|hao3=good .
+%gra:	1|0|BEG 2|1|BEGP 3|0|INCROOT 4|3|PUNCT
+*MOT:	讲 完 了 [^c] .
+%mor:	v|jiang3=say v:resc|wan2=finish asp|le .
+%gra:	1|0|ROOT 2|1|VR 3|1|ASP 4|1|PUNCT
+*CHI:	没有 了 [^c] .
+%mor:	adv|mei2you3=not_yet asp|le .
+%gra:	1|0|INCROOT 2|1|ASP 3|1|PUNCT
+*MOT:	<拍 手> [/] 拍 手 [^c] .
+%mor:	v|pai1=clap n|shou3=hand .
+%gra:	1|0|ROOT 2|1|OBJ 3|1|PUNCT
+*CHI:	然后 他 说 +"/.
+%mor:	conj|ran2hou4=thereupon pro:per|ta1=he v|shuo1=say +"/.
+%gra:	1|3|LINK 2|3|SUBJ 3|0|ROOT 4|3|PUNCT
+*CHI:	+" 谢谢 光临 [^c] .
+%mor:	v|xie4xie4=thank v|guang1lin2=be_present .
+%gra:	1|0|ROOT 2|1|SRL 3|1|PUNCT
+*MOT:	&=laughs .
+*MOT:	好 ‡ 谢谢 光临 [^c] .
+%mor:	adj|hao3=good beg|beg v|xie4xie4=thank v|guang1lin2=be_present .
+%gra:	1|0|BEG 2|1|BEGP 3|0|ROOT 4|3|SRL 5|3|PUNCT
+*MOT:	好 [^c] .
+%mor:	adj|hao3=good .
+%gra:	1|0|INCROOT 2|1|PUNCT
+@End

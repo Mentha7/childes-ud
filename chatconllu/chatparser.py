@@ -12,33 +12,24 @@ from logger import logger
 from helpers.sentence import Sentence
 from helpers.token import Token
 
-BROWN = "/home/jingwen/Desktop/thesis/Brown"
-# BROWN = "/home/jingwen/Desktop/thesis/"
-TEST = "tests"
-FILE = "test.cha"
-FILE = "test_angle.cha"
-# FILE = "29307exs.cha"
-# FILE = "07.cha"
-# FILE = "020319.cha"
-# FILE = "1db.cha"
 
-TMP_DIR = 'tmp'
-OUT_DIR = 'out'
+_TMP_DIR = 'tmp'
+_OUT_DIR = 'out'
 
 utterance = re.compile('^\\*')
 
-def list_files(dir, format="cha"):
+def list_files(directory, format="cha"):
 	"""Recursively lists all files ending with .cha in the given directory.
 	"""
-	return (x for x in Path(dir).glob(f"**/*.{format}") if not x.name.startswith("._"))
+	return [x for x in Path(directory).glob(f"**/*.{format}") if not x.name.startswith("._")]
 
 
 def read_file(filepath):
 	""" Writes a new .cha file for easier parsing.
 	"""
-	Path(TMP_DIR).mkdir(parents=True, exist_ok=True)
+	Path(_TMP_DIR).mkdir(parents=True, exist_ok=True)
 	fn = filepath.stem
-	with open(Path(TMP_DIR, f'{fn}_new.cha'), 'w', encoding='utf-8') as f:
+	with open(Path(_TMP_DIR, f'{fn}_new.cha'), 'w', encoding='utf-8') as f:
 		for line in fileinput.input(filepath, inplace=False):  # need to change path
 			match = utterance.match(line)
 			print('\n'+ line.strip('\n').replace('    ', '\t') if match or line == '@End\n' else line.strip('\n').replace('    ', '\t'), file=f)
@@ -58,7 +49,7 @@ def parse_chat(filepath):
 	utterances = []
 	fn = filepath.stem
 
-	with open(Path(TMP_DIR, f'{fn}_new.cha'), 'r', encoding='utf-8') as f:
+	with open(Path(_TMP_DIR, f'{fn}_new.cha'), 'r', encoding='utf-8') as f:
 
 		lines = []
 		file_lines = f.readlines()
@@ -204,12 +195,12 @@ def normalise_utterance(line: str):
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
 			prev_tokens = []
-			print(s.group(0))
+			# print(s.group(0))
 		elif re.match(to_expand, line[i:]):  # expand contents in <>
 			s = re.match(to_expand, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
-			print(s.group(0))
+			# print(s.group(0))
 			prev_tokens = s.group(0)[1:-5].strip().split()  # remove '<' and '> [?]'
 		elif re.match(overlap, line[i:]):
 			s = re.match(overlap, line[i:])
@@ -288,19 +279,26 @@ def check_token(surface):
 
 	to_omit = re.compile("|".join(unidentifiable))
 
+	if surface is None:
+		return None, None
+
 	clean=''
-	if re.match(to_omit, surface):   # phonological forms
+	if re.match(to_omit, surface):   # phonological forms are omitted
 		return surface, clean
+
 
 	# define special symbols translation dict
 	clean = surface.replace(' ', '')
 	clean = clean.replace('(', '').replace(')', '')
-	clean = clean.replace('@q', '')  # @q is meta-lingustic use
-	clean = clean.replace('@o', '')  # @o is onomatopoeia
+	# clean = clean.replace('@q', '')  # @q is meta-lingustic use
+	# clean = clean.replace('@o', '')  # @o is onomatopoeia
 	clean = clean.replace('0', '')  # 0token is omitted token
 	clean = clean.replace('‡', ',')  # prefixed interactional marker
 	clean = clean.replace('„', ',')  # suffixed interactional marker
 	clean = clean.replace('_', ' ')  # compound
+
+	if "@" in clean:
+		clean = clean[:clean.index("@")]  # drops any @endings
 
 	return surface, clean
 
@@ -351,8 +349,8 @@ def to_upos(mor_code):
 		"fil":"INTJ",  # ?
 		"neg":"ADV"  # ?
 	}
-	upos = mor2upos[mor_code] if mor_code in mor2upos else mor_code
-	return upos
+
+	return mor2upos[mor_code] if mor_code in mor2upos else mor_code
 
 
 def extract_token_info(checked_tokens: list, gra: list, mor: list):
@@ -399,8 +397,10 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 			try:
 				assert len(clean) == len(mor)
 			except AssertionError:
-				logger.info(f"\n* utterance: {' '.join(clean)}\n")
-				logger.info(f"")
+				logger.debug(f"utterance: {' '.join(clean)}\n")
+				logger.debug(f"mor:\t{mor}\n")
+				logger.debug(f"clean:\t{clean}\n")
+				break
 
 			if len(gra) != len(mor):
 				# ---- finds '~' in mor tier, take care of token indices ----
@@ -492,7 +492,7 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 
 			# # ---- test print ----
 			# print(f"index:\t{index}")
-			# print(f"token:\t{form}")
+			# (f"token:\t{form}")
 			# print(f"lemma:\t{lemma}")
 			# print(f"upos:\t{upos}")
 			# print(f"xpos:\t{xpos}")
@@ -612,24 +612,29 @@ def to_conllu(filename, meta, utterances):
 			except IndexError:
 				logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
 				quit()
-			if not sent.toks:
-				continue
-			if sent.text() == '.':
-				continue
+			# if not sent.toks:
+			#   continue
+			# if sent.text() == '.':
+				# continue
 			# logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
 			f.write(f"# sent_id = {sent.get_sent_id()}\n")
 			f.write(f"# text = {sent.text()}\n")
 			f.write(f"# speaker = {sent.speaker}\n")
 			for t in sent.tiers.keys():
 				f.write(f"# {t} = {sent.tiers.get(t)}\n")
-			f.write(sent.conllu_str())
+			if not sent.toks:
+				f.write(sent.conllu_str(mute=True))
+			if sent.text() == '.':
+				f.write(sent.conllu_str(mute=True))
+			else:
+				f.write(sent.conllu_str())
 			f.write("\n")
 
 
 def chat2conllu(files, remove=True):
 	for f in files:
 		# if f.with_suffix(".conllu").is_file():
-		# 	continue
+		#   continue
 		# ---- create a new .cha file ----
 		# logger.info(f"reading {f} and generating a new .cha file...")
 		read_file(f)
@@ -641,11 +646,11 @@ def chat2conllu(files, remove=True):
 		# ---- test print meta ----
 		# print(len(meta))
 		# for i, x in enumerate(meta.items()):
-		# 	print(i, x)
+		#   print(i, x)
 		# # ---- test print utterances----
 		# print(len(utterances))
 		# for i, l in enumerate(utterances[1019]):
-		# 	print(i, l)
+		#   print(i, l)
 		# # ---- test single utterance ----
 		# n = 1019
 		# sent, _ = create_sentence(n, utterances[n])
@@ -655,7 +660,7 @@ def chat2conllu(files, remove=True):
 		to_conllu(fn, meta, utterances)
 
 		if remove:
-			tmp_file = Path(TMP_DIR, f"{f.stem}_new").with_suffix(".cha")
+			tmp_file = Path(_TMP_DIR, f"{f.stem}_new").with_suffix(".cha")
 			if tmp_file.is_file():
 				os.remove(tmp_file)
 
@@ -669,10 +674,12 @@ def conllu2chat(files):
 
 
 if __name__ == "__main__":
-	TEST = "/home/jingwen/Desktop/thesis/Chang2"
-	logger.info(f"listing all files in {TEST}...")
-	files = list_files(TEST)
-	chat2conllu(files)
+	pass
+	# TEST = "/home/jingwen/Desktop/thesis/Chang2"
+	# TEST = "tests"
+	# logger.info(f"listing all files in {TEST}...")
+	# files = list_files(TEST)
+	# chat2conllu(files)
 	# path = Path("/home/jingwen/Desktop/thesis/Brown/Sarah/020322.cha")
 	# chat2conllu([path], remove=False)
 

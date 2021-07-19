@@ -1,7 +1,8 @@
 import argparse
 import chatparser
-# from pathlib import Path
-# from logger import logger
+from pathlib import Path
+from logger import logger
+import time
 
 
 def main():
@@ -16,7 +17,7 @@ def main():
 		"-f",
 		"--format",
 		type=str,
-		default="conllu"
+		default="cha",
 		help="input format, supports 'conllu' and 'cha'")
 	argp.add_argument(
 		"corpora",
@@ -25,19 +26,32 @@ def main():
 
 	args = argp.parse_args()
 
+	if args.format != "cha" and args.format != "conllu":
+		logger.fatal(f"'{args.format}' is not supported. Supported values for format are 'cha' and 'conllu'")
+		return
+
+	start_time = time.time()
 	for c in args.corpora:
-		files = chatparser.list_files(dir=args.directory, format=args.format)
-		logger.info(f"Processing files from {c}...")
-		logger.info(f"listing all .{args.format} files in {args.directory}...")
+		directory = Path(args.directory, c)
+		if not directory.exists():
+			logger.fatal(f"The directory you specified does not exist.\nPlease recheck if you entered the path correctly: '{directory}'")
+			return
+
+		files = chatparser.list_files(directory, args.format)
+		if not files:
+			logger.fatal(f"No files with extension '{args.format}' are found within {Path(args.directory, c)}.")
+			return
+
+		logger.info(f"listing all .{args.format} files in {directory}...")
+		for f in files:
+			logger.info(f"\t{f}")
 
 		if args.format == "cha":
 			chatparser.chat2conllu(files)
 		elif args.format == "conllu":
 			chatparser.conllu2chat(files)
-		else:
-			logger.info(f"{args.format} is not supported.")
-			break
-
+	end_time = time.time()
+	logger.info(f"It tooks {end_time-start_time:.2f} secods.")
 
 if __name__ == "__main__":
 	main()

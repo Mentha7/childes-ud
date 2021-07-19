@@ -9,13 +9,18 @@ file_handler = logging.FileHandler("debug.log")
 
 # formatter
 file_fmt = "%(levelname)s\t[%(asctime)s]\
-						\n%(filename)s:%(lineno)s\t%(message)s\n"
-file_formatter = logging.Formatter(file_fmt)
+						\t\t%(filename)s:%(lineno)s\n%(funcName)s:\n%(message)s\n"
+file_formatter = logging.Formatter(file_fmt, datefmt="%d-%m %H:%M")
 
+shell_fmt = "%(funcName)s:\n%(message)s\n"
+shell_formatter = logging.Formatter(shell_fmt)
+
+
+shell_handler.setFormatter(shell_formatter)
 file_handler.setFormatter(file_formatter)
 
 logger.setLevel(logging.DEBUG)
-shell_handler.setLevel(logging.INFO)
+shell_handler.setLevel(logging.DEBUG)
 file_handler.setLevel(logging.DEBUG)
 
 logger.addHandler(shell_handler)
