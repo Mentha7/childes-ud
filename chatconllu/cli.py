@@ -42,7 +42,7 @@ def main():
 			logger.fatal(f"No files with extension '{args.format}' are found within {Path(args.directory, c)}.")
 			return
 
-		logger.info(f"listing all .{args.format} files in {directory}...")
+		logger.info(f"Listing all .{args.format} files in {directory}...")
 		for f in files:
 			logger.info(f"\t{f}")
 
@@ -51,7 +51,7 @@ def main():
 		elif args.format == "conllu":
 			chatparser.conllu2chat(files)
 	end_time = time.time()
-	logger.info(f"It tooks {end_time-start_time:.2f} secods.")
+	logger.info(f"It took {end_time-start_time:.2f} secods.")
 
 if __name__ == "__main__":
 	main()
