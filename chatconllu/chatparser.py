@@ -4,7 +4,7 @@ Utilities to parse .cha files.
 import sys, os
 import re
 import fileinput
-from typing import List, Tuple, Dict
+from typing import List, Tuple, Dict, Union
 from pathlib import Path
 
 from collections import OrderedDict
@@ -114,7 +114,7 @@ def parse_chat(filepath: 'pathlib.PosixPath') -> Tuple[OrderedDict, List[List[st
 	return meta, utterances
 
 
-def normalise_utterance(line: str) -> Tuple[List, Dict]:
+def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]]:
 	"""Adopted and modified from coltekin/childes-tr/misc/parse-chat.py.
 	Normalises a given utterance with CHILDES symbols to a clean form.
 	"""
@@ -311,8 +311,10 @@ def normalise_utterance(line: str) -> Tuple[List, Dict]:
 	return tokens, positions
 
 
-def check_token(surface):
+def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 	"""Adopted and modified from coltekin/childes-tr/misc/parse-chat.py
+	For a given surface form of the token, return (surface, clean), where
+	clean is the token form without CHILDES codes.
 	"""
 
 	# ---- define unidentifiable patterns ----
@@ -352,7 +354,10 @@ def check_token(surface):
 	return surface, clean
 
 
-def to_upos(mor_code):
+def to_upos(mor_code: str) -> str:
+	"""If given mor_code is in predefined mor2upos dict, return the
+	corresponding upos, otherwise return the mor_code.
+	"""
 	# define a mapping between UPOS tags and MOR codes.
 	mor2upos = {
 		"adj":"ADJ",
@@ -591,7 +596,7 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 
 
 def create_sentence(idx, lines):
-	"""Given lines, create a Sentence object.
+	"""Given idx and lines, create a Sentence object.
 
 	"""
 	# ---- speaker ----

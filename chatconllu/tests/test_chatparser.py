@@ -35,6 +35,8 @@ from chatconllu import chatparser
 						 ['some', 'more', '.']),  # to replace, one colon
 						("tam [:: some] more .",
 						 ['some', 'more', '.']),  # to replace, double colon
+						("< 结果 开 冰箱 > [<] < 就 > [//] 他", ['结果', '开', '冰箱', '他']),  # test order
+						("< 结果 开 冰箱 > [//] < 就 > [<] 他", ['就', '他']),  # test order
 						("",
 						 []),  # no utterance
 						(None,
@@ -42,6 +44,7 @@ from chatconllu import chatparser
 					])
 def test_normalise_utterance_all(form, toks):
 	assert chatparser.normalise_utterance(form)[0] == toks
+
 
 @pytest.mark.parametrize("surface, clean",
 						[
