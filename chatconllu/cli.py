@@ -1,5 +1,6 @@
 import argparse
 import chatparser
+from helpers.utils import list_files
 from pathlib import Path
 from logger import logger
 import time
@@ -44,9 +45,9 @@ def main():
 
 		files = []
 		if args.filename:
-			files = chatparser.list_files(directory, args.format, args.filename)
+			files = list_files(directory, args.format, args.filename)
 		else:
-			files = chatparser.list_files(directory, args.format)
+			files = list_files(directory, args.format)
 		if not files:
 			logger.fatal(f"No files with extension '{args.format}' are found within {Path(args.directory, c)}.")
 			return

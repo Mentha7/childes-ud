@@ -1,5 +1,5 @@
 """
-Utilities to parse .cha files.
+Utilities to parse files in CHILDES CHAT format.
 """
 import sys, os
 import re
@@ -19,23 +19,8 @@ _OUT_DIR = 'out'
 
 UTTERANCE = re.compile('^\\*')
 
-def list_files(directory: str, format="cha", filename="") -> List['pathlib.PosixPath']:
-	"""Recursively lists all files ending with the given format in the given directory.
 
-	Parameters:
-	-----------
-	directory: The directory to recursively search for the files with the given format.
-	format: The file format/extension to search for, only "cha" and "conllu" should
-			be supplied.
-	filename: If specified, matches the file with filename only.
-
-	Return value: A list of filepaths.
-
-	"""
-	return [x for x in Path(directory).glob(f"**/*{filename}.{format}") if not x.name.startswith("._")]
-
-
-def read_file(filepath: 'pathlib.PosixPath'):
+def new_chat(filepath: 'pathlib.PosixPath'):
 	""" Writes a new .cha file such that utterances and their dependent tiers grouped together while
 	different utterances are separated by an empty line.
 	"""
@@ -48,7 +33,7 @@ def read_file(filepath: 'pathlib.PosixPath'):
 
 
 def parse_chat(filepath: 'pathlib.PosixPath') -> Tuple[OrderedDict, List[List[str]]]:
-	"""Reads the new .cha file created by read_file(filepath) line by line, returns
+	"""Reads the new .cha file created by new_chat(filepath) line by line, returns
 	a tuple: (meta, utterances).
 
 	The new .cha file has utterances and their dependent tiers grouped together while
@@ -115,7 +100,7 @@ def parse_chat(filepath: 'pathlib.PosixPath') -> Tuple[OrderedDict, List[List[st
 	return meta, utterances
 
 
-def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]]:
+def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[None, None]]:
 	"""Adopted and modified from coltekin/childes-tr/misc/parse-chat.py.
 	Normalises a given utterance with CHILDES symbols to a clean form.
 	"""
@@ -454,7 +439,7 @@ def to_upos(mor_code: str) -> str:
 	return mor2upos[mor_code] if mor_code in mor2upos else mor_code
 
 
-def extract_token_info(checked_tokens: list, gra: list, mor: list):
+def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
 
 	punctuations = re.compile("([,.;?!:”])")
 
@@ -497,6 +482,7 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 			try:
 				assert len(clean) == len(mor)
 			except AssertionError:
+				logger.warn(f"Something went wrong: clean and mor should have the same length!")
 				logger.debug(f"utterance: {' '.join(clean)}\n")
 				logger.debug(f"mor:\t{mor}\n")
 				logger.debug(f"clean:\t{clean}\n")
@@ -547,11 +533,18 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 
 				else:
 					# ---- create token ----
+					lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0]
+					if '+' in lemma:
+						if not misc:
+							misc = ""
+							misc += "|" + lemma
+						lemma = lemma.replace('+', '').replace('/', '')
 					index = int(gra[gra_index].split('|')[0])
-					lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0].replace('+', '')
 					upos = to_upos(mor[j].split('|')[0].replace('+', ''))
 					upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
 					xpos = mor[j].split('|')[0]
+					if '+' in xpos:
+						xpos = None
 
 					feats = mor[j].split('|')[-1].split('&')[1:]
 					head = gra[gra_index].split('|')[1]
@@ -562,12 +555,19 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 					gra_index += 1
 
 			else:
+				lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0]
+				if '+' in lemma:
+					if not misc:
+						misc = ""
+						misc += "|" + lemma
+					lemma = lemma.replace('+', '').replace('/', '')
 				index = gra[j].split('|')[0]
-				lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0].replace('+', '')
 				# use a mapping for upos and xpos, naively store the values for now
 				upos = to_upos(mor[j].split('|')[0].replace('+', ''))
 				upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
-				xpos = mor[j].split('|')[0].replace('+', '')
+				xpos = mor[j].split('|')[0]
+				if '+' in xpos:
+					xpos = None
 
 				feats = mor[j].split('|')[-1].split('&')[1:]
 				head = gra[j].split('|')[1]
@@ -580,11 +580,18 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 			# print(mor)
 			# print(index, form, surface)
 			index = j + 1
-			lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0].replace('+', '')
+			lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0]
+			if '+' in lemma:
+				if not misc:
+					misc = ""
+					misc += "|" + lemma
+			lemma = lemma.replace('+', '').replace('/', '')
 			# use a mapping for upos and xpos, naively store the values for now
 			upos = to_upos(mor[j].split('|')[0].replace('+', ''))
 			upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
-			xpos = mor[j].split('|')[0].replace('+', '')
+			xpos = mor[j].split('|')[0]
+			if '+' in xpos:
+				xpos = None
 
 			feats = mor[j].split('|')[-1].split('&')[1:]
 
@@ -619,7 +626,6 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 
 		if re.match(punctuations, form):
 			upos = "PUNCT"
-
 		# print(f"new: {index} {form} {surface}")
 
 		tok = Token(index=index,
@@ -640,7 +646,7 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 	return tokens
 
 
-def create_sentence(idx, lines):
+def create_sentence(idx: int, lines: List[str]) -> Sentence:
 	"""Given idx and lines, create a Sentence object.
 
 	"""
@@ -700,15 +706,14 @@ def create_sentence(idx, lines):
 					)
 
 
-def to_conllu(filename, meta, utterances):
+def to_conllu(filename: 'pathlib.PosixPath', meta: OrderedDict, utterances:List[List[str]]):
 	with open(filename, mode='w', encoding='utf-8') as f:
 		for k, v in meta.items():
 			f.write(f"# {k}\t{v}\n")  # write meta as headers
 		f.write("\n")
-		for idx, utterance in enumerate(utterances[-50:]):
+		for idx, utterance in enumerate(utterances):
 			try:
 				sent = create_sentence(idx, utterance)
-				# quit()
 			except IndexError:
 				logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
 				quit()
@@ -728,30 +733,16 @@ def to_conllu(filename, meta, utterances):
 			f.write("\n")
 
 
-def chat2conllu(files, remove=True):
+def chat2conllu(files: List['pathlib.PosixPath'], remove=True):
 	for f in files:
 		# if f.with_suffix(".conllu").is_file():
 		#   continue
 		# ---- create a new .cha file ----
-		# logger.info(f"reading {f} and generating a new .cha file...")
-		read_file(f)
+		new_chat(f)
 
 		# ---- parse chat ----
 		logger.info(f"parsing {f}...")
 		meta, utterances = parse_chat(f)
-
-		# ---- test print meta ----
-		# print(len(meta))
-		# for i, x in enumerate(meta.items()):
-		#   print(i, x)
-		# # ---- test print utterances----
-		# print(len(utterances))
-		# for i, l in enumerate(utterances[1019]):
-		#   print(i, l)
-		# # ---- test single utterance ----
-		# n = 1019
-		# sent, _ = create_sentence(n, utterances[n])
-		# print(sent.get_sent_id(), sent.text())
 
 		fn = f.with_suffix(".conllu")
 		to_conllu(fn, meta, utterances)
@@ -762,12 +753,6 @@ def chat2conllu(files, remove=True):
 				os.remove(tmp_file)
 
 		# quit()
-
-
-
-
-def conllu2chat(files):
-	pass
 
 
 if __name__ == "__main__":
