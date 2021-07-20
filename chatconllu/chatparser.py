@@ -127,7 +127,6 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 	# ---- define patterns to omit ----
 	pause = r"^\(\.+\)"  # (.), (..), (...)
 	timed_pause = r"^\((\d+?:)?(\d+?)?\.(\d+?)?\)"  # ((min:)(sec).(decimals))
-	retracing = r"^(<.*?>){1}( )?\[/(?:[/?])?\]"  # <xx xx> [//] or [/?] or [/]
 	repetitions = r"^\[x \d+\]"  # [x (number)]
 	alternative_transcriptions = r'^\[=\? [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'  # [=? some text include's]
 	explanations = r'^\[= [ ()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'  # [= some text]
@@ -137,7 +136,6 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 	comment_on_main = r"^\[% .*?\]"  # [% xxx]
 	complex_local_event = r"^\[\^.*?\]"  # [^ xxx] [^c]
 	postcodes = r"^\[\+ .*?\]"  # [+ xxx]
-	trailing_off = r"\+..."  # +...
 	self_completion = r"^\+, "
 	other_completion = r"^\+\+"
 	stressing = r"^\[!!?\]"
@@ -145,55 +143,60 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 	quotation_follows = r"^\+\"/\."
 	quick_uptake = r"^\+\^"
 	paralinguistics_prosodics = r'^\[=! [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'
-	# sign_without_speech = "0"
 
-	omission = [pause,
-				 timed_pause,
-				 retracing,
-				 repetitions,
-				 alternative_transcriptions,
-				 explanations,
-				 best_guess,
-				 error,
-				 error_star,
-				 comment_on_main,
-				 complex_local_event,
-				 postcodes,
-				 self_completion,
-				 other_completion,
-				 stressing,
-				 quotation_follows,
-				 quoted_utterance,
-				 quick_uptake,
-				 paralinguistics_prosodics,
-				 ]
-
-	best_guess_n = r"^<.*?> \[\?\]"  # best guess
-	over = r"^<.*?> \[?[<>]?\]"
-	expansion = [best_guess_n,
-				 over,
+	omission = [
+				pause,
+				timed_pause,
+				repetitions,
+				alternative_transcriptions,
+				explanations,
+				best_guess,
+				error,
+				error_star,
+				comment_on_main,
+				complex_local_event,
+				postcodes,
+				self_completion,
+				other_completion,
+				stressing,
+				quotation_follows,
+				quoted_utterance,
+				quick_uptake,
+				paralinguistics_prosodics,
 				]
+
+	# best_guess_n = r"^\[\?\]"  # best guess
+	# over = r"^<.*?> \[?[<>]?\]"
+	overlap = re.compile(r"^\[?[<>]\]")
+	# retracing = r"^(<.*?>){1}( )?\[/(?:[/?])?\]"  # <xx xx> [//] or [/?] or [/]
+	# retracing = re.compile(r"^\[/(?:[/?])?\]")  # <xx xx> [//] or [/?] or [/]
+	# expansion = [
+	# 			best_guess_n,
+	# 			over,
+	# 			retracing,
+	# 			]
 
 	# ---- compile regex patterns ----
 	to_omit = re.compile('|'.join(o for o in omission))  # <whatever> [/?] or <whatever> [//]
-	to_expand = re.compile('|'.join(e for e in expansion))
+	# to_expand = re.compile('|'.join(e for e in expansion))
 
 	to_replace = re.compile(r"^\[::?( )?")
 	# to_replace_token = re.compile(r"^\[::? [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]")
 
-	retracing_no_angle_brackets = r"^\[/(?:[/?])?\]"  # [//] or [/?] or [/]
-	# best_guess_followed_by_retrace = r"^\[\?\] \[/(?:[/?])?\]"
-	# explanations_retrace = r"^\[= [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]"
+	retracing_no_angle_brackets = r"^\[/(?:[/?])?\]"  # [//] or [/?] or [/] --> [retrace]
+	# best_guess_followed_by_retrace = r"^\[\?\] \[/(?:[/?])?\]"  # [?] [retrace]
+	# explanations_retrace = r"^\[= [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]"  # [= blah blah's] [retrace]
 	x_retrace = r"^\[[=%?] [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]"
 
-	delete_previous = [retracing_no_angle_brackets,
+	delete_previous = [
+						retracing_no_angle_brackets,
 						x_retrace,
-						]
+					  ]
 	delete_prev = re.compile('|'.join(d for d in delete_previous))
 
-	overlap = re.compile(r"^\[?[<>]\]")
-
 	special_terminators = re.compile(r'^\+(?:/(?:/\.|[.?])|"/\.)')
+
+	trailing_off = r"\+..."  # +...
 
 	strip_quotation = re.compile(r"^“.*( )??”")
 
@@ -207,25 +210,26 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 	if line == "0 .":
 		return tokens, positions
 
-	logger.debug(f"----utterance----:\n{line}")
+	# logger.debug(f"----utterance----:\n{line}")
 
 	i = 0
 	while i < len(line):
 		if line[i] == " ":
 			i += 1
-		elif re.match(to_expand, line[i:]):  # expand contents in <>
-			s = re.match(to_expand, line[i:])
+		elif line[i:].startswith("<"):
 			tokens.extend(prev_tokens)
-			i += len(s.group(0))
-			logger.debug(f"to expand pattern: {s.group(0)}")
-			prev_tokens = s.group(0)[1:-5].strip().split()  # remove '<' and '> [?]'
-			logger.debug(f"\texpansion: {prev_tokens}")
+			i += 1
+			m = re.match(until_rangleb, line[i:])
+			prev_tokens = m.group(1).strip().split()
+			# logger.debug(f"prev_tokens_new: {prev_tokens}")
+			i += len(m.group(0))
+			# logger.debug(f"m.group(0): {m.group(0)}")
 		elif re.match(delete_prev, line[i:]):
-			logger.debug(f"previous to be deleted: {prev_tokens}")
+			# logger.debug(f"previous to be deleted: {prev_tokens}")
 			s = re.match(delete_prev, line[i:])
 			i += len(s.group(0))
 			prev_tokens = []  # forget previous tokens
-			logger.debug(f"delete previous: {s.group(0)}")
+			# logger.debug(f"delete previous: {s.group(0)}")
 		elif re.match(special_terminators, line[i:]):
 			tokens.extend(prev_tokens)
 			s = re.match(special_terminators, line[i:])
@@ -242,7 +246,7 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 			s = re.match(overlap, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
-			logger.debug(f"overlap pattern: {s.group(0)}")
+			# logger.debug(f"overlap pattern: {s.group(0)}")
 			prev_tokens = s.group(0)[1:-5].strip().split()
 			# logger.debug(f"\toverlap: {prev_tokens}")
 		elif re.match(to_replace, line[i:]):
@@ -252,8 +256,8 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 			tokens.extend(m.group(1).strip().split())
 			i += len(m.group(0))
 			prev_tokens = []
-			logger.debug(f"to replace pattern: {s.group(0)}")
-			logger.debug(f"\tto replace: {m.group(1).strip().split()}")
+			# logger.debug(f"to replace pattern: {s.group(0)}")
+			# logger.debug(f"\tto replace: {m.group(1).strip().split()}")
 		elif re.match(strip_quotation, line[i:]):
 			tokens.extend(prev_tokens)
 			s = re.match(strip_quotation, line[i:])
