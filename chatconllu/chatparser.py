@@ -202,6 +202,7 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 
 	tokens = []
 	prev_tokens = []
+	all_scopes = []
 	positions = {}
 
 	if line is None:
@@ -214,41 +215,56 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 
 	i = 0
 	while i < len(line):
+		full_scope = ''
 		if line[i] == " ":
 			i += 1
 		elif line[i:].startswith("<"):
 			tokens.extend(prev_tokens)
 			i += 1
-			m = re.match(until_rangleb, line[i:])
-			prev_tokens = m.group(1).strip().split()
+			s = re.match(until_rangleb, line[i:])
+			prev_tokens = s.group(1).strip().split()
 			# logger.debug(f"prev_tokens_new: {prev_tokens}")
-			i += len(m.group(0))
-			# logger.debug(f"m.group(0): {m.group(0)}")
+			i += len(s.group(0))
+			# logger.debug(f"s.group(0): {s.group(0)}")
+			full_scope = "<" + s.group(0)
+			all_scopes.append(full_scope)
+			# logger.debug(f"{full_scope}")
 		elif re.match(delete_prev, line[i:]):
 			# logger.debug(f"previous to be deleted: {prev_tokens}")
 			s = re.match(delete_prev, line[i:])
 			i += len(s.group(0))
 			prev_tokens = []  # forget previous tokens
 			# logger.debug(f"delete previous: {s.group(0)}")
+			full_scope = s.group(0)
+			all_scopes.append(full_scope)
+			# logger.debug(f"{full_scope}")
 		elif re.match(special_terminators, line[i:]):
 			tokens.extend(prev_tokens)
 			s = re.match(special_terminators, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[-1]]
 			# logger.debug(f"special_terminators: {s.group(0)} to {prev_tokens}")
+			full_scope = s.group(0)
+			all_scopes.append(full_scope)
+			# logger.debug(f"{full_scope}")
 		elif re.match(to_omit, line[i:]):
 			s = re.match(to_omit, line[i:])
 			tokens.extend(prev_tokens)  # keep previous tokens
 			i += len(s.group(0))
 			prev_tokens = []
 			# logger.debug(f"keep previous tokens and omit: {s.group(0)}")
+			full_scope = s.group(0)
+			all_scopes.append(full_scope)
+			# logger.debug(f"{full_scope}")
 		elif re.match(overlap, line[i:]):
 			s = re.match(overlap, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
 			# logger.debug(f"overlap pattern: {s.group(0)}")
-			prev_tokens = s.group(0)[1:-5].strip().split()
-			# logger.debug(f"\toverlap: {prev_tokens}")
+			prev_tokens = []
+			full_scope = s.group(0)
+			all_scopes.append(full_scope)
+			# logger.debug(f"{full_scope}")
 		elif re.match(to_replace, line[i:]):
 			s = re.match(to_replace, line[i:])
 			i += len(s.group(0))
@@ -258,29 +274,44 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 			prev_tokens = []
 			# logger.debug(f"to replace pattern: {s.group(0)}")
 			# logger.debug(f"\tto replace: {m.group(1).strip().split()}")
+			full_scope = s.group(0) + m.group(0)
+			all_scopes.append(full_scope)
+			# logger.debug(f"{full_scope}")
 		elif re.match(strip_quotation, line[i:]):
 			tokens.extend(prev_tokens)
 			s = re.match(strip_quotation, line[i:])
 			i += len(s.group(0))
 			prev_tokens = s.group(0).strip()[1:-1].split()  # remove '+'
 			# logger.debug(f"strip quotation: {s.group(0)} to {prev_tokens}")
-		elif re.match(trailing_off, line[i:]):  # above punctuation block
+			full_scope = s.group(0)
+			all_scopes.append(full_scope)
+			# logger.debug(f"{full_scope}")
+		elif re.match(trailing_off, line[i:]):  # above punctuation block, handles `...`
 			tokens.extend(prev_tokens)
 			s = re.match(trailing_off, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[1:]]  # remove '+'
 			# logger.debug(f"trailing off pattern: {s.group(0)} to {prev_tokens}")
+			full_scope = s.group(0)
+			all_scopes.append(full_scope)
+			# logger.debug(f"{full_scope}")
 		elif re.match(punct_re, line[i:]):  # punctuations, doesn't handle more than 1 place like '...'
 			tokens.extend(prev_tokens)
 			prev_tokens = [line[i]]
+			full_scope = line[i]
 			i += 1
+			all_scopes.append(full_scope)
 			# logger.debug(f"single punctuation pattern: {prev_tokens}")
+			# logger.debug(f"{full_scope}")
 		else:  # normal tokens
 			tokens.extend(prev_tokens)
 			m = re.match(until_eow, line[i:])
 			prev_tokens = [m.group(0)] if m else []
 			i += len(m.group(0)) if m else 1
 			# logger.debug(f"normal token: {prev_tokens}")
+			full_scope = prev_tokens[0]
+			all_scopes.append(full_scope)
+			# logger.debug(f"{full_scope}")
 		for m, pt in enumerate(prev_tokens):  # loop over collected 'tokens' for patterns
 			# print(pt)
 			if re.match(delete_prev, pt):
@@ -301,16 +332,19 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 				prev_tokens[ind] = new
 				logger.debug(f"inner replace after adding {new} at index {ind}: {prev_tokens}")
 				prev_tokens.pop(m)
-				logger.debug(f"inner replace after pop index {m}: {prev_tokens}")
+				# logger.debug(f"inner replace after pop index {m}: {prev_tokens}")
 				prev_tokens.pop(m-1)
-				logger.debug(f"inner replace after pop index {m-1}: {prev_tokens}")
+				# logger.debug(f"inner replace after pop index {m-1}: {prev_tokens}")
 			# print(prev_tokens)
 			if re.match(to_omit, pt):
-				logger.debug(f"inner omit before remove: {prev_tokens}")
+				# logger.debug(f"inner omit before remove: {prev_tokens}")
 				prev_tokens.remove(pt)
-				logger.debug(f"inner omit after remove: {prev_tokens}")
-
+				# logger.debug(f"inner omit after remove: {prev_tokens}")
 	tokens.extend(prev_tokens)
+	if len(all_scopes) != len(tokens):
+		logger.debug(f"----utterance----:\n{line}")
+		logger.debug(f"all_scopes: {all_scopes}")
+		logger.debug(f"tokens: {tokens}")
 
 	return tokens, positions
 
