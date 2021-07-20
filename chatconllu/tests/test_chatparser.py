@@ -37,6 +37,7 @@ from chatconllu import chatparser
                          ['some', 'more', '.']),  # to replace, double colon
                         ("< 结果 开 冰箱 > [<] < 就 > [//] 他", ['结果', '开', '冰箱', '他']),  # test order
                         ("< 结果 开 冰箱 > [//] < 就 > [<] 他", ['就', '他']),  # test order
+                        ("<du [/] <in &Kin> [/] <in im &Ki> [/] im Kinderladen xxx> [>] .", ['im', 'Kinderladen', 'xxx', '.']),
                         ("",
                          []),  # no utterance
                         (None,
