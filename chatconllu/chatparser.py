@@ -19,7 +19,7 @@ _OUT_DIR = 'out'
 
 UTTERANCE = re.compile('^\\*')
 
-def list_files(directory: str, format="cha") -> List['pathlib.PosixPath']:
+def list_files(directory: str, format="cha", filename="") -> List['pathlib.PosixPath']:
 	"""Recursively lists all files ending with the given format in the given directory.
 
 	Parameters:
@@ -27,11 +27,12 @@ def list_files(directory: str, format="cha") -> List['pathlib.PosixPath']:
 	directory: The directory to recursively search for the files with the given format.
 	format: The file format/extension to search for, only "cha" and "conllu" should
 			be supplied.
+	filename: If specified, matches the file with filename only.
 
 	Return value: A list of filepaths.
 
 	"""
-	return [x for x in Path(directory).glob(f"**/*.{format}") if not x.name.startswith("._")]
+	return [x for x in Path(directory).glob(f"**/*{filename}.{format}") if not x.name.startswith("._")]
 
 
 def read_file(filepath: 'pathlib.PosixPath'):
@@ -143,6 +144,7 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 	quotation_follows = r"^\+\"/\."
 	quick_uptake = r"^\+\^"
 	paralinguistics_prosodics = r'^\[=! [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\]'
+	lazy_overlap = r"^\+<"
 
 	omission = [
 				pause,
@@ -163,18 +165,10 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 				quoted_utterance,
 				quick_uptake,
 				paralinguistics_prosodics,
+				lazy_overlap,
 				]
 
-	# best_guess_n = r"^\[\?\]"  # best guess
-	# over = r"^<.*?> \[?[<>]?\]"
-	overlap = re.compile(r"^\[?[<>]\]")
-	# retracing = r"^(<.*?>){1}( )?\[/(?:[/?])?\]"  # <xx xx> [//] or [/?] or [/]
-	# retracing = re.compile(r"^\[/(?:[/?])?\]")  # <xx xx> [//] or [/?] or [/]
-	# expansion = [
-	# 			best_guess_n,
-	# 			over,
-	# 			retracing,
-	# 			]
+
 
 	# ---- compile regex patterns ----
 	to_omit = re.compile('|'.join(o for o in omission))  # <whatever> [/?] or <whatever> [//]
@@ -196,7 +190,9 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 
 	special_terminators = re.compile(r'^\+(?:/(?:/\.|[.?])|"/\.)')
 
-	trailing_off = r"\+..."  # +...
+	trailing_off = re.compile(r"\+...")  # +...
+
+	overlap = re.compile(r"^\[?[<>]\]")
 
 	strip_quotation = re.compile(r"^“.*( )??”")
 
@@ -221,6 +217,10 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 		elif line[i:].startswith("<"):
 			tokens.extend(prev_tokens)
 			i += 1
+			if line[i:].startswith("<"):
+				logger.warn(f"This is a mistake in the corpus: two consecutive '<<' found. Skipping this utterance:\n{line}.")
+				# quit()
+				return tokens, positions
 			s = re.match(until_rangleb, line[i:])
 			prev_tokens = s.group(1).strip().split()
 			# logger.debug(f"prev_tokens_new: {prev_tokens}")
@@ -309,7 +309,7 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 			prev_tokens = [m.group(0)] if m else []
 			i += len(m.group(0)) if m else 1
 			# logger.debug(f"normal token: {prev_tokens}")
-			full_scope = prev_tokens[0]
+			full_scope = prev_tokens[0] if prev_tokens else ""
 			all_scopes.append(full_scope)
 			# logger.debug(f"{full_scope}")
 		for m, pt in enumerate(prev_tokens):  # loop over collected 'tokens' for patterns
@@ -332,21 +332,30 @@ def normalise_utterance(line: str) -> Union[Tuple[List, Dict], Tuple[None, None]
 				prev_tokens[ind] = new
 				logger.debug(f"inner replace after adding {new} at index {ind}: {prev_tokens}")
 				prev_tokens.pop(m)
-				# logger.debug(f"inner replace after pop index {m}: {prev_tokens}")
+				logger.debug(f"inner replace after pop index {m}: {prev_tokens}")
 				prev_tokens.pop(m-1)
-				# logger.debug(f"inner replace after pop index {m-1}: {prev_tokens}")
+				logger.debug(f"inner replace after pop index {m-1}: {prev_tokens}")
 			# print(prev_tokens)
 			if re.match(to_omit, pt):
-				# logger.debug(f"inner omit before remove: {prev_tokens}")
+				logger.debug(f"inner omit before remove: {prev_tokens}")
 				prev_tokens.remove(pt)
-				# logger.debug(f"inner omit after remove: {prev_tokens}")
+				logger.debug(f"inner omit after remove: {prev_tokens}")
 	tokens.extend(prev_tokens)
-	if len(all_scopes) != len(tokens):
-		logger.debug(f"----utterance----:\n{line}")
-		logger.debug(f"all_scopes: {all_scopes}")
-		logger.debug(f"tokens: {tokens}")
+	positions = {i:v for i, v in enumerate(all_scopes)}
 
-	return tokens, positions
+	logger.debug(f"----utterance----:\n{line}")
+	# logger.debug(f"all_scopes: {all_scopes}")
+	logger.debug(f"tokens: {tokens}")
+	# logger.debug(f"{positions}")
+	# logger.debug(f"{' '. join(positions.values())}")
+
+	# if len(all_scopes) != len(tokens):
+	# 	logger.debug(f"----utterance----:\n{line}")
+	# 	# logger.debug(f"all_scopes: {all_scopes}")
+	# 	logger.debug(f"tokens: {tokens}")
+	# 	logger.debug(f"{' '. join(positions.values())}")
+
+	return tokens, all_scopes
 
 
 def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
@@ -449,11 +458,10 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 
 	punctuations = re.compile("([,.;?!:”])")
 
-	all_tokens = []
 	tokens = []
 
 	if not checked_tokens:
-		return all_tokens, tokens
+		return tokens
 
 	surface, clean = zip(*checked_tokens)
 	clean = list(filter(None, clean))  # remove empty strings
@@ -628,9 +636,8 @@ def extract_token_info(checked_tokens: list, gra: list, mor: list):
 					surface=surface)
 		if tok.index is not None:
 			tokens.append(tok)
-		all_tokens.append(tok)
 
-	return all_tokens, tokens
+	return tokens
 
 
 def create_sentence(idx, lines):
@@ -646,7 +653,7 @@ def create_sentence(idx, lines):
 	# print(tiers)
 
 	# ---- tokens ----
-	tokens, positions = normalise_utterance(lines[0].split('\t')[-1])  # normalise line (speaker removed)
+	tokens, all_scopes = normalise_utterance(lines[0].split('\t')[-1])  # normalise line (speaker removed)
 
 	# ---- clean form ----
 	clean = [check_token(t)[1] for t in tokens]
@@ -676,41 +683,39 @@ def create_sentence(idx, lines):
 
 	# ---- clean form ----
 	checked_tokens = [check_token(t) for t in tokens]
-	tokens, toks = extract_token_info(checked_tokens, gra, mor)
-
+	toks = extract_token_info(checked_tokens, gra, mor)
+	# if toks[-1].misc is None:
+	# 	toks[-1].misc = ""
+	# toks[-1].misc += "|utt=" + " ".join(all_scopes)  # utterance is stored in misc of punctuation for now
 
 	return Sentence(speaker=speaker,
 					tiers=tiers_dict,
 					gra=gra,
 					mor=mor,
-					tokens=tokens,
+					tokens=all_scopes,
 					clean=clean,
 					comments=comments,
 					sent_id=(idx+1),
 					toks=toks
-					), positions
+					)
 
 
 def to_conllu(filename, meta, utterances):
 	with open(filename, mode='w', encoding='utf-8') as f:
-		# write meta as headers
 		for k, v in meta.items():
-			f.write(f"# {k}\t{v}\n")
+			f.write(f"# {k}\t{v}\n")  # write meta as headers
 		f.write("\n")
-		# write each sentence
-		for idx, utterance in enumerate(utterances):
+		for idx, utterance in enumerate(utterances[-50:]):
 			try:
-				sent, _ = create_sentence(idx, utterance)
+				sent = create_sentence(idx, utterance)
+				# quit()
 			except IndexError:
 				logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
 				quit()
-			# if not sent.toks:
-			#   continue
-			# if sent.text() == '.':
-				# continue
 			# logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
 			f.write(f"# sent_id = {sent.get_sent_id()}\n")
 			f.write(f"# text = {sent.text()}\n")
+			f.write(f"# chat_sent = {' '. join(sent.tokens)}\n")
 			f.write(f"# speaker = {sent.speaker}\n")
 			for t in sent.tiers.keys():
 				f.write(f"# {t} = {sent.tiers.get(t)}\n")
@@ -767,12 +772,6 @@ def conllu2chat(files):
 
 if __name__ == "__main__":
 	pass
-	# TEST = "/home/jingwen/Desktop/thesis/Chang2"
-	# TEST = "tests"
-	# logger.info(f"listing all files in {TEST}...")
-	# files = list_files(TEST)
-	# chat2conllu(files)
-	# path = Path("/home/jingwen/Desktop/thesis/Brown/Sarah/020322.cha")
-	# chat2conllu([path], remove=False)
+
 
 
