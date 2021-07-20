@@ -20,6 +20,11 @@ def main():
 		default="cha",
 		help="input format, supports 'conllu' and 'cha'")
 	argp.add_argument(
+		"-fn",
+		"--filename",
+		type=str,
+		help="if specified, matches a single file")
+	argp.add_argument(
 		"corpora",
 		nargs="+",
 		help="names of CHILDES corpora if all files within needs conversion")
@@ -37,7 +42,11 @@ def main():
 			logger.fatal(f"The directory you specified does not exist.\nPlease recheck if you entered the path correctly: '{directory}'")
 			return
 
-		files = chatparser.list_files(directory, args.format)
+		files = []
+		if args.filename:
+			files = chatparser.list_files(directory, args.format, args.filename)
+		else:
+			files = chatparser.list_files(directory, args.format)
 		if not files:
 			logger.fatal(f"No files with extension '{args.format}' are found within {Path(args.directory, c)}.")
 			return
