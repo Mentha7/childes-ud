@@ -335,10 +335,10 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 	# logger.debug(f"{' '. join(positions.values())}")
 
 	# if len(all_scopes) != len(tokens):
-	# 	logger.debug(f"----utterance----:\n{line}")
-	# 	# logger.debug(f"all_scopes: {all_scopes}")
-	# 	logger.debug(f"tokens: {tokens}")
-	# 	logger.debug(f"{' '. join(positions.values())}")
+	#   logger.debug(f"----utterance----:\n{line}")
+	#   # logger.debug(f"all_scopes: {all_scopes}")
+	#   logger.debug(f"tokens: {tokens}")
+	#   logger.debug(f"{' '. join(positions.values())}")
 
 	return tokens, all_scopes
 
@@ -438,6 +438,33 @@ def to_upos(mor_code: str) -> str:
 
 	return mor2upos[mor_code] if mor_code in mor2upos else mor_code
 
+def parse_feats(mor_segment: str) -> List[str]:
+	feat_str = []
+	ff = mor_segment.split('|')[-1].split('&')[1:]  # 1st:[], 2nd:['PAST', '13S']
+	if ff:  # rule out []
+		for f in ff:
+			feat_str.append("FEAT=" + f.title())  # TO-DO: helper method to define which `FEAT` to use e.g. PERSON, TENSE
+	return feat_str
+
+
+def get_feats(mor_segment: str, is_multi=False) -> List[str]:
+	# feats have to be in the form of "FEAT=Feat"
+	# feats = ["FEAT=" + l.split('|')[-1].split('&')[1:] if l else 'None' for l in mor[j].split('~')]
+	# *RIC:	it was over here somewhere .
+	# %mor:	pro:per|it cop|be&PAST&13S prep|over n|here adv|somewhere .
+	# *INV:	what's happening in the picture ?
+	# %mor:	pro:int|what~aux|be&3S part|happen-PRESP prep|in det:art|the
+		# n|picture ?
+	# feats = []
+	if is_multi:
+		return [parse_feats(l) for l in mor_segment.split('~')]  # ['pro:int|what', 'aux|be&3S']
+	else:
+		return parse_feats(mor_segment)
+
+	print(feats)
+	# # quit()
+	# return feats
+
 
 def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
 
@@ -474,7 +501,7 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 		# print(index, form, surface)
 
 		if form != surface:
-			misc = f"{surface}"
+			misc = f"surface={surface}"
 		# print(mor)
 		if form == "":
 			index = None
@@ -506,8 +533,9 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 					upos = [to_upos(u.split(':')[0]) for u in upos]
 
 					xpos = [l.split('|')[0].replace('+', '') for l in mor[j].split('~')]
+					feats = get_feats(mor[j], is_multi=True)
+					logger.debug(feats)
 
-					feats = [l.split('|')[-1].split('&')[1:] if l else 'None' for l in mor[j].split('~')]
 					head = [gra[x].split('|')[1] for x in range(index, end_index+1)]
 					deprel = [gra[x].split('|')[-1].lower() for x in range(index, end_index+1)]
 					deps = [f"{h}:{deprel[x]}" for x, h in enumerate(head)]
@@ -537,7 +565,7 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 					if '+' in lemma:
 						if not misc:
 							misc = ""
-							misc += "|" + lemma
+							misc += "form=" + lemma
 						lemma = lemma.replace('+', '').replace('/', '')
 					index = int(gra[gra_index].split('|')[0])
 					upos = to_upos(mor[j].split('|')[0].replace('+', ''))
@@ -546,7 +574,9 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 					if '+' in xpos:
 						xpos = None
 
-					feats = mor[j].split('|')[-1].split('&')[1:]
+					feats = get_feats(mor[j])
+					logger.debug(feats)
+
 					head = gra[gra_index].split('|')[1]
 					deprel = gra[gra_index].split('|')[-1].lower()
 					deps = f"{head}:{deprel}"
@@ -559,7 +589,7 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 				if '+' in lemma:
 					if not misc:
 						misc = ""
-						misc += "|" + lemma
+						misc += "form=" + lemma
 					lemma = lemma.replace('+', '').replace('/', '')
 				index = gra[j].split('|')[0]
 				# use a mapping for upos and xpos, naively store the values for now
@@ -569,7 +599,8 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 				if '+' in xpos:
 					xpos = None
 
-				feats = mor[j].split('|')[-1].split('&')[1:]
+				feats = get_feats(mor[j])
+				logger.debug(feats)
 				head = gra[j].split('|')[1]
 				deprel = gra[j].split('|')[-1].lower()
 				deps = f"{head}:{deprel}"
@@ -584,7 +615,7 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 			if '+' in lemma:
 				if not misc:
 					misc = ""
-					misc += "|" + lemma
+					misc += "form=" + lemma
 			lemma = lemma.replace('+', '').replace('/', '')
 			# use a mapping for upos and xpos, naively store the values for now
 			upos = to_upos(mor[j].split('|')[0].replace('+', ''))
@@ -592,8 +623,8 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 			xpos = mor[j].split('|')[0]
 			if '+' in xpos:
 				xpos = None
-
-			feats = mor[j].split('|')[-1].split('&')[1:]
+			feats = get_feats(mor[j])
+			logger.debug(feats)
 
 			j += 1
 
@@ -691,7 +722,7 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 	checked_tokens = [check_token(t) for t in tokens]
 	toks = extract_token_info(checked_tokens, gra, mor)
 	# if toks[-1].misc is None:
-	# 	toks[-1].misc = ""
+	#   toks[-1].misc = ""
 	# toks[-1].misc += "|utt=" + " ".join(all_scopes)  # utterance is stored in misc of punctuation for now
 
 	return Sentence(speaker=speaker,
@@ -720,7 +751,7 @@ def to_conllu(filename: 'pathlib.PosixPath', meta: OrderedDict, utterances:List[
 			# logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
 			f.write(f"# sent_id = {sent.get_sent_id()}\n")
 			f.write(f"# text = {sent.text()}\n")
-			f.write(f"# chat_sent = {' '. join(sent.tokens)}\n")
+			f.write(f"# chat_sent = {' '.join(sent.tokens)}\n")
 			f.write(f"# speaker = {sent.speaker}\n")
 			for t in sent.tiers.keys():
 				f.write(f"# {t} = {sent.tiers.get(t)}\n")
