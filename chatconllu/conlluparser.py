@@ -72,12 +72,11 @@ def conllu2chat(files: List['pathlib.PosixPath']):
 						elif word.lemma and word.xpos:
 							m = '|'.join([word.xpos, word.lemma])
 						mor[word.id] = m
-					mwt = [k for k in mor.keys() if '-' in k]
+					mwt = [k for k in mor.keys() if '-' in k]  # multi-word token indices, since using pop below, cannot iterate dictionary
 					for k in mwt:
 						start, _, end = k.partition('-')
 						m = "~".join(mor.pop(str(n)) for n in range(int(start), int(end) + 1))
 						mor[k] = m
-
 
 					logger.debug(list(mor.values()))
 					logger.debug(len(list(mor.values())))
