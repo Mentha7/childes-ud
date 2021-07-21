@@ -2,6 +2,7 @@
 """
 import sys, os
 import re
+import ast
 from typing import List, Tuple, Dict, Union
 from pathlib import Path
 
@@ -66,10 +67,10 @@ def conllu2chat(files: List['pathlib.PosixPath']):
 						if 'form' in word.misc.keys():  # form is in word.misc
 							# logger.debug(f"word.misc: {word.misc}")
 							m = next(iter(word.misc['form']))
-						elif word.form and re.match(PUNCT, word.form):  # punctuations mor is form
-							m = word.form
-						elif word.form and word.xpos:
-							m = '|'.join([word.xpos, word.form])
+						elif word.lemma and re.match(PUNCT, word.lemma):  # punctuations mor is form
+							m = word.lemma
+						elif word.lemma and word.xpos:
+							m = '|'.join([word.xpos, word.lemma])
 						mor[word.id] = m
 					mwt = [k for k in mor.keys() if '-' in k]
 					for k in mwt:
@@ -81,8 +82,10 @@ def conllu2chat(files: List['pathlib.PosixPath']):
 
 
 					logger.debug(list(mor.values()))
-
-					# assert list(mor.values()) == sentence.meta_value('mor')  # TO-DO: add back FEATs
+					logger.debug(len(list(mor.values())))
+					logger.debug(len(ast.literal_eval(sentence.meta_value('mor'))))
+					assert len(list(mor.values())) == len(ast.literal_eval(sentence.meta_value('mor')))
+					# assert list(mor.values()) == ast.literal_eval(sentence.meta_value('mor'))  # TO-DO: add back FEATs
 					# quit()
 #
 			else:  # no utterance '0 .'
