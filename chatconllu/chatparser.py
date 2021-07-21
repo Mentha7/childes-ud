@@ -441,42 +441,61 @@ def to_upos(mor_code: str) -> str:
 
 def parse_feats(mor_segment: str) -> List[str]:
 	feat_str = []
-	ff = mor_segment.split('|')[-1].split('&')[1:]  # 1st:[], 2nd:['PAST', '13S']
+	ff = mor_segment.split('|')[-1].split('&')[1:]  # e.g. ['PAST', '13S']
 	if ff:  # rule out []
 		for f in ff:
 			feat_str.append("FEAT=" + f.title())  # TO-DO: helper method to define which `FEAT` to use e.g. PERSON, TENSE
 	return feat_str
 
 
-def get_feats(mor_segment: str, is_multi=False) -> List[str]:
+def get_feats(mor_segment: str, is_multi=False) -> Union[List[List[str]], List[str]]:
 	if is_multi:
 		return [parse_feats(l) for l in mor_segment.split('~')]  # ['pro:int|what', 'aux|be&3S']
 	else:
 		return parse_feats(mor_segment)
 
 
-def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
+def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
+	"""Extract information from mor and gra tiers when supplied, create Token objects with the information.
+
+	Parameters:
+	-----------
+	checked_tokens:	list of token tuples (surface, clean), returned by `check_token()`.
+	gra: list of gra segments roughly corresponds to the list of tokens, since multi-word tokens
+		 have separated gra segments.
+	mor: list of mor segments with one-to-one correspondance with the list of tokens.
+
+	Return value: a list of chatconllu.Token objects.
+
+
+	----TO-DO----
+	* rethink lemma for compound words
+		- e.g. mor: "n|+n|washing+n|machine", "washing+machine", currently form is "washingmachine", lemma is "machine"
+	* rethink preserving information after dash symbol, right now such info is lost
+	* reduce duplicate code to helper methods
+	*
+	"""
 
 	punctuations = re.compile("([,.;?!:”])")
 
 	tokens = []
 
-	if not checked_tokens:
+	if not checked_tokens:  # if provided empty list or None, return []
 		return tokens
 
 	surface, clean = zip(*checked_tokens)
 	clean = list(filter(None, clean))  # remove empty strings
 
 	## ---- test prints ----
-	# print(f"\n* utterance: {' '.join(clean)}\n")
-	# print(mor)
+	# logger.debug(f"\n* utterance: {' '.join(clean)}\n")
+	# logger.debug(mor)
 
 	j = 0  # j keeps track of clean tokens
 	gra_index = 0
 
-	for i, (s, c) in enumerate(checked_tokens):
+	for i, (s, c) in enumerate(checked_tokens):  # index, (surface, clean)
 		index = j
-		form = c.split('-')[0].replace('+', '')
+		form = c.split('-')[0].replace('+', '')  # currently discard anything after dash, remove `+` seen in compounds
 		lemma = None
 		upos = None
 		xpos = None
@@ -487,16 +506,16 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 		misc = None
 		multi = None
 		surface = s
-		# print(index, form, surface)
+		# logger.debug(index, form, surface)
 
-		if form != surface:
+		if form != surface:  # surface form and clean disagree, store surface form in MISC field
 			misc = f"surface={surface}"
-		# print(mor)
-		if form == "":
+		# logger.debug(mor)
+		if form == "":  # Why did I check this?
 			index = None
-		elif gra and mor:
+		elif gra and mor:  # --> is able to determine if there are multi-word tokens
 			try:
-				assert len(clean) == len(mor)
+				assert len(clean) == len(mor)  # one-to-one correspondance between tokens and mor segments
 			except AssertionError:
 				logger.warn(f"Something went wrong: clean and mor should have the same length!")
 				logger.debug(f"utterance: {' '.join(clean)}\n")
@@ -504,7 +523,7 @@ def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], m
 				logger.debug(f"clean:\t{clean}\n")
 				break
 
-			if len(gra) != len(mor):
+			if len(gra) != len(mor):  # there are multi-word tokens in this utterance (represented by a list of tokens)
 				# ---- finds '~' in mor tier, take care of token indices ----
 				idx = [x for x, g in enumerate(mor) if '~' in g]
 				# print(idx)
