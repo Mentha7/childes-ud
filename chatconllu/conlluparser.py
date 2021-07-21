@@ -75,8 +75,6 @@ def conllu2chat(files: List['pathlib.PosixPath']):
 					mwt = [k for k in mor.keys() if '-' in k]
 					for k in mwt:
 						start, _, end = k.partition('-')
-						# for n in range(start, end + 1):
-						# 	print(mor.pop(n))
 						m = "~".join(mor.pop(str(n)) for n in range(int(start), int(end) + 1))
 						mor[k] = m
 
@@ -92,33 +90,6 @@ def conllu2chat(files: List['pathlib.PosixPath']):
 				sc += 1
 				logger.warning(f"sent {sentence.id} has no utterance.")
 
-
-				# for word in sentence:
-				# 	m = ''
-				# 	g = ''
-				# 	wc += 1
-				# 	# logger.debug(word.conll())
-				# 	# print(word.misc)
-				# 	# quit()
-				# 	if word.xpos is None and word.misc:
-				# 		m = word.misc.keys[0]
-				# 		# logger.debug(word.misc.keys[0])
-				# 	elif word.lemma and re.match(PUNCT, word.lemma):
-				# 		m = word.lemma
-				# 		logger.debug(word.lemma)
-				# 	else:
-				# 		if word.misc:
-				# 			lemma = word.misc.keys[0]
-				# 		m = '|'.join([word.lemma, word.xpos])
-				# 		logger.debug('|'.join([word.lemma, word.xpos]))
-				# 	mor.append(m)
-				# print(mor)
-
 		# logger.info(f"{f.stem + f.suffix} has {sc} sentences, {wc} tokens.")
-		# quit()
-
-
 		# fn = f.with_suffix(".cha")
-
-
 		# quit()
