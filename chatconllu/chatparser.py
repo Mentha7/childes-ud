@@ -438,6 +438,7 @@ def to_upos(mor_code: str) -> str:
 
 	return mor2upos[mor_code] if mor_code in mor2upos else mor_code
 
+
 def parse_feats(mor_segment: str) -> List[str]:
 	feat_str = []
 	ff = mor_segment.split('|')[-1].split('&')[1:]  # 1st:[], 2nd:['PAST', '13S']
@@ -448,22 +449,10 @@ def parse_feats(mor_segment: str) -> List[str]:
 
 
 def get_feats(mor_segment: str, is_multi=False) -> List[str]:
-	# feats have to be in the form of "FEAT=Feat"
-	# feats = ["FEAT=" + l.split('|')[-1].split('&')[1:] if l else 'None' for l in mor[j].split('~')]
-	# *RIC:	it was over here somewhere .
-	# %mor:	pro:per|it cop|be&PAST&13S prep|over n|here adv|somewhere .
-	# *INV:	what's happening in the picture ?
-	# %mor:	pro:int|what~aux|be&3S part|happen-PRESP prep|in det:art|the
-		# n|picture ?
-	# feats = []
 	if is_multi:
 		return [parse_feats(l) for l in mor_segment.split('~')]  # ['pro:int|what', 'aux|be&3S']
 	else:
 		return parse_feats(mor_segment)
-
-	print(feats)
-	# # quit()
-	# return feats
 
 
 def extract_token_info(checked_tokens: List[str], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
