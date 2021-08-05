@@ -439,20 +439,38 @@ def to_upos(mor_code: str) -> str:
 	return mor2upos[mor_code] if mor_code in mor2upos else mor_code
 
 
-def parse_feats(mor_segment: str) -> List[str]:
+# def parse_feats(mor_segment: str) -> List[str]:
+# 	feat_str = []
+# 	ff = mor_segment.split('|')[-1].split('&')[1:]  # e.g. ['PAST', '13S']
+# 	if ff:  # rule out []
+# 		for f in ff:
+# 			feat_str.append("FEAT=" + f.title())  # TO-DO: helper method to define which `FEAT` to use e.g. PERSON, TENSE
+# 	return feat_str
+
+def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
+	feat_pattern = re.compile("\d?[A-Z]+(?![a-z])")
+	lemma = None
 	feat_str = []
-	ff = mor_segment.split('|')[-1].split('&')[1:]  # e.g. ['PAST', '13S']
-	if ff:  # rule out []
-		for f in ff:
-			feat_str.append("FEAT=" + f.title())  # TO-DO: helper method to define which `FEAT` to use e.g. PERSON, TENSE
-	return feat_str
+	pos, _, lemma_feats = mor_segment.partition('|')
+	lemma_feats, _, translation = lemma_feats.partition('=')  # remove translation
+	tmp = re.split('&|-', lemma_feats)
+	if not re.match(feat_pattern, tmp[0]):
+		lemma = tmp[0]
+		if tmp[1:]:
+			for f in tmp[1:]:
+				feat_str.append("FEAT=" + f.title())
+	elif tmp:
+		for f in tmp:
+			feat_str.append("FEAT=" + f.title())
+	return pos, lemma, feat_str, translation
 
 
-def get_feats(mor_segment: str, is_multi=False) -> Union[List[List[str]], List[str]]:
+def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[List[str]], List[str]]:
 	if is_multi:
-		return [parse_feats(l) for l in mor_segment.split('~')]  # ['pro:int|what', 'aux|be&3S']
+		return [parse_mor(l) for l in re.split("~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
 	else:
-		return parse_feats(mor_segment)
+		return parse_mor(mor_segment)
+
 
 def parse_compounds(mor_segment: str) -> Tuple[str, List[str]]:
 	"""Given a compound representation like "n|+v|wash+n|machine", return
