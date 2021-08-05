@@ -454,13 +454,21 @@ def get_feats(mor_segment: str, is_multi=False) -> Union[List[List[str]], List[s
 	else:
 		return parse_feats(mor_segment)
 
+def parse_compounds(mor_segment: str) -> Tuple[str, List[str]]:
+	"""Given a compound representation like "n|+v|wash+n|machine", return
+	   'n', [wash', 'machine'].
+	"""
+	tmp = re.split("\+\w+?\|", mor_segment)
+	pos = tmp[0][:-1]  # remove |
+	components = tmp[1:]
+	return pos, components
 
 def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
 	"""Extract information from mor and gra tiers when supplied, create Token objects with the information.
 
 	Parameters:
 	-----------
-	checked_tokens:	list of token tuples (surface, clean), returned by `check_token()`.
+	checked_tokens: list of token tuples (surface, clean), returned by `check_token()`.
 	gra: list of gra segments roughly corresponds to the list of tokens, since multi-word tokens
 		 have separated gra segments.
 	mor: list of mor segments with one-to-one correspondance with the list of tokens.
@@ -523,7 +531,11 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 				logger.debug(f"clean:\t{clean}\n")
 				break
 
-			if len(gra) != len(mor):  # there are multi-word tokens in this utterance (represented by a list of tokens)
+			if len(gra) != len(mor):  # there are multi-word tokens in this utterance (utterances are represented by lists of tokens)
+				# ---- update 05.08.2021 ----
+				# '~' marks enclitics (postclitics) and '$' marks proclitics (preclitics, common in romance languages)
+				# don't know if they can occur together, for cases of mesoclitics and endoclitics maybe
+				# but for now assume either '~' or '$'
 				# ---- finds '~' in mor tier, take care of token indices ----
 				idx = [x for x, g in enumerate(mor) if '~' in g]
 				# print(idx)
