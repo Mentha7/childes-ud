@@ -526,11 +526,10 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 	## ---- test prints ----
 	logger.debug(f"\n* utterance: {' '.join(clean)}\n")
-	logger.debug(mor)
+	logger.debug(gra)
 
 	j = 0  # j keeps track of clean tokens
 	tok_index = 1
-
 
 	for c in clean:  # index, (surface, clean)
 		# ---- initialise all Token attributes ----
@@ -557,41 +556,43 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			m = idx.index(j)  # the current token is the m th multi-word token in this utterance
 			index = j + m + 1
 			num = len(re.split('~|\$', mor[j]))  # number of components in mwt
-			end_index = index + num - 1
-			multi = end_index
-			logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{end_index}")
+			multi = index + num - 1
+			logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
 
 			# ---- get token info from mor ----
 			xpos, lemma, feats, translation = zip(*get_lemma_and_feats(mor[j], is_multi=True))
 			upos = [to_upos(x.replace('+', '')) for x in xpos]
 			upos = [to_upos(x.split(':')[0]) for x in upos]
 			if re.match('\w+\+\w+', form):
-				_ , lemmas = parse_compounds(mor_segment)
+				_ , lemmas = parse_compounds(mor[j])
 				lemma = ''.join(lemmas)
 			if '+' in xpos:
 				xpos = None
-			tok_index = end_index
+			tok_index = multi
 
 			# ---- get token info from gra, if gra ----
 			if gra:
-				head, deprel = zip(*parse_gra(gra[x] for x in range(index, end_index+1)))
+				head = []
+				deprel = []
+				for x in range(index-1, multi):
+					print(parse_gra(gra[x]))
+					h, d = parse_gra(gra[x])
+					head.append(h)
+					deprel.append(d)
 				deps = [f"{h}:{deprel[x]}" for x, h in enumerate(head)]
-				multi = end_index
-
-				# tok_index = index
-				# tok_index += 1
-				logger.debug(f"tok_index:{tok_index}\tmulti:{multi}\tend:{end_index}")
+				logger.debug(f"tok_index:{tok_index}\tmulti:{multi}\tend:{multi}")
 		else:
 			if mor:
 				xpos, lemma, feats, translation = get_lemma_and_feats(mor[j])
-				if '+' in lemma:
+				if lemma and '+' in lemma:
 					if not misc:
 						misc = ""
 						misc += "form=" + lemma
 					lemma = lemma.replace('+', '').replace('/', '')
-					if re.match('\w+\+\w+', form):
+					if re.match('(\w+\+)+\w+', form):
 						_ , lemmas = parse_compounds(mor[j])
 						lemma = ''.join(lemmas)
+						form = lemma
 				index = tok_index
 				upos = to_upos(xpos.replace('+', ''))
 				upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
@@ -599,10 +600,9 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					xpos = None
 
 			if gra:
-				head, deprel = parse_gra(gra[tok_index])
+				head, deprel = parse_gra(gra[tok_index-1])
 				deps = f"{head}:{deprel}"
-				index = int(gra[tok_index].split('|')[0])
-				# tok_index += 1
+				index = int(gra[tok_index-1].split('|')[0])
 
 		j+=1
 		tok_index += 1
@@ -612,8 +612,19 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		if re.match(punctuations, form):
 			upos = "PUNCT"
 			lemma = form
-		logger.debug(f"index:{index}\tform:{form}\tlemma:{lemma}\tupos:{upos}")
-
+		# logger.debug(f"index:{index}\tform:{form}\tlemma:{lemma}\tupos:{upos}")
+		# # # ---- test print ----
+		# logger.info(f"index:\t{index}")
+		# logger.info(f"token:\t{form}")
+		# logger.info(f"lemma:\t{lemma}")
+		# logger.info(f"upos:\t{upos}")
+		# logger.info(f"xpos:\t{xpos}")
+		# logger.info(f"feats:\t{feats}")
+		# logger.info(f"head:\t{head}")
+		# logger.info(f"deprel:\t{deprel}")
+		# logger.info(f"deps:\t{deps}")
+		# logger.info(f"misc:\t{misc}")
+		# logger.info(f"multi:\t{multi}")
 		# ---- create Tokens ----
 		tok = Token(index=index,
 					form=form,

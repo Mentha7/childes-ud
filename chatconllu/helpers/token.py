@@ -89,7 +89,7 @@ class Token(object):
 			xpos=self.xpos[n]
 			feats="|".join(self.feats[n]) if self.feats[n] else 'None'
 			# head=self.head[n] if self.head[n] else 'None'
-			if self.head: head=self.head[n]
+			if self.head is not None: head=self.head[n]
 			else: head='None'
 			if self.deprel: deprel=self.deprel[n]
 			else: deprel='None'
