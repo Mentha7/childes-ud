@@ -107,7 +107,7 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 
 	until_rangleb = re.compile("([^>]+)>")
 	until_rbracket = re.compile("([^]]+)]")
-	until_eow = re.compile(r"[^,.;?!”<> ]+")
+	until_eow = re.compile(r"[^,.;?!”<>\[\] ]+")  # added [] just in case something like this happens: "blah[: blahblah]""
 	punct_re = re.compile("([,.;?!:”])")
 
 	# ---- define patterns to omit ----
@@ -447,6 +447,13 @@ def to_upos(mor_code: str) -> str:
 # 			feat_str.append("FEAT=" + f.title())  # TO-DO: helper method to define which `FEAT` to use e.g. PERSON, TENSE
 # 	return feat_str
 
+
+def parse_gra(gra_segment: str) -> Tuple[str, str]:
+	head = gra_segment.split('|')[1]
+	deprel = gra_segment.split('|')[-1].lower()
+	return head, deprel
+
+
 def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
 	feat_pattern = re.compile("\d?[A-Z]+(?![a-z])")
 	lemma = None
@@ -462,10 +469,12 @@ def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
 	elif tmp:
 		for f in tmp:
 			feat_str.append("FEAT=" + f.title())
+	if not feat_str:  # To-Do: feats
+		feat_str = ''
 	return pos, lemma, feat_str, translation
 
 
-def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[List[str]], List[str]]:
+def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], Tuple]:
 	if is_multi:
 		return [parse_mor(l) for l in re.split("~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
 	else:
@@ -480,6 +489,7 @@ def parse_compounds(mor_segment: str) -> Tuple[str, List[str]]:
 	pos = tmp[0][:-1]  # remove |
 	components = tmp[1:]
 	return pos, components
+
 
 def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
 	"""Extract information from mor and gra tiers when supplied, create Token objects with the information.
@@ -517,7 +527,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 	# logger.debug(mor)
 
 	j = 0  # j keeps track of clean tokens
-	gra_index = 0
+	tok_index = 0
 
 	for i, (s, c) in enumerate(checked_tokens):  # index, (surface, clean)
 		index = j
@@ -555,7 +565,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 				# don't know if they can occur together, for cases of mesoclitics and endoclitics maybe
 				# but for now assume either '~' or '$'
 				# ---- finds '~' in mor tier, take care of token indices ----
-				idx = [x for x, g in enumerate(mor) if '~' in g]
+				idx = [x for x, g in enumerate(mor) if '~' in g or '$' in g]
 				# print(idx)
 				if j in idx:  # multi-word
 					m = idx.index(j)
@@ -571,8 +581,9 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					upos = [to_upos(u.split(':')[0]) for u in upos]
 
 					xpos = [l.split('|')[0].replace('+', '') for l in mor[j].split('~')]
-					feats = get_feats(mor[j], is_multi=True)
+					feats = get_lemma_and_feats(mor[j], is_multi=True)
 					logger.debug(feats)
+					quit()
 
 					head = [gra[x].split('|')[1] for x in range(index, end_index+1)]
 					deprel = [gra[x].split('|')[-1].lower() for x in range(index, end_index+1)]
@@ -580,8 +591,8 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					multi = end_index
 
 					# ---- increment indices ----
-					gra_index = index
-					gra_index += 1
+					tok_index = index
+					tok_index += 1
 
 					# # ---- test print ----
 					# print(f"index:\t{index}")
@@ -599,45 +610,70 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 				else:
 					# ---- create token ----
-					lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0]
+					xpos, lemma, feats, translation = get_lemma_and_feats(mor[j])
 					if '+' in lemma:
 						if not misc:
 							misc = ""
 							misc += "form=" + lemma
 						lemma = lemma.replace('+', '').replace('/', '')
-					index = int(gra[gra_index].split('|')[0])
-					upos = to_upos(mor[j].split('|')[0].replace('+', ''))
+					index = int(gra[tok_index].split('|')[0])
+					upos = to_upos(xpos.replace('+', ''))
 					upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
-					xpos = mor[j].split('|')[0]
 					if '+' in xpos:
 						xpos = None
 
-					feats = get_feats(mor[j])
+
+					# lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0]
+					# if '+' in lemma:
+					# 	if not misc:
+					# 		misc = ""
+					# 		misc += "form=" + lemma
+					# 	lemma = lemma.replace('+', '').replace('/', '')
+					# index = int(gra[tok_index].split('|')[0])
+					# upos = to_upos(mor[j].split('|')[0].replace('+', ''))
+					# upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
+					# xpos = mor[j].split('|')[0]
+					# if '+' in xpos:
+					# 	xpos = None
+
+					# feats = get_feats(mor[j])
 					logger.debug(feats)
 
-					head = gra[gra_index].split('|')[1]
-					deprel = gra[gra_index].split('|')[-1].lower()
+					head = gra[tok_index].split('|')[1]
+					deprel = gra[tok_index].split('|')[-1].lower()
 					deps = f"{head}:{deprel}"
 
 					# ---- increment indices ----
-					gra_index += 1
+					tok_index += 1
 
 			else:
-				lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0]
+				xpos, lemma, feats, translation = get_lemma_and_feats(mor[j])
 				if '+' in lemma:
 					if not misc:
 						misc = ""
 						misc += "form=" + lemma
 					lemma = lemma.replace('+', '').replace('/', '')
 				index = gra[j].split('|')[0]
-				# use a mapping for upos and xpos, naively store the values for now
-				upos = to_upos(mor[j].split('|')[0].replace('+', ''))
+				upos = to_upos(xpos.replace('+', ''))
 				upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
-				xpos = mor[j].split('|')[0]
 				if '+' in xpos:
 					xpos = None
 
-				feats = get_feats(mor[j])
+				# lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0]
+				# if '+' in lemma:
+				# 	if not misc:
+				# 		misc = ""
+				# 		misc += "form=" + lemma
+				# 	lemma = lemma.replace('+', '').replace('/', '')
+				# index = gra[j].split('|')[0]
+				# # use a mapping for upos and xpos, naively store the values for now
+				# upos = to_upos(mor[j].split('|')[0].replace('+', ''))
+				# upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
+				# xpos = mor[j].split('|')[0]
+				# if '+' in xpos:
+				# 	xpos = None
+
+				# feats = get_feats(mor[j])
 				logger.debug(feats)
 				head = gra[j].split('|')[1]
 				deprel = gra[j].split('|')[-1].lower()
@@ -649,6 +685,8 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			# print(mor)
 			# print(index, form, surface)
 			index = j + 1
+
+
 			lemma = mor[j].split('|')[-1].split('&')[0].split('-')[0]
 			if '+' in lemma:
 				if not misc:
@@ -661,24 +699,24 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			xpos = mor[j].split('|')[0]
 			if '+' in xpos:
 				xpos = None
-			feats = get_feats(mor[j])
+			feats = get_lemma_and_feats(mor[j])
 			logger.debug(feats)
 
 			j += 1
 
 			# # ---- test print ----
-			# print(f"index:\t{index}")
-			# (f"token:\t{form}")
-			# print(f"lemma:\t{lemma}")
-			# print(f"upos:\t{upos}")
-			# print(f"xpos:\t{xpos}")
-			# print(f"feats:\t{feats}")
-			# print(f"head:\t{head}")
-			# print(f"deprel:\t{deprel}")
-			# print(f"deps:\t{deps}")
-			# print(f"misc:\t{misc}")
-			# print(f"multi:\t{multi}")
-			# print()
+			print(f"index:\t{index}")
+			(f"token:\t{form}")
+			print(f"lemma:\t{lemma}")
+			print(f"upos:\t{upos}")
+			print(f"xpos:\t{xpos}")
+			print(f"feats:\t{feats}")
+			print(f"head:\t{head}")
+			print(f"deprel:\t{deprel}")
+			print(f"deps:\t{deps}")
+			print(f"misc:\t{misc}")
+			print(f"multi:\t{multi}")
+			print()
 
 		elif gra:
 			assert len(gra) == len(clean)
@@ -711,6 +749,172 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					surface=surface)
 		if tok.index is not None:
 			tokens.append(tok)
+
+	return tokens
+
+
+def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
+	"""Extract information from mor and gra tiers when supplied, create Token objects with the information.
+
+	Parameters:
+	-----------
+	checked_tokens: list of token tuples (surface, clean), returned by `check_token()`.
+	gra: list of gra segments roughly corresponds to the list of tokens, since multi-word tokens
+		 have separated gra segments.
+	mor: list of mor segments with one-to-one correspondance with the list of tokens.
+
+	Return value: a list of chatconllu.Token objects.
+
+
+	----TO-DO----
+	* rethink lemma for compound words
+		- e.g. mor: "n|+n|washing+n|machine", "washing+machine", currently form is "washingmachine", lemma is "machine"
+	* rethink preserving information after dash symbol, right now such info is lost
+	* reduce duplicate code to helper methods
+	"""
+	punctuations = re.compile("([,.;?!:”])")
+
+	tokens = []
+	idx = []
+
+	if not checked_tokens:  # if provided empty list or None, return []
+		return tokens
+
+	surface, clean = zip(*checked_tokens)
+	clean = list(filter(None, clean))  # remove empty strings
+
+	if mor:
+		idx = [x for x, g in enumerate(mor) if '~' in g or '$' in g]  # get multi-word tokens' indices in mor tier
+		# logger.debug(idx)
+		try:
+			assert len(clean) == len(mor)  # one-to-one correspondance between tokens and mor segments
+		except AssertionError:
+			logger.warn(f"Something went wrong: clean and mor should have the same length!")
+			logger.debug(f"utterance: {' '.join(clean)}\n")
+			logger.debug(f"mor:\t{mor}\n")
+			logger.debug(f"clean:\t{clean}\n")
+
+
+	## ---- test prints ----
+	logger.debug(f"\n* utterance: {' '.join(clean)}\n")
+	logger.debug(mor)
+
+	j = 0  # j keeps track of clean tokens
+	tok_index = 1
+
+
+	for c in clean:  # index, (surface, clean)
+		# ---- initialise all Token attributes ----
+		index = j
+		form = c  # don't remove `+` seen in compounds yet, should keep the dash for words like "qu'est-ce" in French
+		lemma = None
+		upos = None
+		xpos = None
+		feats = None
+		head = None
+		deprel = None
+		deps = None
+		misc = None
+		multi = None
+		surface = None  # don't need this attribute, to be removed in Token
+
+		# ---- simplified logic ----
+		# if j in idx: multi-word tokens
+		# if mor: lemma for compounds
+		# if gra: head, deprel and deps
+		# modify compound form, assign PUNCT to punctuations
+		# create Tokens
+		if j in idx:  # multi-word tokens, implies has mor tier
+			m = idx.index(j)  # the current token is the m th multi-word token in this utterance
+			index = j + m + 1
+			num = len(re.split('~|\$', mor[j]))  # number of components in mwt
+			end_index = index + num - 1
+			multi = end_index
+			logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{end_index}")
+
+			# ---- get token info from mor ----
+			xpos, lemma, feats, translation = zip(*get_lemma_and_feats(mor[j], is_multi=True))
+			upos = [to_upos(x.replace('+', '')) for x in xpos]
+			upos = [to_upos(x.split(':')[0]) for x in upos]
+			if re.match('\w+\+\w+', form):
+				_ , lemmas = parse_compounds(mor_segment)
+				lemma = ''.join(lemmas)
+			if '+' in xpos:
+				xpos = None
+			tok_index = end_index
+
+			# ---- get token info from gra, if gra ----
+			if gra:
+				head, deprel = zip(*parse_gra(gra[x] for x in range(index, end_index+1)))
+				deps = [f"{h}:{deprel[x]}" for x, h in enumerate(head)]
+				multi = end_index
+
+				# tok_index = index
+				# tok_index += 1
+				logger.debug(f"tok_index:{tok_index}\tmulti:{multi}\tend:{end_index}")
+		else:
+			if mor:
+				xpos, lemma, feats, translation = get_lemma_and_feats(mor[j])
+				if '+' in lemma:
+					if not misc:
+						misc = ""
+						misc += "form=" + lemma
+					lemma = lemma.replace('+', '').replace('/', '')
+					if re.match('\w+\+\w+', form):
+						_ , lemmas = parse_compounds(mor[j])
+						lemma = ''.join(lemmas)
+				index = tok_index
+				upos = to_upos(xpos.replace('+', ''))
+				upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
+				if '+' in xpos:
+					xpos = None
+
+			if gra:
+				head, deprel = parse_gra(gra[tok_index])
+				deps = f"{head}:{deprel}"
+				index = int(gra[tok_index].split('|')[0])
+				# tok_index += 1
+
+		j+=1
+		tok_index += 1
+
+		# quit()
+		# ---- modify compound form, assign PUNCT to punctuations ----
+		if re.match(punctuations, form):
+			upos = "PUNCT"
+			lemma = form
+		logger.debug(f"index:{index}\tform:{form}\tlemma:{lemma}\tupos:{upos}")
+
+		# # ---- test print ----
+		logger.debug(f"index:\t{index}")
+		logger.debug(f"token:\t{form}")
+		logger.debug(f"lemma:\t{lemma}")
+		logger.debug(f"upos:\t{upos}")
+		logger.debug(f"xpos:\t{xpos}")
+		logger.debug(f"feats:\t{feats}")
+		logger.debug(f"head:\t{head}")
+		logger.debug(f"deprel:\t{deprel}")
+		logger.debug(f"deps:\t{deps}")
+		logger.debug(f"misc:\t{misc}")
+		logger.debug(f"multi:\t{multi}")
+		logger.debug('')
+		# ---- create Tokens ----
+		tok = Token(index=index,
+					form=form,
+					lemma=lemma,
+					upos=upos,
+					xpos=xpos,
+					feats=feats,
+					head=head,
+					deprel=deprel,
+					deps=deps,
+					misc=misc,
+					multi=multi,
+					surface=surface)
+		if tok.index is not None:
+			tokens.append(tok)
+		print(tok.feats)
+		# quit()
 
 	return tokens
 
@@ -783,8 +987,10 @@ def to_conllu(filename: 'pathlib.PosixPath', meta: OrderedDict, utterances:List[
 		for idx, utterance in enumerate(utterances):
 			try:
 				sent = create_sentence(idx, utterance)
-			except IndexError:
-				logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
+			except IndexError as e:
+				logger.exception(e)
+				raise
+				logger.info(f"writing sent {utterance} to {filename}...")
 				quit()
 			# logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
 			f.write(f"# sent_id = {sent.get_sent_id()}\n")
