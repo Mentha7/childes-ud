@@ -183,20 +183,16 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 
 	tokens = []
 	prev_tokens = []
-	all_scopes = []
-	positions = {}
 
 	if line is None:
-		return None, None
+		return None
 
 	if line == "0 .":
-		return tokens, positions
-
+		return tokens
 	# logger.debug(f"----utterance----:\n{line}")
 
 	i = 0
 	while i < len(line):
-		full_scope = ''
 		if line[i] == " ":
 			i += 1
 		elif line[i:].startswith("<"):
@@ -205,51 +201,29 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 			if line[i:].startswith("<"):
 				logger.warn(f"This is a mistake in the corpus: two consecutive '<<' found. Skipping this utterance:\n{line}.")
 				# quit()
-				return tokens, positions
+				return tokens
 			s = re.match(until_rangleb, line[i:])
 			prev_tokens = s.group(1).strip().split()
-			# logger.debug(f"prev_tokens_new: {prev_tokens}")
 			i += len(s.group(0))
-			# logger.debug(f"s.group(0): {s.group(0)}")
-			full_scope = "<" + s.group(0)
-			all_scopes.append(full_scope)
-			# logger.debug(f"{full_scope}")
 		elif re.match(delete_prev, line[i:]):
-			# logger.debug(f"previous to be deleted: {prev_tokens}")
 			s = re.match(delete_prev, line[i:])
 			i += len(s.group(0))
 			prev_tokens = []  # forget previous tokens
-			# logger.debug(f"delete previous: {s.group(0)}")
-			full_scope = s.group(0)
-			all_scopes.append(full_scope)
-			# logger.debug(f"{full_scope}")
 		elif re.match(special_terminators, line[i:]):
 			tokens.extend(prev_tokens)
 			s = re.match(special_terminators, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[-1]]
-			# logger.debug(f"special_terminators: {s.group(0)} to {prev_tokens}")
-			full_scope = s.group(0)
-			all_scopes.append(full_scope)
-			# logger.debug(f"{full_scope}")
 		elif re.match(to_omit, line[i:]):
 			s = re.match(to_omit, line[i:])
 			tokens.extend(prev_tokens)  # keep previous tokens
 			i += len(s.group(0))
 			prev_tokens = []
-			# logger.debug(f"keep previous tokens and omit: {s.group(0)}")
-			full_scope = s.group(0)
-			all_scopes.append(full_scope)
-			# logger.debug(f"{full_scope}")
 		elif re.match(overlap, line[i:]):
 			s = re.match(overlap, line[i:])
 			tokens.extend(prev_tokens)
 			i += len(s.group(0))
-			# logger.debug(f"overlap pattern: {s.group(0)}")
 			prev_tokens = []
-			full_scope = s.group(0)
-			all_scopes.append(full_scope)
-			# logger.debug(f"{full_scope}")
 		elif re.match(to_replace, line[i:]):
 			s = re.match(to_replace, line[i:])
 			i += len(s.group(0))
@@ -257,48 +231,26 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 			tokens.extend(m.group(1).strip().split())
 			i += len(m.group(0))
 			prev_tokens = []
-			# logger.debug(f"to replace pattern: {s.group(0)}")
-			# logger.debug(f"\tto replace: {m.group(1).strip().split()}")
-			full_scope = s.group(0) + m.group(0)
-			all_scopes.append(full_scope)
-			# logger.debug(f"{full_scope}")
 		elif re.match(strip_quotation, line[i:]):
 			tokens.extend(prev_tokens)
 			s = re.match(strip_quotation, line[i:])
 			i += len(s.group(0))
 			prev_tokens = s.group(0).strip()[1:-1].split()  # remove '+'
-			# logger.debug(f"strip quotation: {s.group(0)} to {prev_tokens}")
-			full_scope = s.group(0)
-			all_scopes.append(full_scope)
-			# logger.debug(f"{full_scope}")
 		elif re.match(trailing_off, line[i:]):  # above punctuation block, handles `...`
 			tokens.extend(prev_tokens)
 			s = re.match(trailing_off, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[1:]]  # remove '+'
-			# logger.debug(f"trailing off pattern: {s.group(0)} to {prev_tokens}")
-			full_scope = s.group(0)
-			all_scopes.append(full_scope)
-			# logger.debug(f"{full_scope}")
 		elif re.match(punct_re, line[i:]):  # punctuations, doesn't handle more than 1 place like '...'
 			tokens.extend(prev_tokens)
 			prev_tokens = [line[i]]
-			full_scope = line[i]
 			i += 1
-			all_scopes.append(full_scope)
-			# logger.debug(f"single punctuation pattern: {prev_tokens}")
-			# logger.debug(f"{full_scope}")
 		else:  # normal tokens
 			tokens.extend(prev_tokens)
 			m = re.match(until_eow, line[i:])
 			prev_tokens = [m.group(0)] if m else []
 			i += len(m.group(0)) if m else 1
-			# logger.debug(f"normal token: {prev_tokens}")
-			full_scope = prev_tokens[0] if prev_tokens else ""
-			all_scopes.append(full_scope)
-			# logger.debug(f"{full_scope}")
 		for m, pt in enumerate(prev_tokens):  # loop over collected 'tokens' for patterns
-			# print(pt)
 			if re.match(delete_prev, pt):
 				logger.debug(f"inner delete previous before: {prev_tokens}")
 				prev_tokens.pop(m-1)
@@ -311,7 +263,6 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 						break
 					else:
 						ind += 1
-				# print(f"new:{new}")
 				logger.debug(f"inner replace: to {new}")
 				logger.debug(f"inner replace before: {prev_tokens}")
 				prev_tokens[ind] = new
@@ -320,27 +271,16 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 				logger.debug(f"inner replace after pop index {m}: {prev_tokens}")
 				prev_tokens.pop(m-1)
 				logger.debug(f"inner replace after pop index {m-1}: {prev_tokens}")
-			# print(prev_tokens)
 			if re.match(to_omit, pt):
 				logger.debug(f"inner omit before remove: {prev_tokens}")
 				prev_tokens.remove(pt)
 				logger.debug(f"inner omit after remove: {prev_tokens}")
 	tokens.extend(prev_tokens)
-	positions = {i:v for i, v in enumerate(all_scopes)}
 
 	logger.debug(f"----utterance----:\n{line}")
-	# logger.debug(f"all_scopes: {all_scopes}")
 	logger.debug(f"tokens: {tokens}")
-	# logger.debug(f"{positions}")
-	# logger.debug(f"{' '. join(positions.values())}")
 
-	# if len(all_scopes) != len(tokens):
-	#   logger.debug(f"----utterance----:\n{line}")
-	#   # logger.debug(f"all_scopes: {all_scopes}")
-	#   logger.debug(f"tokens: {tokens}")
-	#   logger.debug(f"{' '. join(positions.values())}")
-
-	return tokens, all_scopes
+	return tokens
 
 
 def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
@@ -446,7 +386,7 @@ def parse_gra(gra_segment: str) -> Tuple[str, str]:
 
 
 def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
-	feat_pattern = re.compile("\d?[A-Z]+(?![a-z])")
+	feat_pattern = re.compile(r"\d?[A-Z]+(?![a-z])")
 	lemma = None
 	feat_str = []
 	pos, _, lemma_feats = mor_segment.partition('|')
@@ -467,7 +407,7 @@ def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
 
 def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], Tuple]:
 	if is_multi:
-		return [parse_mor(l) for l in re.split("~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
+		return [parse_mor(l) for l in re.split(r"~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
 	else:
 		return parse_mor(mor_segment)
 
@@ -476,7 +416,7 @@ def parse_compounds(mor_segment: str) -> Tuple[str, List[str]]:
 	"""Given a compound representation like "n|+v|wash+n|machine", return
 	   'n', [wash', 'machine'].
 	"""
-	tmp = re.split("\+\w+?\|", mor_segment)
+	tmp = re.split(r"\+\w+?\|", mor_segment)
 	pos = tmp[0][:-1]  # remove |
 	components = tmp[1:]
 	return pos, components
@@ -555,7 +495,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		if j in idx:  # multi-word tokens, implies has mor tier
 			m = idx.index(j)  # the current token is the m th multi-word token in this utterance
 			index = j + m + 1
-			num = len(re.split('~|\$', mor[j]))  # number of components in mwt
+			num = len(re.split(r'~|\$', mor[j]))  # number of components in mwt
 			multi = index + num - 1
 			logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
 
@@ -563,7 +503,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			xpos, lemma, feats, translation = zip(*get_lemma_and_feats(mor[j], is_multi=True))
 			upos = [to_upos(x.replace('+', '')) for x in xpos]
 			upos = [to_upos(x.split(':')[0]) for x in upos]
-			if re.match('\w+\+\w+', form):
+			if re.match(r'\w+\+\w+', form):
 				_ , lemmas = parse_compounds(mor[j])
 				lemma = ''.join(lemmas)
 			if '+' in xpos:
@@ -589,7 +529,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 						misc = ""
 						misc += "form=" + lemma
 					lemma = lemma.replace('+', '').replace('/', '')
-					if re.match('(\w+\+)+\w+', form):
+					if re.match(r'(\w+\+)+\w+', form):
 						_ , lemmas = parse_compounds(mor[j])
 						lemma = ''.join(lemmas)
 						form = lemma
@@ -659,7 +599,7 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 	# print(tiers)
 
 	# ---- tokens ----
-	tokens, all_scopes = normalise_utterance(lines[0].split('\t')[-1])  # normalise line (speaker removed)
+	tokens = normalise_utterance(lines[0].split('\t')[-1])  # normalise line (speaker removed)
 
 	# ---- clean form ----
 	clean = [check_token(t)[1] for t in tokens]
@@ -690,9 +630,6 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 	# ---- clean form ----
 	checked_tokens = [check_token(t) for t in tokens]
 	toks = extract_token_info(checked_tokens, gra, mor)
-	# if toks[-1].misc is None:
-	#   toks[-1].misc = ""
-	# toks[-1].misc += "|utt=" + " ".join(all_scopes)  # utterance is stored in misc of punctuation for now
 
 	return Sentence(speaker=speaker,
 					tiers=tiers_dict,
