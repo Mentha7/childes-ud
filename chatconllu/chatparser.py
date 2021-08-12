@@ -614,19 +614,6 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			lemma = form
 		logger.debug(f"index:{index}\tform:{form}\tlemma:{lemma}\tupos:{upos}")
 
-		# # ---- test print ----
-		logger.debug(f"index:\t{index}")
-		logger.debug(f"token:\t{form}")
-		logger.debug(f"lemma:\t{lemma}")
-		logger.debug(f"upos:\t{upos}")
-		logger.debug(f"xpos:\t{xpos}")
-		logger.debug(f"feats:\t{feats}")
-		logger.debug(f"head:\t{head}")
-		logger.debug(f"deprel:\t{deprel}")
-		logger.debug(f"deps:\t{deps}")
-		logger.debug(f"misc:\t{misc}")
-		logger.debug(f"multi:\t{multi}")
-		logger.debug('')
 		# ---- create Tokens ----
 		tok = Token(index=index,
 					form=form,
