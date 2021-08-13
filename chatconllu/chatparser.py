@@ -18,6 +18,7 @@ _TMP_DIR = 'tmp'
 _OUT_DIR = 'out'
 
 UTTERANCE = re.compile('^\\*')
+PUNCT = re.compile("([,.;?!:”])")
 
 
 def new_chat(filepath: 'pathlib.PosixPath'):
@@ -108,7 +109,6 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 	until_rangleb = re.compile("([^>]+)>")
 	until_rbracket = re.compile("([^]]+)]")
 	until_eow = re.compile(r"[^,.;?!”<>\[\] ]+")  # added [] just in case something like this happens: "blah[: blahblah]""
-	punct_re = re.compile("([,.;?!:”])")
 
 	# ---- define patterns to omit ----
 	pause = r"^\(\.+\)"  # (.), (..), (...)
@@ -157,14 +157,10 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 
 	# ---- compile regex patterns ----
 	to_omit = re.compile('|'.join(o for o in omission))  # <whatever> [/?] or <whatever> [//]
-	# to_expand = re.compile('|'.join(e for e in expansion))
 
 	to_replace = re.compile(r"^\[::?( )?")
-	# to_replace_token = re.compile(r"^\[::? [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]")
 
 	retracing_no_angle_brackets = r"^\[/(?:[/?])?\]"  # [//] or [/?] or [/] --> [retrace]
-	# best_guess_followed_by_retrace = r"^\[\?\] \[/(?:[/?])?\]"  # [?] [retrace]
-	# explanations_retrace = r"^\[= [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]"  # [= blah blah's] [retrace]
 	x_retrace = r"^\[[=%?] [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]"
 
 	delete_previous = [
@@ -185,11 +181,10 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 	prev_tokens = []
 
 	if line is None:
-		return None
+		return None, None
 
 	if line == "0 .":
-		return tokens
-	# logger.debug(f"----utterance----:\n{line}")
+		return tokens, line
 
 	i = 0
 	while i < len(line):
@@ -199,13 +194,19 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 			tokens.extend(prev_tokens)
 			i += 1
 			if line[i:].startswith("<"):
-				logger.warn(f"This is a mistake in the corpus: two consecutive '<<' found. Skipping this utterance:\n{line}.")
-				# quit()
-				return tokens
+				# logger.warn(f"This is a mistake in the corpus: two consecutive '<<' found. Skipping this utterance:\n{line}.")
+				logger.warn(f"Actually this is a special case where we need to match the second next right angle bracket.")
+				s = re.match(until_rangleb, line[i:])
+				i += len(s.group(0))
+				prev_tokens = s.group(1).strip().split()
+				m = re.match(until_rangleb, line[i:])
+				prev_tokens += m.group(1).strip().split()
+
 			s = re.match(until_rangleb, line[i:])
 			prev_tokens = s.group(1).strip().split()
 			i += len(s.group(0))
 		elif re.match(delete_prev, line[i:]):
+			# logger.debug(f"previous to be deleted: {prev_tokens}")
 			s = re.match(delete_prev, line[i:])
 			i += len(s.group(0))
 			prev_tokens = []  # forget previous tokens
@@ -241,7 +242,7 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 			s = re.match(trailing_off, line[i:])
 			i += len(s.group(0))
 			prev_tokens = [s.group(0).strip()[1:]]  # remove '+'
-		elif re.match(punct_re, line[i:]):  # punctuations, doesn't handle more than 1 place like '...'
+		elif re.match(PUNCT, line[i:]):  # punctuations, doesn't handle more than 1 place like '...'
 			tokens.extend(prev_tokens)
 			prev_tokens = [line[i]]
 			i += 1
@@ -252,9 +253,7 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 			i += len(m.group(0)) if m else 1
 		for m, pt in enumerate(prev_tokens):  # loop over collected 'tokens' for patterns
 			if re.match(delete_prev, pt):
-				logger.debug(f"inner delete previous before: {prev_tokens}")
 				prev_tokens.pop(m-1)
-				logger.debug(f"inner delete previous after pop: {prev_tokens}")
 			if re.match(to_replace, pt):
 				ind = m+1
 				while ind < len(prev_tokens):
@@ -263,24 +262,18 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 						break
 					else:
 						ind += 1
-				logger.debug(f"inner replace: to {new}")
-				logger.debug(f"inner replace before: {prev_tokens}")
 				prev_tokens[ind] = new
-				logger.debug(f"inner replace after adding {new} at index {ind}: {prev_tokens}")
 				prev_tokens.pop(m)
-				logger.debug(f"inner replace after pop index {m}: {prev_tokens}")
 				prev_tokens.pop(m-1)
-				logger.debug(f"inner replace after pop index {m-1}: {prev_tokens}")
 			if re.match(to_omit, pt):
-				logger.debug(f"inner omit before remove: {prev_tokens}")
 				prev_tokens.remove(pt)
-				logger.debug(f"inner omit after remove: {prev_tokens}")
+
 	tokens.extend(prev_tokens)
 
 	logger.debug(f"----utterance----:\n{line}")
 	logger.debug(f"tokens: {tokens}")
 
-	return tokens
+	return tokens, line
 
 
 def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
@@ -313,8 +306,6 @@ def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 	# define special symbols translation dict
 	clean = surface.replace(' ', '')
 	clean = clean.replace('(', '').replace(')', '')
-	# clean = clean.replace('@q', '')  # @q is meta-lingustic use
-	# clean = clean.replace('@o', '')  # @o is onomatopoeia
 	clean = clean.replace('0', '')  # 0token is omitted token
 	clean = clean.replace('‡', ',')  # prefixed interactional marker
 	clean = clean.replace('„', ',')  # suffixed interactional marker
@@ -333,7 +324,6 @@ def to_upos(mor_code: str) -> str:
 	# define a mapping between UPOS tags and MOR codes.
 	mor2upos = {
 		"adj":"ADJ",
-		"adj:pred":"ADJ",
 		"post":"ADP",
 		"prep":"ADP",
 		"adv":"ADV",
@@ -341,28 +331,13 @@ def to_upos(mor_code: str) -> str:
 		"aux":"AUX",
 		"coord":"CCONJ",
 		"qn":"DET",
-		"det:poss":"DET",
-		"det:art":"DET",
-		"det:dem":"DET",
-		"det:int":"DET",
-		"det:num":"DET",
+		"det":"DET",
+		"quant":"DET",  # jpn
 		"co":"INTJ",
 		"n":"NOUN",
-		"n:let":"NOUN",
-		"n:pt":"NOUN",
 		"on":"NOUN",
+		"onoma":"NOUN",  # jpn
 		"part":"PART",
-		"pro:dem":"PRON",
-		"pro:exist":"PRON",
-		"pro:indef":"PRON",
-		"pro:int":"PRON",
-		"pro:obj":"PRON",
-		"pro:per":"PRON",
-		"pro:poss":"PRON",
-		"pro:refl":"PRON",
-		"pro:rel":"PRON",
-		"pro:sub":"PRON",
-		"pro:per":"PRON",
 		"pro":"PRON",
 		"n:prop":"PROPN",
 		"conj":"SCONJ",
@@ -376,6 +351,10 @@ def to_upos(mor_code: str) -> str:
 		"neg":"ADV"  # ?
 	}
 
+	if not mor_code in mor2upos:
+		if not re.match(PUNCT, mor_code) and not mor_code.split(':')[0] in mor2upos: logger.warning(f"{mor_code} does not have a corresponding UPOS in mor2upos.")
+		return mor2upos[mor_code.split(':')[0]] if mor_code.split(':')[0] in mor2upos else mor_code
+
 	return mor2upos[mor_code] if mor_code in mor2upos else mor_code
 
 
@@ -386,11 +365,12 @@ def parse_gra(gra_segment: str) -> Tuple[str, str]:
 
 
 def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
-	feat_pattern = re.compile(r"\d?[A-Z]+(?![a-z])")
+	print(mor_segment)
+	feat_pattern = re.compile("\d?[A-Z]+(?![a-z])")
 	lemma = None
 	feat_str = []
 	pos, _, lemma_feats = mor_segment.partition('|')
-	lemma_feats, _, translation = lemma_feats.partition('=')  # remove translation
+	lemma_feats, _, translation = lemma_feats.partition('=')  # translation
 	tmp = re.split('&|-', lemma_feats)
 	if not re.match(feat_pattern, tmp[0]):
 		lemma = tmp[0]
@@ -400,14 +380,14 @@ def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
 	elif tmp:
 		for f in tmp:
 			feat_str.append("FEAT=" + f.title())
-	if not feat_str:  # To-Do: feats
+	if not feat_str:
 		feat_str = ''
 	return pos, lemma, feat_str, translation
 
 
 def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], Tuple]:
 	if is_multi:
-		return [parse_mor(l) for l in re.split(r"~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
+		return [parse_mor(l) for l in re.split("~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
 	else:
 		return parse_mor(mor_segment)
 
@@ -416,7 +396,7 @@ def parse_compounds(mor_segment: str) -> Tuple[str, List[str]]:
 	"""Given a compound representation like "n|+v|wash+n|machine", return
 	   'n', [wash', 'machine'].
 	"""
-	tmp = re.split(r"\+\w+?\|", mor_segment)
+	tmp = re.split("\+\w+?\|", mor_segment)
 	pos = tmp[0][:-1]  # remove |
 	components = tmp[1:]
 	return pos, components
@@ -441,7 +421,6 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 	* rethink preserving information after dash symbol, right now such info is lost
 	* reduce duplicate code to helper methods
 	"""
-	punctuations = re.compile("([,.;?!:”])")
 
 	tokens = []
 	idx = []
@@ -454,7 +433,6 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 	if mor:
 		idx = [x for x, g in enumerate(mor) if '~' in g or '$' in g]  # get multi-word tokens' indices in mor tier
-		# logger.debug(idx)
 		try:
 			assert len(clean) == len(mor)  # one-to-one correspondance between tokens and mor segments
 		except AssertionError:
@@ -466,14 +444,14 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 	## ---- test prints ----
 	logger.debug(f"\n* utterance: {' '.join(clean)}\n")
-	logger.debug(gra)
+	logger.debug(mor)
 
 	j = 0  # j keeps track of clean tokens
 	tok_index = 1
 
 	for c in clean:  # index, (surface, clean)
 		# ---- initialise all Token attributes ----
-		index = j
+		index = j + 1
 		form = c  # don't remove `+` seen in compounds yet, should keep the dash for words like "qu'est-ce" in French
 		lemma = None
 		upos = None
@@ -485,17 +463,18 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		misc = None
 		multi = None
 		surface = None  # don't need this attribute, to be removed in Token
-
+		translation=None
 		# ---- simplified logic ----
 		# if j in idx: multi-word tokens
 		# if mor: lemma for compounds
 		# if gra: head, deprel and deps
 		# modify compound form, assign PUNCT to punctuations
+		# add translation to MISC field
 		# create Tokens
 		if j in idx:  # multi-word tokens, implies has mor tier
 			m = idx.index(j)  # the current token is the m th multi-word token in this utterance
-			index = j + m + 1
-			num = len(re.split(r'~|\$', mor[j]))  # number of components in mwt
+			index = index + m
+			num = len(re.split('~|\$', mor[j]))  # number of components in mwt
 			multi = index + num - 1
 			logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
 
@@ -503,7 +482,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			xpos, lemma, feats, translation = zip(*get_lemma_and_feats(mor[j], is_multi=True))
 			upos = [to_upos(x.replace('+', '')) for x in xpos]
 			upos = [to_upos(x.split(':')[0]) for x in upos]
-			if re.match(r'\w+\+\w+', form):
+			if re.match('\w+\+\w+', form):
 				_ , lemmas = parse_compounds(mor[j])
 				lemma = ''.join(lemmas)
 			if '+' in xpos:
@@ -515,7 +494,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 				head = []
 				deprel = []
 				for x in range(index-1, multi):
-					print(parse_gra(gra[x]))
+					# print(parse_gra(gra[x]))
 					h, d = parse_gra(gra[x])
 					head.append(h)
 					deprel.append(d)
@@ -529,7 +508,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 						misc = ""
 						misc += "form=" + lemma
 					lemma = lemma.replace('+', '').replace('/', '')
-					if re.match(r'(\w+\+)+\w+', form):
+					if re.match('(\w+\+)+\w+', form):
 						_ , lemmas = parse_compounds(mor[j])
 						lemma = ''.join(lemmas)
 						form = lemma
@@ -547,24 +526,18 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		j+=1
 		tok_index += 1
 
-		# quit()
 		# ---- modify compound form, assign PUNCT to punctuations ----
-		if re.match(punctuations, form):
+		if re.match(PUNCT, form):
 			upos = "PUNCT"
 			lemma = form
-		# logger.debug(f"index:{index}\tform:{form}\tlemma:{lemma}\tupos:{upos}")
-		# # # ---- test print ----
-		# logger.info(f"index:\t{index}")
-		# logger.info(f"token:\t{form}")
-		# logger.info(f"lemma:\t{lemma}")
-		# logger.info(f"upos:\t{upos}")
-		# logger.info(f"xpos:\t{xpos}")
-		# logger.info(f"feats:\t{feats}")
-		# logger.info(f"head:\t{head}")
-		# logger.info(f"deprel:\t{deprel}")
-		# logger.info(f"deps:\t{deps}")
-		# logger.info(f"misc:\t{misc}")
-		# logger.info(f"multi:\t{multi}")
+
+		if translation:
+			if not misc:
+				misc = ''
+				misc += f"translation={translation}"
+			else:
+				misc += f"|translation={translation}"
+
 		# ---- create Tokens ----
 		tok = Token(index=index,
 					form=form,
@@ -581,7 +554,6 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		if tok.index is not None:
 			tokens.append(tok)
 		print(tok.feats)
-		# quit()
 
 	return tokens
 
@@ -599,7 +571,7 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 	# print(tiers)
 
 	# ---- tokens ----
-	tokens = normalise_utterance(lines[0].split('\t')[-1])  # normalise line (speaker removed)
+	tokens, utterance = normalise_utterance(lines[0].split('\t')[-1])  # normalise line (speaker removed)
 
 	# ---- clean form ----
 	clean = [check_token(t)[1] for t in tokens]
@@ -617,13 +589,12 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 		# if tier_name != 'mor' and tier_name != 'xmor' and tier_name != 'gra':
 		#   comments.append(t)
 	# print(comments)
-	# print(tiers_dict.keys())
 	# print(tiers_dict.items())
 
 	# ---- gra, mor ----
 	gra, mor = None, None
-	if ('mor' or 'xmor') in tiers_dict:
-		mor = tiers_dict.get('mor') if 'mor' in tiers_dict else tiers_dict.get('xmor')
+	if 'mor' in tiers_dict.keys():
+		mor = tiers_dict.get('mor')
 	if 'gra' in tiers_dict:
 		gra = tiers_dict.get('gra')
 
@@ -635,7 +606,7 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 					tiers=tiers_dict,
 					gra=gra,
 					mor=mor,
-					tokens=all_scopes,
+					chat_sent=utterance,
 					clean=clean,
 					comments=comments,
 					sent_id=(idx+1),
@@ -653,13 +624,11 @@ def to_conllu(filename: 'pathlib.PosixPath', meta: OrderedDict, utterances:List[
 				sent = create_sentence(idx, utterance)
 			except IndexError as e:
 				logger.exception(e)
-				raise
 				logger.info(f"writing sent {utterance} to {filename}...")
-				quit()
-			# logger.info(f"writing sent {sent.get_sent_id()} to {filename}...")
+				raise
 			f.write(f"# sent_id = {sent.get_sent_id()}\n")
 			f.write(f"# text = {sent.text()}\n")
-			f.write(f"# chat_sent = {' '.join(sent.tokens)}\n")
+			f.write(f"# chat_sent = {sent.chat_sent}\n")
 			f.write(f"# speaker = {sent.speaker}\n")
 			for t in sent.tiers.keys():
 				f.write(f"# {t} = {sent.tiers.get(t)}\n")
@@ -690,8 +659,6 @@ def chat2conllu(files: List['pathlib.PosixPath'], remove=True):
 			tmp_file = Path(_TMP_DIR, f"{f.stem}_new").with_suffix(".cha")
 			if tmp_file.is_file():
 				os.remove(tmp_file)
-
-		# quit()
 
 
 if __name__ == "__main__":
