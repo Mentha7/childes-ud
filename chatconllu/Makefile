@@ -5,6 +5,11 @@ help:
 	@echo " - installchatconllu: install chatconllu"
 	@echo " - install          : install all requirements"
 	@echo " - docs             : generate mkdocs"
+	@echo " - test             : run all tests"
+	@echo " - run              : chatconllu -d . tests"
+	@echo " - runcha           : chatconllu -d . tests"
+	@echo " - runconllu        : chatconllu -d . -f conllu tests"
+
 
 install:
 	poetry install
@@ -20,3 +25,9 @@ test: tests/*
 
 run:
 	chatconllu -d . tests
+
+runcha:
+	chatconllu -d . tests -fn vioncolas_Vioncolas_09-arb-consec_11409ims
+
+runconllu:
+	chatconllu -d ./tests -f conllu fra

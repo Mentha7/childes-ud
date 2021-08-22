@@ -351,6 +351,9 @@ def to_upos(mor_code: str) -> str:
 		"neg":"ADV"  # ?
 	}
 
+	if not mor_code:  # empty or None
+		return mor_code
+
 	if not mor_code in mor2upos:
 		if not re.match(PUNCT, mor_code) and not mor_code.split(':')[0] in mor2upos: logger.warning(f"{mor_code} does not have a corresponding UPOS in mor2upos.")
 		return mor2upos[mor_code.split(':')[0]] if mor_code.split(':')[0] in mor2upos else mor_code
