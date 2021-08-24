@@ -37,7 +37,7 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			# ---- sentences (utterances) ----
 			sc += 1  # increment sentence count
 			# logger.debug(f"* {sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}")  # put back utterances (main)
-			outfile.write(f"* {sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
+			outfile.write(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
 			# ----- check if mor and gra tier are present ----
 			#	> check the first token for each sentence (or the second for multiword tokens)
 			if sentence._tokens:
@@ -52,8 +52,8 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 				logger.warning(f"sent {sentence.id} has no tokens, check if it's well-formed.")  # utterances like `xxx .` are still recoverable.
 
 			if has_gra and has_mor:
-				logger.debug(f"sent {sentence.id} has both gra and mor tiers.")
-				# logger.debug(f"{sentence.meta_value('mor')}")
+				# logger.debug(f"sent {sentence.id} has both gra and mor tiers.")
+				logger.debug(f"%\mor:{sentence.meta_value('mor')}")
 				for i, word in enumerate(sentence):
 					m = ''
 					g = ''
@@ -61,9 +61,12 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 					# logger.debug(word.conll())
 					# print(word.misc)
 					# quit()
-					if 'form' in word.misc.keys():  # form is in word.misc
-						# logger.debug(f"word.misc: {word.misc}")
-						m = next(iter(word.misc['form']))
+					# if 'form' in word.misc.keys():  # form is in word.misc
+					# 	# logger.debug(f"word.misc: {word.misc}")
+					# 	m = next(iter(word.misc['form']))
+					if 'compound' in word.misc.keys():
+						logger.debug(f"word.misc:{word.misc}")
+						m = ''.join([word.xpos, next(iter(word.misc['compound']))])
 					elif word.lemma and re.match(PUNCT, word.lemma):  # punctuations mor is form
 						m = word.lemma
 					elif word.lemma and word.xpos:
@@ -74,8 +77,9 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 					start, _, end = k.partition('-')
 					m = "~".join(mor.pop(str(n)) for n in range(int(start), int(end) + 1))
 					mor[k] = m
+				outfile.write(f"%mor:\t{' '.join(list(mor.values()))}\n")
 
-				# logger.debug(list(mor.values()))
+				logger.debug(list(mor.values()))
 				# logger.debug(len(list(mor.values())))
 				# logger.debug(len(ast.literal_eval(sentence.meta_value('mor'))))
 				assert len(list(mor.values())) == len(ast.literal_eval(sentence.meta_value('mor')))
