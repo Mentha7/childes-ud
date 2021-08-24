@@ -16,7 +16,7 @@ _TMP_DIR = 'tmp'
 _OUT_DIR = 'out'
 PUNCT = re.compile("([,.;?!:”])")
 
-def to_cha(filename: 'pathlib.PosixPath', conll: 'pyconll.Conll'):
+def to_cha(outfile, conll: 'pyconll.Conll'):
 	# ---- test print: sentence and word count, headers, utterances ----
 	sc = 0  # sentence count
 	wc = 0  # word count
@@ -26,17 +26,20 @@ def to_cha(filename: 'pathlib.PosixPath', conll: 'pyconll.Conll'):
 		has_mor = False
 		has_gra = False
 
-		# ---- skip headers ----
+		# ---- write headers ----
 		if sentence.id is None:  # headers don't have sentence.id
 			# logger.debug(sentence._meta)  # dictionary:sentence._meta
-			for k, v in sentence._meta.items():
-				linenum, _, header = k.lstrip().partition("\t")  # double check for lines starting with tabs!
-				# logger.debug(linenum, header)
+			for k, v in list(sentence._meta.items())[:-1]:
+				linenum, _, header = k.lstrip().partition("\t")  # strip initial tabs
+				# 	# logger.debug(linenum, header)
+				outfile.write(header+"\n")
 		elif 'chat_sent' in sentence._meta.keys():
 			# ---- sentences (utterances) ----
 			sc += 1  # increment sentence count
-			logger.debug(f"* {sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}")  # put back utterances (main)
-			# ----- determine which tiers are present ----
+			# logger.debug(f"* {sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}")  # put back utterances (main)
+			outfile.write(f"* {sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
+			# ----- check if mor and gra tier are present ----
+			#	> check the first token for each sentence (or the second for multiword tokens)
 			if sentence._tokens:
 				t = sentence._tokens[0]
 				if t.is_multiword():
@@ -81,7 +84,7 @@ def to_cha(filename: 'pathlib.PosixPath', conll: 'pyconll.Conll'):
 		else:  # no utterance '0 .'
 			sc += 1
 			logger.warning(f"sent {sentence.id} has no utterance.")
-
+	outfile.write("@End")
 	# logger.info(f"{f.stem + f.suffix} has {sc} sentences, {wc} tokens.")
 	# fn = f.with_suffix(".cha")
 	# quit()
@@ -97,7 +100,8 @@ def conllu2chat(files: List['pathlib.PosixPath'], remove=True):
 		conll = pyconll.load_from_file(f)
 
 		fn = Path(f.stem + "_pyconll" + ".cha")
-		to_cha(fn, conll)
+		with open(fn, 'w', encoding='utf-8') as ff:
+			to_cha(ff, conll)
 
 		if remove:
 			tmp_file = Path(_TMP_DIR, f"{f.stem}_new").with_suffix(".cha")

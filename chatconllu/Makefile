@@ -27,7 +27,7 @@ run:
 	chatconllu -d . tests
 
 runcha:
-	chatconllu -d . tests -fn vioncolas_Vioncolas_09-arb-consec_11409ims
+	chatconllu -d ./tests fra -fn MTLN_adele36
 
 runconllu:
 	chatconllu -d ./tests -f conllu fra

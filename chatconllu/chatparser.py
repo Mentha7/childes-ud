@@ -369,7 +369,7 @@ def parse_gra(gra_segment: str) -> Tuple[str, str]:
 
 def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
 	print(mor_segment)
-	feat_pattern = re.compile("\d?[A-Z]+(?![a-z])")
+	feat_pattern = re.compile(r"\d?[A-Z]+(?![a-z])")
 	lemma = None
 	feat_str = []
 	pos, _, lemma_feats = mor_segment.partition('|')
@@ -390,7 +390,7 @@ def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
 
 def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], Tuple]:
 	if is_multi:
-		return [parse_mor(l) for l in re.split("~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
+		return [parse_mor(l) for l in re.split(r"~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
 	else:
 		return parse_mor(mor_segment)
 
@@ -399,7 +399,7 @@ def parse_compounds(mor_segment: str) -> Tuple[str, List[str]]:
 	"""Given a compound representation like "n|+v|wash+n|machine", return
 	   'n', [wash', 'machine'].
 	"""
-	tmp = re.split("\+\w+?\|", mor_segment)
+	tmp = re.split(r"\+\w+?\|", mor_segment)
 	pos = tmp[0][:-1]  # remove |
 	components = tmp[1:]
 	return pos, components
@@ -477,7 +477,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		if j in idx:  # multi-word tokens, implies has mor tier
 			m = idx.index(j)  # the current token is the m th multi-word token in this utterance
 			index = index + m
-			num = len(re.split('~|\$', mor[j]))  # number of components in mwt
+			num = len(re.split(r'~|\$', mor[j]))  # number of components in mwt
 			multi = index + num - 1
 			logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
 
@@ -485,7 +485,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			xpos, lemma, feats, translation = zip(*get_lemma_and_feats(mor[j], is_multi=True))
 			upos = [to_upos(x.replace('+', '')) for x in xpos]
 			upos = [to_upos(x.split(':')[0]) for x in upos]
-			if re.match('\w+\+\w+', form):
+			if re.match(r'\w+\+\w+', form):
 				_ , lemmas = parse_compounds(mor[j])
 				lemma = ''.join(lemmas)
 			if '+' in xpos:
@@ -509,10 +509,11 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 				if lemma and '+' in lemma:
 					if not misc:
 						misc = ""
-						misc += "form=" + lemma
+						misc += "compound=" + lemma
 					lemma = lemma.replace('+', '').replace('/', '')
-					if re.match('(\w+\+)+\w+', form):
+					if re.match(r'(\w+\+)+\w+', form):
 						_ , lemmas = parse_compounds(mor[j])
+						# pos, lemma, feat_str, translation = get_lemma_and_feats(tmp)
 						lemma = ''.join(lemmas)
 						form = lemma
 				index = tok_index
@@ -534,7 +535,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			upos = "PUNCT"
 			lemma = form
 
-		if translation:
+		if translation and translation != ('', ''):  # multiword token ('', '')
 			if not misc:
 				misc = ''
 				misc += f"translation={translation}"
