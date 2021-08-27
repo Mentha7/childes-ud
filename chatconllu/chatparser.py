@@ -394,6 +394,7 @@ def parse_mor(mor_segment: str):
 	"""
 	lemma = None
 	feat_str = []
+	translation = None
 	miscs = []
 	logger.info(f"Input MOR segment: {mor_segment}")
 	pos, _, lemma_feats = mor_segment.partition("|")  # split by first |
@@ -404,7 +405,7 @@ def parse_mor(mor_segment: str):
 		tmps = re.split(r"\+\w+?\|", lemma_feats)
 		l, f, t = zip(*(parse_sub(tmp) for tmp in tmps[1:]))    # tmp[0] is empty string
 		lemma = ''.join(l)
-		translation = '+'.join(t)  # or leave empty
+		if any(t): translation = '+'.join(t)  # or leave empty
 		feat_str = list(chain(*f))  # or leave empty
 		ctmps = re.split(r"\+", lemma_feats)
 		components = [f"{tuple(ctmp.split('|'))}" for ctmp in ctmps[1:]]
@@ -540,10 +541,13 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		j+=1
 		tok_index += 1
 
-		# ---- modify compound form, assign PUNCT to punctuations ----
+		# ---- assign PUNCT to punctuations ----
 		if re.match(PUNCT, form):
 			upos = "PUNCT"
 			lemma = form
+
+		# ---- remove + in form ----
+		form = form.replace('+', '')
 
 		# ---- create Tokens ----
 		tok = Token(index=index,
