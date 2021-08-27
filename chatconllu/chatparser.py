@@ -369,23 +369,33 @@ def parse_gra(gra_segment: str) -> Tuple[str, str]:
 	return head, deprel
 
 
-def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str]:
+def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 	feat_pattern = re.compile(r"\d?[A-Z]+(?![a-z])")
 	lemma = None
 	feat_str = []
+	feat = ''
 	lemma_feats, _, translation = sub_segment.partition('=')  # translation
+	tmps = re.findall(r'[&|-]\w+', lemma_feats)
+	if tmps:  # has feature
+		feat_str = [f"FEAT={t[1:].title()}" for t in tmps]  # need to convert to UD feats
+		feats = [f"{(t[0], t[1:])}" for t in tmps]
+		feat = '-'.join(feats)
+	# tmp = re.split('&|-', lemma_feats)
+	# if tmps:
+	# 	for t in tmps:
+	# 		logger.warning(f"{t}\n")
 	tmp = re.split('&|-', lemma_feats)
 	if not re.match(feat_pattern, tmp[0]):
 		lemma = tmp[0]  # !!! sometimes lemma is encoded
-		if tmp[1:]:
-			for f in tmp[1:]:
-				feat_str.append("FEAT=" + f.title())
-	elif tmp:
-		for f in tmp:
-			feat_str.append("FEAT=" + f.title())
+	# 	if tmp[1:]:
+	# 		for f in tmp[1:]:
+	# 			feat_str.append("FEAT=" + f.title())
+	# elif tmp:
+	# 	for f in tmp:
+	# 		feat_str.append("FEAT=" + f.title())
 	if not feat_str:
 		feat_str = ''
-	return lemma, feat_str, translation
+	return lemma, feat_str, translation, feat
 
 
 def parse_mor(mor_segment: str):
@@ -395,6 +405,7 @@ def parse_mor(mor_segment: str):
 	lemma = None
 	feat_str = []
 	translation = None
+	feat = None
 	miscs = []
 	logger.info(f"Input MOR segment: {mor_segment}")
 	pos, _, lemma_feats = mor_segment.partition("|")  # split by first |
@@ -403,20 +414,23 @@ def parse_mor(mor_segment: str):
 		miscs.append(f"form={lemma_feats}")
 	elif '+' in lemma_feats:  # compound
 		tmps = re.split(r"\+\w+?\|", lemma_feats)
-		l, f, t = zip(*(parse_sub(tmp) for tmp in tmps[1:]))    # tmp[0] is empty string
+		logger.debug(tmps)
+		l, f, t, feat = zip(*(parse_sub(tmp) for tmp in tmps[1:]))    # tmp[0] is empty string
 		lemma = ''.join(l)
 		if any(t): translation = '+'.join(t)  # or leave empty
 		feat_str = list(chain(*f))  # or leave empty
+		if any(feat): miscs.append(f"feats={'+'.join(feat)}")  # or leave empty
 		ctmps = re.split(r"\+", lemma_feats)
 		components = [f"{tuple(ctmp.split('|'))}" for ctmp in ctmps[1:]]
 		comp = '+'.join(components)
 		miscs.append(f"components={comp}")
 		if translation: miscs.append(f"translation={translation}")
 	else:
-		lemma, feat_str, translation = parse_sub(lemma_feats)
+		lemma, feat_str, translation, feat = parse_sub(lemma_feats)
+		if feat: miscs.append(f"feats={feat}")
 		if translation: miscs.append(f"translation={translation}")
 	misc = '|'.join(miscs)
-	logger.info(f"pos:{pos}\nlemma:{lemma}\nfeats:{feat_str}\nmisc:{misc}")
+	# logger.info(f"pos:{pos}\nlemma:{lemma}\nfeats:{feat_str}\nmisc:{misc}")
 	return pos, lemma, feat_str, misc
 
 
@@ -501,7 +515,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			index = index + m
 			num = len(re.split(r'~|\$', mor[j]))  # number of components in mwt
 			multi = index + num - 1
-			logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
+			# logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
 
 			# ---- get token info from mor ----
 			xpos, lemma, feats, misc = zip(*get_lemma_and_feats(mor[j], is_multi=True))
@@ -511,7 +525,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			if '+' in xpos:
 				xpos = None
 			tok_index = multi
-			logger.debug(misc)
+			# logger.debug(misc)
 
 			# ---- get token info from gra, if gra ----
 			if gra:
@@ -523,7 +537,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					head.append(h)
 					deprel.append(d)
 				deps = [f"{h}:{deprel[x]}" for x, h in enumerate(head)]
-				logger.debug(f"tok_index:{tok_index}\tmulti:{multi}\tend:{multi}")
+				# logger.debug(f"tok_index:{tok_index}\tmulti:{multi}\tend:{multi}")
 		else:
 			if mor:
 				xpos, lemma, feats, misc = get_lemma_and_feats(mor[j])
@@ -564,7 +578,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					surface=surface)
 		if tok.index is not None:
 			tokens.append(tok)
-		print(tok.feats)
+		# print(tok.feats)
 
 	return tokens
 
