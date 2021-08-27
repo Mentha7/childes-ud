@@ -4,6 +4,7 @@ Utilities to parse files in CHILDES CHAT format.
 import sys, os
 import re
 import fileinput
+from itertools import chain
 from typing import List, Tuple, Dict, Union
 from pathlib import Path
 
@@ -328,6 +329,7 @@ def to_upos(mor_code: str) -> str:
 		"prep":"ADP",
 		"adv":"ADV",
 		"adv:tem":"ADV",
+		"v:aux":"AUX",
 		"aux":"AUX",
 		"coord":"CCONJ",
 		"qn":"DET",
@@ -367,16 +369,14 @@ def parse_gra(gra_segment: str) -> Tuple[str, str]:
 	return head, deprel
 
 
-def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
-	print(mor_segment)
+def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str]:
 	feat_pattern = re.compile(r"\d?[A-Z]+(?![a-z])")
 	lemma = None
 	feat_str = []
-	pos, _, lemma_feats = mor_segment.partition('|')
-	lemma_feats, _, translation = lemma_feats.partition('=')  # translation
+	lemma_feats, _, translation = sub_segment.partition('=')  # translation
 	tmp = re.split('&|-', lemma_feats)
 	if not re.match(feat_pattern, tmp[0]):
-		lemma = tmp[0]
+		lemma = tmp[0]  # !!! sometimes lemma is encoded
 		if tmp[1:]:
 			for f in tmp[1:]:
 				feat_str.append("FEAT=" + f.title())
@@ -385,7 +385,39 @@ def parse_mor(mor_segment: str) -> Tuple[str, Union[str, None], List[str], str]:
 			feat_str.append("FEAT=" + f.title())
 	if not feat_str:
 		feat_str = ''
-	return pos, lemma, feat_str, translation
+	return lemma, feat_str, translation
+
+
+def parse_mor(mor_segment: str):
+	"""Given a word-level MOR segment, extract the pos tag, lemma, features and other information
+	   to be stored in the MISC field.
+	"""
+	lemma = None
+	feat_str = []
+	miscs = []
+	logger.info(f"Input MOR segment: {mor_segment}")
+	pos, _, lemma_feats = mor_segment.partition("|")  # split by first |
+	if pos == '':  # punct
+		lemma = lemma_feats.replace('+', '')  # special case of punctuations
+		miscs.append(f"form={lemma_feats}")
+	elif '+' in lemma_feats:  # compound
+		tmps = re.split(r"\+\w+?\|", lemma_feats)
+		l, f, t = zip(*(parse_sub(tmp) for tmp in tmps[1:]))    # tmp[0] is empty string
+		lemma = ''.join(l)
+		translation = '+'.join(t)  # or leave empty
+		feat_str = list(chain(*f))  # or leave empty
+		ctmps = re.split(r"\+", lemma_feats)
+		components = [f"{tuple(ctmp.split('|'))}" for ctmp in ctmps[1:]]
+		comp = '+'.join(components)
+		miscs.append(f"components={comp}")
+		if translation: miscs.append(f"translation={translation}")
+	else:
+		lemma, feat_str, translation = parse_sub(lemma_feats)
+		if translation: miscs.append(f"translation={translation}")
+	misc = '|'.join(miscs)
+	logger.info(f"pos:{pos}\nlemma:{lemma}\nfeats:{feat_str}\nmisc:{misc}")
+	return pos, lemma, feat_str, misc
+
 
 
 def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], Tuple]:
@@ -393,17 +425,6 @@ def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], 
 		return [parse_mor(l) for l in re.split(r"~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
 	else:
 		return parse_mor(mor_segment)
-
-
-def parse_compounds(mor_segment: str) -> Tuple[str, List[str]]:
-	"""Given a compound representation like "n|+v|wash+n|machine", return
-	   'n', [wash', 'machine'].
-	"""
-	tmp = re.split(r"\+\w+?\|", mor_segment)
-	pos = tmp[0][:-1]  # remove |
-	components = tmp[1:]
-	return pos, components
-
 
 def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
 	"""Extract information from mor and gra tiers when supplied, create Token objects with the information.
@@ -482,15 +503,14 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
 
 			# ---- get token info from mor ----
-			xpos, lemma, feats, translation = zip(*get_lemma_and_feats(mor[j], is_multi=True))
+			xpos, lemma, feats, misc = zip(*get_lemma_and_feats(mor[j], is_multi=True))
+			if misc == ('', ''): misc  = None
 			upos = [to_upos(x.replace('+', '')) for x in xpos]
 			upos = [to_upos(x.split(':')[0]) for x in upos]
-			if re.match(r'\w+\+\w+', form):
-				_ , lemmas = parse_compounds(mor[j])
-				lemma = ''.join(lemmas)
 			if '+' in xpos:
 				xpos = None
 			tok_index = multi
+			logger.debug(misc)
 
 			# ---- get token info from gra, if gra ----
 			if gra:
@@ -505,17 +525,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 				logger.debug(f"tok_index:{tok_index}\tmulti:{multi}\tend:{multi}")
 		else:
 			if mor:
-				xpos, lemma, feats, translation = get_lemma_and_feats(mor[j])
-				if lemma and '+' in lemma:
-					if not misc:
-						misc = ""
-						misc += "compound=" + lemma
-					lemma = lemma.replace('+', '').replace('/', '')
-					if re.match(r'(\w+\+)+\w+', form):
-						_ , lemmas = parse_compounds(mor[j])
-						# pos, lemma, feat_str, translation = get_lemma_and_feats(tmp)
-						lemma = ''.join(lemmas)
-						form = lemma
+				xpos, lemma, feats, misc = get_lemma_and_feats(mor[j])
 				index = tok_index
 				upos = to_upos(xpos.replace('+', ''))
 				upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
@@ -534,13 +544,6 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		if re.match(PUNCT, form):
 			upos = "PUNCT"
 			lemma = form
-
-		if translation and translation != ('', ''):  # multiword token ('', '')
-			if not misc:
-				misc = ''
-				misc += f"translation={translation}"
-			else:
-				misc += f"|translation={translation}"
 
 		# ---- create Tokens ----
 		tok = Token(index=index,
