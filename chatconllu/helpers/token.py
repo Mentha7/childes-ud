@@ -92,7 +92,6 @@ class Token(object):
 			upos=self.upos[n] if self.upos else 'None'
 			xpos=self.xpos[n]
 			feats="|".join(self.feats[n]) if self.feats[n] else 'None'
-			# head=self.head[n] if self.head[n] else 'None'
 			if self.head is not None: head=self.head[n]
 			else: head='None'
 			if self.deprel: deprel=self.deprel[n]
@@ -100,9 +99,10 @@ class Token(object):
 			if self.deps: deps=self.deps[n]
 			else: deps='None'
 			# deps=self.deps[n] if self.deps[n] else 'None'
-			misc=self.misc[n] if self.misc else 'None'
-
+			misc=self.misc[n] if self.misc[n] else 'None'
 			s += f"{str(i)}\t{form}\t{lemma}\t{upos}\t{xpos}\t{feats}\t{head}\t{deprel}\t{deps}\t{misc}"
+			# s += f"1{str(i)}\t2{form}\t3{lemma}\t4{upos}\t5{xpos}\t6{feats}\t7{head}\t8{deprel}\t9{deps}\t10{misc}"
+			# print(s)
 			s = s.replace('None', '_')
 		s+="\n"
 		return s

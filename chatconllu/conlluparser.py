@@ -59,7 +59,7 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 					g = ''
 					wc += 1
 					# logger.debug(word.conll())
-					# print(word.misc)
+					logger.info(f"word.misc:{word.misc}")
 					# quit()
 					# if 'form' in word.misc.keys():  # form is in word.misc
 					#   # logger.debug(f"word.misc: {word.misc}")

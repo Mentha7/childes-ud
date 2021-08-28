@@ -506,7 +506,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 				type = re.findall(r'~|\$', mor[j])
 			# ---- get token info from mor ----
 			xpos, lemma, feats, misc = zip(*get_lemma_and_feats(mor[j], is_multi=True))
-			if misc == ('', ''): misc = None
+			# if misc == ('', ''): misc = ''
 
 			upos = [to_upos(x.replace('+', '')) for x in xpos]
 			upos = [to_upos(x.split(':')[0]) for x in upos]
