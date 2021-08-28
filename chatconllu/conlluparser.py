@@ -31,7 +31,7 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			# logger.debug(sentence._meta)  # dictionary:sentence._meta
 			for k, v in list(sentence._meta.items())[:-1]:
 				linenum, _, header = k.lstrip().partition("\t")  # strip initial tabs
-				# 	# logger.debug(linenum, header)
+				#   # logger.debug(linenum, header)
 				outfile.write(header+"\n")
 		elif 'chat_sent' in sentence._meta.keys():
 			# ---- sentences (utterances) ----
@@ -39,7 +39,7 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			# logger.debug(f"* {sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}")  # put back utterances (main)
 			outfile.write(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
 			# ----- check if mor and gra tier are present ----
-			#	> check the first token for each sentence (or the second for multiword tokens)
+			#   > check the first token for each sentence (or the second for multiword tokens)
 			if sentence._tokens:
 				t = sentence._tokens[0]
 				if t.is_multiword():
@@ -62,8 +62,8 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 					# print(word.misc)
 					# quit()
 					# if 'form' in word.misc.keys():  # form is in word.misc
-					# 	# logger.debug(f"word.misc: {word.misc}")
-					# 	m = next(iter(word.misc['form']))
+					#   # logger.debug(f"word.misc: {word.misc}")
+					#   m = next(iter(word.misc['form']))
 					if 'compound' in word.misc.keys():
 						logger.debug(f"word.misc:{word.misc}")
 						m = ''.join([word.xpos, next(iter(word.misc['compound']))])

@@ -12,6 +12,7 @@ class Token(object):
 				 'deps',
 				 'misc',
 				 'multi',
+				 'type',
 				 'surface',
 				 ]
 
@@ -27,6 +28,7 @@ class Token(object):
 				 deps=None,
 				 misc=None,
 				 multi=None,
+				 type=None,
 				 surface=None,
 				 ):
 
@@ -41,6 +43,7 @@ class Token(object):
 		self.deps = None if not deps else deps
 		self.misc = None if not misc else misc
 		self.multi = multi
+		self.type = type
 		self.surface = surface
 
 	def __str__(self):
@@ -72,8 +75,9 @@ class Token(object):
 
 		idx = "-".join((str(self.index), str(self.multi)))
 		form = self.form
-		fields = ['None', 'None', 'None', 'None', 'None', 'None', 'None', 'None']
-		s += "\t".join([idx, form] + fields).replace('None', '_')
+		fields = ['None', 'None', 'None', 'None', 'None', 'None', 'None']
+		misch = [f"type={t}" for t in self.type] if self.type else 'None'
+		s += "\t".join([idx, form] + fields + misch).replace('None', '_')
 
 		for n, i in enumerate(range(int(self.index), int(self.multi)+1)):
 

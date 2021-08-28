@@ -380,19 +380,9 @@ def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 		feat_str = [f"FEAT={t[1:].title()}" for t in tmps]  # need to convert to UD feats
 		feats = [f"{(t[0], t[1:])}" for t in tmps]
 		feat = '-'.join(feats)
-	# tmp = re.split('&|-', lemma_feats)
-	# if tmps:
-	# 	for t in tmps:
-	# 		logger.warning(f"{t}\n")
 	tmp = re.split('&|-', lemma_feats)
 	if not re.match(feat_pattern, tmp[0]):
 		lemma = tmp[0]  # !!! sometimes lemma is encoded
-	# 	if tmp[1:]:
-	# 		for f in tmp[1:]:
-	# 			feat_str.append("FEAT=" + f.title())
-	# elif tmp:
-	# 	for f in tmp:
-	# 		feat_str.append("FEAT=" + f.title())
 	if not feat_str:
 		feat_str = ''
 	return lemma, feat_str, translation, feat
@@ -434,12 +424,12 @@ def parse_mor(mor_segment: str):
 	return pos, lemma, feat_str, misc
 
 
-
 def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], Tuple]:
 	if is_multi:
 		return [parse_mor(l) for l in re.split(r"~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
 	else:
 		return parse_mor(mor_segment)
+
 
 def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
 	"""Extract information from mor and gra tiers when supplied, create Token objects with the information.
@@ -453,12 +443,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 	Return value: a list of chatconllu.Token objects.
 
-
 	----TO-DO----
-	* rethink lemma for compound words
-		- e.g. mor: "n|+n|washing+n|machine", "washing+machine", currently form is "washingmachine", lemma is "machine"
-	* rethink preserving information after dash symbol, right now such info is lost
-	* reduce duplicate code to helper methods
 	"""
 
 	tokens = []
@@ -501,6 +486,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		deps = None
 		misc = None
 		multi = None
+		type = None
 		surface = None  # don't need this attribute, to be removed in Token
 		translation=None
 		# ---- simplified logic ----
@@ -516,10 +502,12 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			num = len(re.split(r'~|\$', mor[j]))  # number of components in mwt
 			multi = index + num - 1
 			# logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
-
+			if re.findall(r'~|\$', mor[j]):
+				type = re.findall(r'~|\$', mor[j])
 			# ---- get token info from mor ----
 			xpos, lemma, feats, misc = zip(*get_lemma_and_feats(mor[j], is_multi=True))
-			if misc == ('', ''): misc  = None
+			if misc == ('', ''): misc = None
+
 			upos = [to_upos(x.replace('+', '')) for x in xpos]
 			upos = [to_upos(x.split(':')[0]) for x in upos]
 			if '+' in xpos:
@@ -575,6 +563,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					deps=deps,
 					misc=misc,
 					multi=multi,
+					type=type,
 					surface=surface)
 		if tok.index is not None:
 			tokens.append(tok)
