@@ -552,6 +552,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		if re.match(PUNCT, form):
 			upos = "PUNCT"
 			lemma = form
+			xpos = 'punct'
 
 		# ---- remove + in form ----
 		form = form.replace('+', '')

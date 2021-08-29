@@ -24,11 +24,11 @@ def construct_tiers(sentence, has_mor, has_gra):
 			m = ''
 			g = ''
 			# -------- reconstruct %mor --------
-			if 'components' in word.misc.keys():
+			if 'components' in word.misc.keys():  #compound
 				for v in word.misc['components']:
-					tmp = '+' + v.replace('@', '|').replace('#', '+')
+					tmp = '+' + v.replace('@', '|').replace('#', '+')  # reverse to MOR coding
 					m = '|'.join([word.xpos, tmp])
-			elif word.lemma and word.xpos:
+			elif word.lemma and word.xpos != 'punct':
 				m = '|'.join([word.xpos, word.lemma])
 				if 'feats' in word.misc.keys():
 					for f in word.misc['feats']:
@@ -69,7 +69,7 @@ def construct_tiers(sentence, has_mor, has_gra):
 				for v in word.misc['components']:
 					tmp = '+' + v.replace('@', '|').replace('#', '+')
 					m = '|'.join([word.xpos, tmp])
-			elif word.lemma and word.xpos:
+			elif word.lemma and word.xpos != 'punct':
 				m = '|'.join([word.xpos, word.lemma])
 				if 'feats' in word.misc.keys():
 					for f in word.misc['feats']:
