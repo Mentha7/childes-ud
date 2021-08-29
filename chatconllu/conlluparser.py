@@ -15,8 +15,101 @@ import pyconll
 _TMP_DIR = 'tmp'
 _OUT_DIR = 'out'
 PUNCT = re.compile("([,.;?!:”])")
-def construct_mor(sentence):
-	pass
+def construct_tiers(sentence, has_mor, has_gra):
+	mor = {}
+	gra = []
+	token_count = 0
+	if has_mor and has_gra:
+		for i, word in enumerate(sentence):
+			m = ''
+			g = ''
+			# -------- reconstruct %mor --------
+			if 'components' in word.misc.keys():
+				for v in word.misc['components']:
+					tmp = '+' + v.replace('@', '|').replace('#', '+')
+					m = '|'.join([word.xpos, tmp])
+			elif word.lemma and word.xpos:
+				m = '|'.join([word.xpos, word.lemma])
+				if 'feats' in word.misc.keys():
+					for f in word.misc['feats']:
+						tmp = f.replace('#', '')
+						m += tmp
+				if 'translation' in word.misc.keys():
+					for t in word.misc['translation']:
+						m += '=' + t
+			if word.lemma and re.match(PUNCT, word.lemma):  # punctuations mor is form
+				m = word.lemma
+			if 'form' in word.misc.keys():
+				print("has key")
+				for f in word.misc['form']:
+					print(f)
+					m = f.replace('@', '|')
+					print(m)
+			mor[word.id] = m
+			# -------- reconstruct %gra --------
+			if '-' in word.id:
+				continue
+			else:
+				token_count += 1
+				g = f'{token_count}|{word.head}|{word.deprel.upper()}'
+				gra.append(g)
+		# -------- reconstruct %mor for multi-word tokens--------
+		mwt = [sentence[k] for k in mor.keys() if '-' in k]
+		for k in mwt:
+			if 'type' in k.misc.keys():
+				start, _, end = k.id.partition('-')
+				type = next(iter(k.misc['type']))
+				m = type.join(mor.pop(str(n)) for n in range(int(start), int(end) + 1))
+				mor[k.id] = m
+	elif has_mor:
+		for i, word in enumerate(sentence):
+			m = ''
+			# -------- reconstruct %mor --------
+			if 'components' in word.misc.keys():
+				for v in word.misc['components']:
+					tmp = '+' + v.replace('@', '|').replace('#', '+')
+					m = '|'.join([word.xpos, tmp])
+			elif word.lemma and word.xpos:
+				m = '|'.join([word.xpos, word.lemma])
+				if 'feats' in word.misc.keys():
+					for f in word.misc['feats']:
+						tmp = f.replace('#', '')
+						m += tmp
+				if 'translation' in word.misc.keys():
+					for t in word.misc['translation']:
+						m += '=' + t
+			if word.lemma and re.match(PUNCT, word.lemma):  # punctuations mor is form
+				m = word.lemma
+			if 'form' in word.misc.keys():
+				print("has key")
+				for f in word.misc['form']:
+					print(f)
+					m += f.replace('@', '|')
+					print(m)
+			mor[word.id] = m
+		# -------- reconstruct %mor for multi-word tokens--------
+		mwt = [sentence[k] for k in mor.keys() if '-' in k]
+		for k in mwt:
+			if 'type' in k.misc.keys():
+				start, _, end = k.id.partition('-')
+				type = next(iter(k.misc['type']))
+				m = type.join(mor.pop(str(n)) for n in range(int(start), int(end) + 1))
+				mor[k.id] = m
+		# --------- reconstruct %gra --------
+	elif has_gra:
+		for i, word in enumerate(sentence):
+			g = ''
+			# -------- reconstruct %gra --------
+			if '-' in word.id:
+				continue
+			else:
+				token_count += 1
+				g = f'{token_count}|{word.head}|{word.deprel.upper()}'
+				gra.append(g)
+			# -------- reconstruct %mor --------
+
+	return mor, gra
+
 
 
 def to_cha(outfile, conll: 'pyconll.Conll'):
@@ -36,18 +129,18 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			for k, v in list(sentence._meta.items())[:-1]:
 				linenum, _, header = k.lstrip().partition("\t")  # strip initial tabs
 				#   # logger.debug(linenum, header)
-				outfile.write(header+"\n")
+				# outfile.write(header+"\n")
 		elif 'chat_sent' in sentence._meta.keys():
 			# ---- sentences (utterances) ----
 			sc += 1  # increment sentence count
 			# logger.debug(f"* {sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}")  # put back utterances (main)
-			outfile.write(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
+			# outfile.write(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
 			# ----- check if mor and gra tier are present ----
 			#   > check the first token for each sentence (or the second for multiword tokens)
 			if sentence._tokens:
 				t = sentence._tokens[0]
 				if t.is_multiword():
-					logger.debug(f"{t.form} is a multi-word token.")
+					# logger.debug(f"{t.form} is a multi-word token.")
 					t = sentence._tokens[1]
 				if t.lemma is not None: has_mor = True
 				if t.head is not None: has_gra = True
@@ -55,64 +148,32 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			else:  # sentence is empty?
 				logger.warning(f"sent {sentence.id} has no tokens, check if it's well-formed.")  # utterances like `xxx .` are still recoverable.
 
-			if has_gra and has_mor:
-				# logger.debug(f"sent {sentence.id} has both gra and mor tiers.")
-				# logger.debug(f"%\mor:{sentence.meta_value('mor')}")
-				# logger.debug(f"%\mor:{sentence.meta_value('gra')}")
-				for i, word in enumerate(sentence):
-					m = ''
-					g = ''
-					wc += 1
-					# -------- reconstruct %mor --------
-					if 'components' in word.misc.keys():
-						for v in word.misc['components']:
-							tmp = '+' + v.replace('@', '|').replace('#', '+')
-							# logger.info(tmp)
-							m = '|'.join([word.xpos, tmp])
-						# logger.info(f"compound MOR: {m}")
-					elif word.lemma and re.match(PUNCT, word.lemma):  # punctuations mor is form
-						m = word.lemma
-					elif word.lemma and word.xpos:
-						m = '|'.join([word.xpos, word.lemma])
-						if 'feats' in word.misc.keys():
-							for f in word.misc['feats']:
-								tmp = f.replace('#', '')
-								m += tmp
-							# logger.warn(f"added feats: {m}")
-						if 'translation' in word.misc.keys():
-							for t in word.misc['translation']:
-								m += '=' + t
-								# logger.warn(f"added translation: {m}")
-					mor[word.id] = m
-					# -------- reconstruct %gra --------
-					if '-' in word.id:
-						continue
-					else:
-						token_count += 1
-						g = f'{token_count}|{word.head}|{word.deprel.upper()}'
-						# logger.info(g)
-						gra.append(g)
-				# -------- reconstruct %mor for multi-word tokens--------
-				mwt = [sentence[k] for k in mor.keys() if '-' in k]
-				for k in mwt:
-					if 'type' in k.misc.keys():
-						start, _, end = k.id.partition('-')
-						type = next(iter(k.misc['type']))
-						m = type.join(mor.pop(str(n)) for n in range(int(start), int(end) + 1))
-						logger.warn(m)
-						mor[k.id] = m
+			mor, gra = construct_tiers(sentence, has_mor, has_gra)
+			if mor:
 				outfile.write(f"%mor:\t{' '.join(list(mor.values()))}\n")
-				# outfile.write(f"%MOR:\t{' '.join(ast.literal_eval(sentence.meta_value('mor')))}\n")  # for easy comparison
-				# outfile.write('\n')  # easy on the eye
+				outfile.write(f"%MOR:\t{' '.join(ast.literal_eval(sentence.meta_value('mor')))}\n")  # for easy comparison
+				outfile.write('\n')  # easy on the eye
+			if gra:
 				outfile.write(f"%gra:\t{' '.join(gra)}\n")
-				# outfile.write(f"%GRA:\t{' '.join(ast.literal_eval(sentence.meta_value('gra')))}\n")  # for easy comparison
-				# outfile.write('\n')  # easy on the eye
+				outfile.write(f"%GRA:\t{' '.join(ast.literal_eval(sentence.meta_value('gra')))}\n")  # for easy comparison
+				outfile.write('\n')  # easy on the eye
 				# logger.debug(list(mor.values()))
-				# logger.debug(len(list(mor.values())))
-				# logger.debug(len(ast.literal_eval(sentence.meta_value('mor'))))
+			if 'mor' in sentence._meta.keys():
+				logger.info(sc)
+				logger.debug(len(list(mor.values())))
+				logger.debug(len(ast.literal_eval(sentence.meta_value('mor'))))
+				logger.debug(list(mor.values()))
+				logger.debug(ast.literal_eval(sentence.meta_value('mor')))
 				assert len(list(mor.values())) == len(ast.literal_eval(sentence.meta_value('mor')))
-				# assert list(mor.values()) == ast.literal_eval(sentence.meta_value('mor'))  # TO-DO: add back FEATs
-				# quit()
+				assert ' '.join(list(mor.values())) == ' '.join(ast.literal_eval(sentence.meta_value('mor')))
+			if 'gra' in sentence._meta.keys():
+				logger.info(sc)
+				logger.debug(len(gra))
+				logger.debug(len(ast.literal_eval(sentence.meta_value('gra'))))
+				logger.debug(gra)
+				logger.debug(ast.literal_eval(sentence.meta_value('gra')))
+				assert len(gra) == len(ast.literal_eval(sentence.meta_value('gra')))
+				assert ' '.join(gra) == ' '.join(ast.literal_eval(sentence.meta_value('gra')))
 		else:  # no utterance '0 .'
 			sc += 1
 			# logger.warning(f"sent {sentence.id} has no utterance.")

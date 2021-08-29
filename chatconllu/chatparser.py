@@ -401,9 +401,11 @@ def parse_mor(mor_segment: str):
 	miscs = []
 	logger.info(f"Input MOR segment: {mor_segment}")
 	pos, _, lemma_feats = mor_segment.partition("|")  # split by first |
-	if pos == '':  # punct
+	if pos == lemma_feats:
+		miscs.append(f"form={mor_segment.replace('|', '@')}")
+	if pos == '' or '+' in pos:  # punct
 		lemma = lemma_feats.replace('+', '')  # special case of punctuations
-		miscs.append(f"form={lemma_feats}")
+		miscs.append(f"form={pos}")
 	elif '+' in lemma_feats:  # compound
 		tmps = re.split(r"\+\w+?\|", lemma_feats)
 		logger.debug(tmps)
@@ -679,14 +681,14 @@ def chat2conllu(files: List['pathlib.PosixPath'], remove=True):
 
 
 if __name__ == "__main__":
-	# test = ['pro:sub|I', 'pro:sub|I~v|will']
+	test = ['beg|beg', '+"/.', 'pro:sub|I', 'pro:sub|I~v|will']
 
-	# pos, lemma, feat_str, misc = get_lemma_and_feats(test[0])
+	pos, lemma, feat_str, misc = get_lemma_and_feats(test[0])
 
 	# pos, lemma, feat_str, misc = zip(*get_lemma_and_feats(test[1], is_multi=True))
 
-	# logger.info(pos)
-	# logger.info(lemma)
-	# logger.info(feat_str)
-	# logger.info(misc)
+	logger.info(pos)
+	logger.info(lemma)
+	logger.info(feat_str)
+	logger.info(misc)
 	pass
