@@ -679,18 +679,14 @@ def chat2conllu(files: List['pathlib.PosixPath'], remove=True):
 
 
 if __name__ == "__main__":
-	test = ['pro:sub|I', 'pro:sub|I~v|will']
+	# test = ['pro:sub|I', 'pro:sub|I~v|will']
 
-	pos, lemma, feat_str, misc = get_lemma_and_feats(test[0])
+	# pos, lemma, feat_str, misc = get_lemma_and_feats(test[0])
 
 	# pos, lemma, feat_str, misc = zip(*get_lemma_and_feats(test[1], is_multi=True))
 
-	logger.info(pos)
-	logger.info(list(pos))
-	logger.info(lemma)
-	logger.info(list(lemma))
-	logger.info(feat_str)
-	logger.info(list(feat_str))
-	logger.info(misc)
-	logger.info(list(misc))
-
+	# logger.info(pos)
+	# logger.info(lemma)
+	# logger.info(feat_str)
+	# logger.info(misc)
+	pass
