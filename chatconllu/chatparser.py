@@ -23,8 +23,8 @@ PUNCT = re.compile("([,.;?!:”])")
 
 
 def new_chat(filepath: 'pathlib.PosixPath'):
-	""" Writes a new .cha file such that utterances and their dependent tiers grouped together while
-	different utterances are separated by an empty line.
+	""" Writes a new .cha file such that utterances and their dependent tiers
+	 grouped together while different utterances are separated by an empty line.
 	"""
 	Path(_TMP_DIR).mkdir(parents=True, exist_ok=True)
 	fn = filepath.stem
@@ -60,8 +60,9 @@ def parse_chat(filepath: 'pathlib.PosixPath') -> Tuple[OrderedDict, List[List[st
 				- `meta` is an ordered dictionary with line numbers as keys and headers/comments
 				as values.
 				- `utterances` is a list of utterances, each utterance is a
-				list of strings corresponding to the lines of one utterance group. The first line is always the
-				main utterance, the other lines are the dependent tiers.
+				list of strings corresponding to the lines of one utterance group.
+				The first line is always the main utterance, the other lines are the
+				dependent tiers.
 	"""
 
 	meta = {}
@@ -378,8 +379,8 @@ def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 	tmps = re.findall(r'[&|-]\w+', lemma_feats)
 	if tmps:  # has feature
 		feat_str = [f"FEAT={t[1:].title()}" for t in tmps]  # need to convert to UD feats
-		feats = [f"{(t[0], t[1:])}" for t in tmps]
-		feat = '-'.join(feats)
+		feats = [f"{t}" for t in tmps]
+		feat = '#'.join(feats)
 	tmp = re.split('&|-', lemma_feats)
 	if not re.match(feat_pattern, tmp[0]):
 		lemma = tmp[0]  # !!! sometimes lemma is encoded
@@ -411,8 +412,9 @@ def parse_mor(mor_segment: str):
 		feat_str = list(chain(*f))  # or leave empty
 		if any(feat): miscs.append(f"feats={'+'.join(feat)}")  # or leave empty
 		ctmps = re.split(r"\+", lemma_feats)
-		components = [f"{tuple(ctmp.split('|'))}" for ctmp in ctmps[1:]]
-		comp = '+'.join(components)
+		# components = [f"{tuple(ctmp.split('|'))}" for ctmp in ctmps[1:]]
+		components = [f"{ctmp.replace('|', '@')}" for ctmp in ctmps[1:]]
+		comp = '#'.join(components)
 		miscs.append(f"components={comp}")
 		if translation: miscs.append(f"translation={translation}")
 	else:

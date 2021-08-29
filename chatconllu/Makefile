@@ -27,7 +27,7 @@ run:
 	chatconllu -d . tests
 
 runcha:
-	chatconllu -d ./tests fra -fn MTLN_adele36
+	chatconllu -d ./tests eng
 
 runconllu:
-	chatconllu -d ./tests -f conllu fra
+	chatconllu -d ./tests -f conllu eng
