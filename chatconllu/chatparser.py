@@ -382,8 +382,9 @@ def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 		feats = [f"{t}" for t in tmps]
 		feat = '#'.join(feats)
 	tmp = re.split('&|-', lemma_feats)
-	if not re.match(feat_pattern, tmp[0]):
-		lemma = tmp[0]  # !!! sometimes lemma is encoded
+	# lemma = tmp[0]
+	if tmp[0] == 'I' or not re.match(feat_pattern, tmp[0]):  # !!! sometimes lemma is encoded
+		lemma = tmp[0]
 	if not feat_str:
 		feat_str = ''
 	return lemma, feat_str, translation, feat
@@ -678,7 +679,18 @@ def chat2conllu(files: List['pathlib.PosixPath'], remove=True):
 
 
 if __name__ == "__main__":
-	pass
+	test = ['pro:sub|I', 'pro:sub|I~v|will']
 
+	pos, lemma, feat_str, misc = get_lemma_and_feats(test[0])
 
+	# pos, lemma, feat_str, misc = zip(*get_lemma_and_feats(test[1], is_multi=True))
+
+	logger.info(pos)
+	logger.info(list(pos))
+	logger.info(lemma)
+	logger.info(list(lemma))
+	logger.info(feat_str)
+	logger.info(list(feat_str))
+	logger.info(misc)
+	logger.info(list(misc))
 
