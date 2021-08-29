@@ -15,7 +15,7 @@ import pyconll
 _TMP_DIR = 'tmp'
 _OUT_DIR = 'out'
 PUNCT = re.compile("([,.;?!:”])")
-def construct_tiers():
+def construct_mor(sentence):
 	pass
 
 
@@ -28,6 +28,7 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 		gra = []
 		has_mor = False
 		has_gra = False
+		token_count = 0
 
 		# ---- write headers ----
 		if sentence.id is None:  # headers don't have sentence.id
@@ -56,18 +57,13 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 
 			if has_gra and has_mor:
 				# logger.debug(f"sent {sentence.id} has both gra and mor tiers.")
-				logger.debug(f"%\mor:{sentence.meta_value('mor')}")
+				# logger.debug(f"%\mor:{sentence.meta_value('mor')}")
+				# logger.debug(f"%\mor:{sentence.meta_value('gra')}")
 				for i, word in enumerate(sentence):
 					m = ''
 					g = ''
 					wc += 1
-					# logger.debug(word.conll())
-					# logger.info(f"word.misc:{word.misc}")
-					# quit()
-					# if 'form' in word.misc.keys():  # form is in word.misc
-					#   # logger.debug(f"word.misc: {word.misc}")
-					#   m = next(iter(word.misc['form']))
-
+					# -------- reconstruct %mor --------
 					if 'components' in word.misc.keys():
 						for v in word.misc['components']:
 							tmp = '+' + v.replace('@', '|').replace('#', '+')
@@ -88,6 +84,15 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 								m += '=' + t
 								# logger.warn(f"added translation: {m}")
 					mor[word.id] = m
+					# -------- reconstruct %gra --------
+					if '-' in word.id:
+						continue
+					else:
+						token_count += 1
+						g = f'{token_count}|{word.head}|{word.deprel.upper()}'
+						# logger.info(g)
+						gra.append(g)
+				# -------- reconstruct %mor for multi-word tokens--------
 				mwt = [sentence[k] for k in mor.keys() if '-' in k]
 				for k in mwt:
 					if 'type' in k.misc.keys():
@@ -97,8 +102,11 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 						logger.warn(m)
 						mor[k.id] = m
 				outfile.write(f"%mor:\t{' '.join(list(mor.values()))}\n")
-				outfile.write(f"%MOR:\t{' '.join(list(mor.values()))}\n")
-
+				# outfile.write(f"%MOR:\t{' '.join(ast.literal_eval(sentence.meta_value('mor')))}\n")  # for easy comparison
+				# outfile.write('\n')  # easy on the eye
+				outfile.write(f"%gra:\t{' '.join(gra)}\n")
+				# outfile.write(f"%GRA:\t{' '.join(ast.literal_eval(sentence.meta_value('gra')))}\n")  # for easy comparison
+				# outfile.write('\n')  # easy on the eye
 				# logger.debug(list(mor.values()))
 				# logger.debug(len(list(mor.values())))
 				# logger.debug(len(ast.literal_eval(sentence.meta_value('mor'))))
