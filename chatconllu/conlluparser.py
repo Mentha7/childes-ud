@@ -37,10 +37,10 @@ def construct_tiers(sentence, has_mor, has_gra):
 				if 'translation' in word.misc.keys():
 					for t in word.misc['translation']:
 						m += '=' + t
-			if word.lemma and re.match(PUNCT, word.lemma):  # punctuations mor is form
+			if word.lemma and re.match(PUNCT, word.lemma) and len(word.lemma)==1:  # punctuations mor is form
 				m = word.lemma
 			if 'form' in word.misc.keys():
-				print("has key")
+				print("has key1")
 				for f in word.misc['form']:
 					print(f)
 					m = f.replace('@', '|')
@@ -78,10 +78,10 @@ def construct_tiers(sentence, has_mor, has_gra):
 				if 'translation' in word.misc.keys():
 					for t in word.misc['translation']:
 						m += '=' + t
-			if word.lemma and re.match(PUNCT, word.lemma):  # punctuations mor is form
+			if word.lemma and re.match(PUNCT, word.lemma) and len(word.lemma)==1:  # punctuations mor is form
 				m = word.lemma
 			if 'form' in word.misc.keys():
-				print("has key")
+				print("has key2")
 				for f in word.misc['form']:
 					print(f)
 					m += f.replace('@', '|')
@@ -129,12 +129,12 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			for k, v in list(sentence._meta.items())[:-1]:
 				linenum, _, header = k.lstrip().partition("\t")  # strip initial tabs
 				#   # logger.debug(linenum, header)
-				# outfile.write(header+"\n")
+				outfile.write(header+"\n")
 		elif 'chat_sent' in sentence._meta.keys():
 			# ---- sentences (utterances) ----
 			sc += 1  # increment sentence count
 			# logger.debug(f"* {sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}")  # put back utterances (main)
-			# outfile.write(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
+			outfile.write(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
 			# ----- check if mor and gra tier are present ----
 			#   > check the first token for each sentence (or the second for multiword tokens)
 			if sentence._tokens:
@@ -151,12 +151,12 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			mor, gra = construct_tiers(sentence, has_mor, has_gra)
 			if mor:
 				outfile.write(f"%mor:\t{' '.join(list(mor.values()))}\n")
-				outfile.write(f"%MOR:\t{' '.join(ast.literal_eval(sentence.meta_value('mor')))}\n")  # for easy comparison
-				outfile.write('\n')  # easy on the eye
+				# outfile.write(f"%MOR:\t{' '.join(ast.literal_eval(sentence.meta_value('mor')))}\n")  # for easy comparison
+				# outfile.write('\n')  # easy on the eye
 			if gra:
 				outfile.write(f"%gra:\t{' '.join(gra)}\n")
-				outfile.write(f"%GRA:\t{' '.join(ast.literal_eval(sentence.meta_value('gra')))}\n")  # for easy comparison
-				outfile.write('\n')  # easy on the eye
+				# outfile.write(f"%GRA:\t{' '.join(ast.literal_eval(sentence.meta_value('gra')))}\n")  # for easy comparison
+				# outfile.write('\n')  # easy on the eye
 				# logger.debug(list(mor.values()))
 			if 'mor' in sentence._meta.keys():
 				logger.info(sc)
