@@ -26,14 +26,20 @@ test: tests/*
 run:
 	chatconllu -d . tests
 
-runcha:
-	chatconllu -d ./tests collection -fn newtest
-
-runconllu:
-	chatconllu -d ./tests -f conllu collection -fn newtest
-
 # runcha:
-# 	chatconllu -d ./tests eng
+#   chatconllu -d ./tests collection -fn newtest
 
 # runconllu:
-# 	chatconllu -d ./tests -f conllu eng
+#   chatconllu -d ./tests -f conllu collection -fn newtest
+
+# runcha:
+#   chatconllu -d ./tests fra
+
+# runconllu:
+#   chatconllu -d ./tests -f conllu fra
+
+runcha:
+	chatconllu -d ./tests eng
+
+runconllu:
+	chatconllu -d ./tests -f conllu eng

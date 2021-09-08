@@ -22,85 +22,121 @@ UTTERANCE = re.compile('^\\*')
 PUNCT = re.compile("([,.;?!:”])")
 
 
-def new_chat(filepath: 'pathlib.PosixPath'):
-	""" Writes a new .cha file such that utterances and their dependent tiers
-	 grouped together while different utterances are separated by an empty line.
-	"""
-	Path(_TMP_DIR).mkdir(parents=True, exist_ok=True)
-	fn = filepath.stem
-	with open(Path(_TMP_DIR, f'{fn}_new.cha'), 'w', encoding='utf-8') as f:
-		for line in fileinput.input(filepath, inplace=False):
-			match = UTTERANCE.match(line)
-			print('\n'+ line.strip('\n').replace('    ', '\t') if match or line == '@End\n' else line.strip('\n').replace('    ', '\t'), file=f)
-
-
-def parse_chat(filepath: 'pathlib.PosixPath') -> Tuple[OrderedDict, List[List[str]]]:
-	"""Reads the new .cha file created by new_chat(filepath) line by line, returns
-	a tuple: (meta, utterances).
-
-	The new .cha file has utterances and their dependent tiers grouped together while
-	different utterances are separated by an empty line.
-
-	Read file line by line, if line:
-		- starts with @: is header/comment, store line number:line content to `meta` dict
-		- elif line is not empty: line is part of one utterance, append to `lines` list [*note]
-		- is empty
-			- utterance is complete, append to `utterance` list
-			- clear `lines` for next utterance
-	*note:
-		- field and value are separated by tabs
-		- lines starting with tab character is a continuation of the last line
-
-	Parameters:
-	-----------
-	filepath: the path to the original .cha file, which will be converted to the path to the
-			  new .cha file inside this method.
-
-	Return value: A tuple (meta, utterances).
-				- `meta` is an ordered dictionary with line numbers as keys and headers/comments
-				as values.
-				- `utterances` is a list of utterances, each utterance is a
-				list of strings corresponding to the lines of one utterance group.
-				The first line is always the main utterance, the other lines are the
-				dependent tiers.
-	"""
-
-	meta = {}
+def parse_chat(fp):
 	utterances = []
-	fn = filepath.stem
+	utterance = []
+	metas = []
+	meta = []
+	tiers = []
+	lines = fp.readlines()
+	i = 0
+	ltmp = ""
+	while i < len(lines):
+		if not lines[i].startswith("\t"):
+			ltmp = lines[i].strip()
+			i += 1
+		while i < len(lines) and lines[i].startswith("\t"):
+			ltmp += " " + lines[i].strip()
+			i += 1
+		print(i, ltmp)
+		if ltmp.startswith("*"):
+			metas.append(meta)
+			if tiers:
+				utterances[-1].extend(tiers)
+			tiers = []
+			utterance.append(ltmp)
+			utterances.append(utterance)
+			meta = []
+			utterance = []
+		if ltmp.startswith("@"):
+			logger.debug(tiers)
+			if tiers: utterances[-1].extend(tiers)
+			tiers = []
+			meta.append(ltmp)
+		if ltmp.startswith("%"):
+			tiers.append(ltmp)
 
-	with open(Path(_TMP_DIR, f'{fn}_new.cha'), 'r', encoding='utf-8') as f:
+	return metas, utterances
 
-		lines = []
-		file_lines = f.readlines()
+# def new_chat(filepath: 'pathlib.PosixPath'):
+# 	""" Writes a new .cha file such that utterances and their dependent tiers
+# 	 grouped together while different utterances are separated by an empty line.
+# 	"""
+# 	Path(_TMP_DIR).mkdir(parents=True, exist_ok=True)
+# 	fn = filepath.stem
+# 	with open(Path(_TMP_DIR, f'{fn}_new.cha'), 'w', encoding='utf-8') as f:
+# 		for line in fileinput.input(filepath, inplace=False):
+# 			match = UTTERANCE.match(line)
+# 			print('\n'+ line.strip('\n').replace('    ', '\t') if match or line == '@End\n' else line.strip('\n').replace('    ', '\t'), file=f)
 
-		for i, l in enumerate(file_lines):
-			l = l.strip('\n')
-			if l.startswith('@'):
-				j = i + 1
-				while j < len(file_lines):
-					if file_lines[j].startswith('\t'):
-						meta[j] = file_lines[j].strip()  # keep the tab for putting back the chat file as is
-						break
-					else:
-						break
-				meta[i] = l  # needs to remember line number for positioning back the headers
-				continue
 
-			elif l:
-				while l.startswith('\t'):  # tab marks continuation of last line
-					if lines:
-						lines[-1] += l.replace('\t', ' ')  # replace initial tab with a space
-					break
-				else:
-					lines.append(l)
-			elif lines:  # if empty line is met, store the utterance, clear the list
-				utterances.append(lines)
-				lines = []
+# def parse_chat(filepath: 'pathlib.PosixPath') -> Tuple[OrderedDict, List[List[str]]]:
+# 	Reads the new .cha file created by new_chat(filepath) line by line, returns
+# 	a tuple: (meta, utterances).
 
-		meta = OrderedDict(sorted(meta.items()))
+# 	The new .cha file has utterances and their dependent tiers grouped together while
+# 	different utterances are separated by an empty line.
 
-	return meta, utterances
+# 	Read file line by line, if line:
+# 		- starts with @: is header/comment, store line number:line content to `meta` dict
+# 		- elif line is not empty: line is part of one utterance, append to `lines` list [*note]
+# 		- is empty
+# 			- utterance is complete, append to `utterance` list
+# 			- clear `lines` for next utterance
+# 	*note:
+# 		- field and value are separated by tabs
+# 		- lines starting with tab character is a continuation of the last line
+
+# 	Parameters:
+# 	-----------
+# 	filepath: the path to the original .cha file, which will be converted to the path to the
+# 			  new .cha file inside this method.
+
+# 	Return value: A tuple (meta, utterances).
+# 				- `meta` is an ordered dictionary with line numbers as keys and headers/comments
+# 				as values.
+# 				- `utterances` is a list of utterances, each utterance is a
+# 				list of strings corresponding to the lines of one utterance group.
+# 				The first line is always the main utterance, the other lines are the
+# 				dependent tiers.
+
+
+# 	meta = {}
+# 	utterances = []
+# 	fn = filepath.stem
+
+# 	with open(Path(_TMP_DIR, f'{fn}_new.cha'), 'r', encoding='utf-8') as f:
+
+# 		lines = []
+# 		file_lines = f.readlines()
+
+# 		for i, l in enumerate(file_lines):
+# 			l = l.strip('\n')
+# 			if l.startswith('@'):
+# 				j = i + 1
+# 				while j < len(file_lines):
+# 					if file_lines[j].startswith('\t'):
+# 						meta[j] = file_lines[j].strip()  # keep the tab for putting back the chat file as is
+# 						break
+# 					else:
+# 						break
+# 				meta[i] = l  # needs to remember line number for positioning back the headers
+# 				continue
+
+# 			elif l:
+# 				while l.startswith('\t'):  # tab marks continuation of last line
+# 					if lines:
+# 						lines[-1] += l.replace('\t', ' ')  # replace initial tab with a space
+# 					break
+# 				else:
+# 					lines.append(l)
+# 			elif lines:  # if empty line is met, store the utterance, clear the list
+# 				utterances.append(lines)
+# 				lines = []
+
+# 		meta = OrderedDict(sorted(meta.items()))
+
+# 	return meta, utterances
 
 
 def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[None, None]]:
@@ -272,8 +308,8 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 
 	tokens.extend(prev_tokens)
 
-	logger.debug(f"----utterance----:\n{line}")
-	logger.debug(f"tokens: {tokens}")
+	# logger.debug(f"----utterance----:\n{line}")
+	# logger.debug(f"tokens: {tokens}")
 
 	return tokens, line
 
@@ -358,7 +394,8 @@ def to_upos(mor_code: str) -> str:
 		return mor_code
 
 	if not mor_code in mor2upos:
-		if not re.match(PUNCT, mor_code) and not mor_code.split(':')[0] in mor2upos: logger.warning(f"{mor_code} does not have a corresponding UPOS in mor2upos.")
+		if not re.match(PUNCT, mor_code) and not mor_code.split(':')[0] in mor2upos:
+			logger.warning(f"{mor_code} does not have a corresponding UPOS in mor2upos.")
 		return mor2upos[mor_code.split(':')[0]] if mor_code.split(':')[0] in mor2upos else mor_code
 
 	return mor2upos[mor_code] if mor_code in mor2upos else mor_code
@@ -399,7 +436,7 @@ def parse_mor(mor_segment: str):
 	translation = None
 	feat = None
 	miscs = []
-	logger.info(f"Input MOR segment: {mor_segment}")
+	# logger.info(f"Input MOR segment: {mor_segment}")
 	pos, _, lemma_feats = mor_segment.partition("|")  # split by first |
 	if pos == lemma_feats:
 		miscs.append(f"form={mor_segment.replace('|', '@')}")
@@ -408,7 +445,7 @@ def parse_mor(mor_segment: str):
 		miscs.append(f"form={pos}")
 	elif '+' in lemma_feats:  # compound
 		tmps = re.split(r"\+\w+?\|", lemma_feats)
-		logger.debug(tmps)
+		# logger.debug(tmps)
 		l, f, t, feat = zip(*(parse_sub(tmp) for tmp in tmps[1:]))    # tmp[0] is empty string
 		lemma = ''.join(l)
 		if any(t): translation = '+'.join(t)  # or leave empty
@@ -472,8 +509,8 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 
 	## ---- test prints ----
-	logger.debug(f"\n* utterance: {' '.join(clean)}\n")
-	logger.debug(mor)
+	# logger.debug(f"\n* utterance: {' '.join(clean)}\n")
+	# logger.debug(mor)
 
 	j = 0  # j keeps track of clean tokens
 	tok_index = 1
@@ -584,11 +621,11 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 	"""
 	# ---- speaker ----
 	speaker = lines[0][1:4]
-	# print(f"speaker: {speaker}")
+	print(f"speaker: {speaker}")
 
 	# ---- tiers ----
 	tiers = [x.split('\t')[0] for x in lines[1:]]
-	# print(tiers)
+	print(tiers)
 
 	# ---- tokens ----
 	tokens, utterance = normalise_utterance(lines[0].split('\t')[-1])  # normalise line (speaker removed)
@@ -634,11 +671,11 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 					)
 
 
-def to_conllu(filename: 'pathlib.PosixPath', meta: OrderedDict, utterances:List[List[str]]):
+def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:List[List[str]]):
 	with open(filename, mode='w', encoding='utf-8') as f:
-		for k, v in meta.items():
-			f.write(f"# {k}\t{v}\n")  # write meta as headers
-		f.write("\n")
+		# for k, v in meta.items():
+		# 	f.write(f"# {k}\t{v}\n")  # write meta as headers
+		# f.write("\n")
 		for idx, utterance in enumerate(utterances):
 			try:
 				sent = create_sentence(idx, utterance)
@@ -646,6 +683,9 @@ def to_conllu(filename: 'pathlib.PosixPath', meta: OrderedDict, utterances:List[
 				logger.exception(e)
 				logger.info(f"writing sent {utterance} to {filename}...")
 				raise
+			if metas[idx]:  # if has comments/headers
+				for m in metas[idx]:
+					f.write(f"# {m}\n")
 			f.write(f"# sent_id = {sent.get_sent_id()}\n")
 			f.write(f"# text = {sent.text()}\n")
 			f.write(f"# chat_sent = {sent.chat_sent}\n")
@@ -661,35 +701,37 @@ def to_conllu(filename: 'pathlib.PosixPath', meta: OrderedDict, utterances:List[
 			f.write("\n")
 
 
-def chat2conllu(files: List['pathlib.PosixPath'], remove=True):
+def chat2conllu(files: List['pathlib.PosixPath']):  #, remove=True):
 	for f in files:
 		# if f.with_suffix(".conllu").is_file():
 		#   continue
+
 		# ---- create a new .cha file ----
-		new_chat(f)
+		# new_chat(f)
 
 		# ---- parse chat ----
 		logger.info(f"parsing {f}...")
-		meta, utterances = parse_chat(f)
+		with open(f, 'r', encoding='utf-8') as fp:
+			metas, utterances = parse_chat(fp)
 
-		fn = f.with_suffix(".conllu")
-		to_conllu(fn, meta, utterances)
+			fn = f.with_suffix(".conllu")
+			to_conllu(fn, metas, utterances)
 
-		if remove:
-			tmp_file = Path(_TMP_DIR, f"{f.stem}_new").with_suffix(".cha")
-			if tmp_file.is_file():
-				os.remove(tmp_file)
+		# if remove:
+		# 	tmp_file = Path(_TMP_DIR, f"{f.stem}_new").with_suffix(".cha")
+		# 	if tmp_file.is_file():
+		# 		os.remove(tmp_file)
 
 
 if __name__ == "__main__":
-	test = ['beg|beg', '+"/.', 'pro:sub|I', 'pro:sub|I~v|will']
+	# test = ['beg|beg', '+"/.', 'pro:sub|I', 'pro:sub|I~v|will']
 
-	pos, lemma, feat_str, misc = get_lemma_and_feats(test[0])
+	# pos, lemma, feat_str, misc = get_lemma_and_feats(test[0])
 
 	# pos, lemma, feat_str, misc = zip(*get_lemma_and_feats(test[1], is_multi=True))
 
-	logger.info(pos)
-	logger.info(lemma)
-	logger.info(feat_str)
-	logger.info(misc)
+	# logger.info(pos)
+	# logger.info(lemma)
+	# logger.info(feat_str)
+	# logger.info(misc)
 	pass
