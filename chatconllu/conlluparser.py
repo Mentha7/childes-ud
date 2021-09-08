@@ -114,6 +114,7 @@ def construct_tiers(sentence, has_mor, has_gra):
 
 
 def to_cha(outfile, conll: 'pyconll.Conll'):
+	final = []
 	for sentence in conll:
 		mor = {}
 		gra = []
@@ -166,7 +167,12 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			if not k.startswith('@') and k not in STANDARD and '\t' not in k:
 				val = ' '.join(ast.literal_eval(sentence.meta_value(k)))
 				outfile.write(f"%{k}:\t{val}\n")
-	outfile.write("@End")
+		if 'final' in sentence._meta.keys():
+			final = ast.literal_eval(sentence.meta_value('final'))
+	if final:
+		for fc in final:
+			outfile.write(f"{fc}\n")
+	# outfile.write("@End")
 	# logger.info(f"{f.stem + f.suffix} has {sc} sentences, {wc} tokens.")
 	# fn = f.with_suffix(".cha")
 	# quit()

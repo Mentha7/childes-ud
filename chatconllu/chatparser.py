@@ -27,6 +27,7 @@ def parse_chat(fp):
 	utterance = []
 	metas = []
 	meta = []
+	final = []
 	tiers = []
 	lines = fp.readlines()
 	i = 0
@@ -51,10 +52,12 @@ def parse_chat(fp):
 			if tiers: utterances[-1].extend(tiers)
 			tiers = []
 			meta.append(ltmp)
+			if ltmp == "@End":
+				final.extend(meta)
 		if ltmp.startswith("%"):
 			tiers.append(ltmp)
 
-	return metas, utterances
+	return metas, utterances, final
 
 
 def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[None, None]]:
@@ -589,7 +592,7 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 					)
 
 
-def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:List[List[str]]):
+def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:List[List[str]], final:List[str]):
 	with open(filename, mode='w', encoding='utf-8') as f:
 		# for k, v in meta.items():
 		# 	f.write(f"# {k}\t{v}\n")  # write meta as headers
@@ -604,6 +607,8 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 			if metas[idx]:  # if has comments/headers
 				for m in metas[idx]:
 					f.write(f"# {m}\n")
+			if idx == 0:
+				f.write(f"# final = {final}\n")
 			f.write(f"# sent_id = {sent.get_sent_id()}\n")
 			f.write(f"# text = {sent.text()}\n")
 			f.write(f"# chat_sent = {sent.chat_sent}\n")
@@ -627,10 +632,10 @@ def chat2conllu(files: List['pathlib.PosixPath']):
 		# ---- parse chat ----
 		logger.info(f"parsing {f}...")
 		with open(f, 'r', encoding='utf-8') as fp:
-			metas, utterances = parse_chat(fp)
+			metas, utterances, final = parse_chat(fp)
 
 			fn = f.with_suffix(".conllu")
-			to_conllu(fn, metas, utterances)
+			to_conllu(fn, metas, utterances, final)
 
 
 if __name__ == "__main__":
