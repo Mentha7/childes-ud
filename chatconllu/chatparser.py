@@ -38,7 +38,6 @@ def parse_chat(fp):
 		while i < len(lines) and lines[i].startswith("\t"):
 			ltmp += " " + lines[i].strip()
 			i += 1
-		print(i, ltmp)
 		if ltmp.startswith("*"):
 			metas.append(meta)
 			if tiers:
@@ -49,7 +48,6 @@ def parse_chat(fp):
 			meta = []
 			utterance = []
 		if ltmp.startswith("@"):
-			logger.debug(tiers)
 			if tiers: utterances[-1].extend(tiers)
 			tiers = []
 			meta.append(ltmp)
@@ -57,86 +55,6 @@ def parse_chat(fp):
 			tiers.append(ltmp)
 
 	return metas, utterances
-
-# def new_chat(filepath: 'pathlib.PosixPath'):
-# 	""" Writes a new .cha file such that utterances and their dependent tiers
-# 	 grouped together while different utterances are separated by an empty line.
-# 	"""
-# 	Path(_TMP_DIR).mkdir(parents=True, exist_ok=True)
-# 	fn = filepath.stem
-# 	with open(Path(_TMP_DIR, f'{fn}_new.cha'), 'w', encoding='utf-8') as f:
-# 		for line in fileinput.input(filepath, inplace=False):
-# 			match = UTTERANCE.match(line)
-# 			print('\n'+ line.strip('\n').replace('    ', '\t') if match or line == '@End\n' else line.strip('\n').replace('    ', '\t'), file=f)
-
-
-# def parse_chat(filepath: 'pathlib.PosixPath') -> Tuple[OrderedDict, List[List[str]]]:
-# 	Reads the new .cha file created by new_chat(filepath) line by line, returns
-# 	a tuple: (meta, utterances).
-
-# 	The new .cha file has utterances and their dependent tiers grouped together while
-# 	different utterances are separated by an empty line.
-
-# 	Read file line by line, if line:
-# 		- starts with @: is header/comment, store line number:line content to `meta` dict
-# 		- elif line is not empty: line is part of one utterance, append to `lines` list [*note]
-# 		- is empty
-# 			- utterance is complete, append to `utterance` list
-# 			- clear `lines` for next utterance
-# 	*note:
-# 		- field and value are separated by tabs
-# 		- lines starting with tab character is a continuation of the last line
-
-# 	Parameters:
-# 	-----------
-# 	filepath: the path to the original .cha file, which will be converted to the path to the
-# 			  new .cha file inside this method.
-
-# 	Return value: A tuple (meta, utterances).
-# 				- `meta` is an ordered dictionary with line numbers as keys and headers/comments
-# 				as values.
-# 				- `utterances` is a list of utterances, each utterance is a
-# 				list of strings corresponding to the lines of one utterance group.
-# 				The first line is always the main utterance, the other lines are the
-# 				dependent tiers.
-
-
-# 	meta = {}
-# 	utterances = []
-# 	fn = filepath.stem
-
-# 	with open(Path(_TMP_DIR, f'{fn}_new.cha'), 'r', encoding='utf-8') as f:
-
-# 		lines = []
-# 		file_lines = f.readlines()
-
-# 		for i, l in enumerate(file_lines):
-# 			l = l.strip('\n')
-# 			if l.startswith('@'):
-# 				j = i + 1
-# 				while j < len(file_lines):
-# 					if file_lines[j].startswith('\t'):
-# 						meta[j] = file_lines[j].strip()  # keep the tab for putting back the chat file as is
-# 						break
-# 					else:
-# 						break
-# 				meta[i] = l  # needs to remember line number for positioning back the headers
-# 				continue
-
-# 			elif l:
-# 				while l.startswith('\t'):  # tab marks continuation of last line
-# 					if lines:
-# 						lines[-1] += l.replace('\t', ' ')  # replace initial tab with a space
-# 					break
-# 				else:
-# 					lines.append(l)
-# 			elif lines:  # if empty line is met, store the utterance, clear the list
-# 				utterances.append(lines)
-# 				lines = []
-
-# 		meta = OrderedDict(sorted(meta.items()))
-
-# 	return meta, utterances
 
 
 def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[None, None]]:
@@ -701,13 +619,10 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 			f.write("\n")
 
 
-def chat2conllu(files: List['pathlib.PosixPath']):  #, remove=True):
+def chat2conllu(files: List['pathlib.PosixPath']):
 	for f in files:
 		# if f.with_suffix(".conllu").is_file():
 		#   continue
-
-		# ---- create a new .cha file ----
-		# new_chat(f)
 
 		# ---- parse chat ----
 		logger.info(f"parsing {f}...")
@@ -716,11 +631,6 @@ def chat2conllu(files: List['pathlib.PosixPath']):  #, remove=True):
 
 			fn = f.with_suffix(".conllu")
 			to_conllu(fn, metas, utterances)
-
-		# if remove:
-		# 	tmp_file = Path(_TMP_DIR, f"{f.stem}_new").with_suffix(".cha")
-		# 	if tmp_file.is_file():
-		# 		os.remove(tmp_file)
 
 
 if __name__ == "__main__":
