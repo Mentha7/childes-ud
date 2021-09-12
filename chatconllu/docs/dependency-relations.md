@@ -4,17 +4,18 @@
 
 #### **Predicate-Head Relations**
 
-1. Subject: `SUBJ`
-2. Clausal Subject: `CSUBJ` 
-    - e. g. `That Eric cried moved Bush.`
-3. Object: `OBJ`
-4. Object2: `OBJ2` : second/indirect object
-5. Complement: `COMP`: identifies clausal complement of a verb 
-6. Predicate: `PRED`
-7. Clausal Prepositional Object: `CPOBJ`
-8. Clausal Object: `COBJ`
-9. Prepositional Object: `POBJ`
-10. Serial: `SRL`: serial verbs
+1. Subject: `SUBJ` --> `nsubj`
+2. Clausal Subject: `CSUBJ` --> `csubj`
+    - e. g. `That Eric cried moved Bush.` 
+3. Object: `OBJ` --> `obj`
+4. Object2: `OBJ2` : second/indirect object --> `iobj`
+5. `IOBJ`  --> `iobj`
+6. Complement: `COMP`: identifies clausal complement of a verb  --> `ccomp`
+7. Predicate: `PRED`
+8. Clausal Prepositional Object: `CPOBJ`
+9. Clausal Object: `COBJ`
+10. Prepositional Object: `POBJ`
+11. Serial: `SRL`: serial verbs
     - e. g. `go play` , `come see`
 
 #### **Argument-Head Relations**
@@ -29,10 +30,10 @@
 8. Appositive: `APP`
 9. Clausal Modifier: `CMOD`
 10. X Modifier: `XMOD`
-11. Determiner: `DET`
+11. Determiner: `DET` --> `det`
 12. Quantifier: `QUANT` 
 13. Post Quantifier: `PQ`
-14. Auxiliary: `AUX`
+14. Auxiliary: `AUX` --> `aux`
 15. Negation: `NEG`
 16. Infinitive: `INF`: infinitive particle (`to`)
 17. Link: `LINK`
@@ -50,11 +51,11 @@
 5. Omission: `OM`
 
 #### **Cosmetic Relations**
-1. Punctuation: `PUNCT`
+1. Punctuation: `PUNCT` --> `punct`
 2. Local Punctuation: `LP`
 3. `BEGP`: Telation between  mark and `BEG`
 4. `ENDP`: Gelation between mark and `END`.
-5. `ROOT`
+5. `ROOT` --> `root`
     
 #### **Series Relations**
 1. Name: `NAME`
