@@ -15,7 +15,7 @@ import pyconll
 _TMP_DIR = 'tmp'
 _OUT_DIR = 'out'
 PUNCT = re.compile("([,.;?!:”])")
-STANDARD = ['sent_id', 'text', 'chat_sent', 'speaker', 'mor', 'gra', 'text =']
+STANDARD = ['sent_id', 'text', 'chat_sent', 'speaker', 'mor', 'gra', 'text =', 'final']
 
 def construct_tiers(sentence, has_mor, has_gra):
 	mor = {}
