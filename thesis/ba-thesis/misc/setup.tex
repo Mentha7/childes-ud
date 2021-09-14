@@ -253,11 +253,21 @@
 % inspired by https://anneurai.net/2017/10/18/thesis-formatting-in-latex/
 \usepackage[
   backend=biber,
-  style=alphabetic,
-  doi=false,isbn=false, % these fields are commonly omitted
+  style=authoryear-comp,
+  maxcitenames=2,
+  maxbibnames=4, % when does the citation change to et al?
+  uniquelist=false,
+  uniquename=false,
+  firstinits=true, % author initials in list
   terseinits=true, % no points between initials
   giveninits=true, % always print only initials for given names
+  doi=false, % these fields are commonly omitted
+  isbn=false, % these fields are commonly omitted
+  url=false, 
+  dashed=false,
+  terseinits=false, % true if no points between initials
   sortcites=true,
+  sorting=ynt,
   language=english,
   backref=true, % show on what pages a ref has been cited
 ]{biblatex} % Use biber backend with alphabetic reference style
