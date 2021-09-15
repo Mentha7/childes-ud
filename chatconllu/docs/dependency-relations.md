@@ -25,7 +25,7 @@
 3. X Adjunct: `XJCT`
 4. Nominal Adjunct: `NJCT`
 5. Modifier: `MOD` --> `nmod`
-6. Post Modifier: `POSTMOD`
+6. Post Modifier: `POSTMOD` --> `amod`/`xcomp`
 7. Possessive : `POSS`  --> `case`
 8. Appositive: `APP`
 9. Clausal Modifier: `CMOD`
