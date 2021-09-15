@@ -11,7 +11,7 @@
 4. Object2: `OBJ2` : second/indirect object --> `iobj`
 5. `IOBJ`  --> `iobj`
 6. Complement: `COMP`: identifies clausal complement of a verb  --> `ccomp`
-7. Predicate: `PRED`
+7. Predicate: `PRED` --> `xcomp` or change tree structure 
 8. Clausal Prepositional Object: `CPOBJ`
 9. Clausal Object: `COBJ`
 10. Prepositional Object: `POBJ`
@@ -20,13 +20,13 @@
 
 #### **Argument-Head Relations**
 
-1. Adjunct: `JCT`
+1. Adjunct: `JCT` --> `advmod`, ...
 2. Clausal Conjunct: `CJCT`
 3. X Adjunct: `XJCT`
 4. Nominal Adjunct: `NJCT`
-5. Modifier: `MOD`
+5. Modifier: `MOD` --> `nmod`
 6. Post Modifier: `POSTMOD`
-7. Possessive : `POSS`
+7. Possessive : `POSS`  --> `case`
 8. Appositive: `APP`
 9. Clausal Modifier: `CMOD`
 10. X Modifier: `XMOD`
@@ -34,7 +34,7 @@
 12. Quantifier: `QUANT` 
 13. Post Quantifier: `PQ`
 14. Auxiliary: `AUX` --> `aux`
-15. Negation: `NEG`
+15. Negation: `NEG` --> `advmod`, `Polarity=Neg`
 16. Infinitive: `INF`: infinitive particle (`to`)
 17. Link: `LINK`
     - e. g. Wait **until** the noodles are cool.
@@ -60,6 +60,6 @@
 #### **Series Relations**
 1. Name: `NAME`
 2. Date: `DATE`
-3. Enumeration: `ENUM`
-4. Conjunction: `CONJ`
-5. Coordination: `COORD`
+3. Enumeration: `ENUM`  --> `conj`
+4. Conjunction: `CONJ`  --> `conj` but different structure
+5. Coordination: `COORD`  --> `cc`
