@@ -21,8 +21,8 @@
 #### **Argument-Head Relations**
 
 1. Adjunct: `JCT` --> `advmod`, ...
-2. Clausal Conjunct: `CJCT`
-3. X Adjunct: `XJCT`
+2. Clausal Conjunct: `CJCT`  --> `advcl`
+3. X Adjunct: `XJCT` --> `advcl`
 4. Nominal Adjunct: `NJCT`
 5. Modifier: `MOD` --> `nmod`
 6. Post Modifier: `POSTMOD` --> `amod`/`xcomp`
