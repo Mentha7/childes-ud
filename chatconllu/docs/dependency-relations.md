@@ -27,16 +27,16 @@
 5. Modifier: `MOD` --> `nmod`
 6. Post Modifier: `POSTMOD` --> `amod`/`xcomp`
 7. Possessive : `POSS`  --> `case`
-8. Appositive: `APP`
+8. Appositive: `APP`  --> `appos`
 9. Clausal Modifier: `CMOD`
 10. X Modifier: `XMOD`
 11. Determiner: `DET` --> `det`
-12. Quantifier: `QUANT` 
-13. Post Quantifier: `PQ`
+12. Quantifier: `QUANT` --> `det`; if numbers `nummod`
+13. Post Quantifier: `PQ` --> `det`
 14. Auxiliary: `AUX` --> `aux`
 15. Negation: `NEG` --> `advmod`, `Polarity=Neg`
 16. Infinitive: `INF`: infinitive particle (`to`)
-17. Link: `LINK`
+17. Link: `LINK`  --> `mark`
     - e. g. Wait **until** the noodles are cool.
 18. Tag: `TAG`: tag question
     - e. g. You know how to swim, **don't you?**
