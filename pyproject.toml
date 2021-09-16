@@ -13,6 +13,7 @@ mkdocs = "^1.1.2"
 pytest = "^6.2.4"
 mkdocs-material = "^7.1.6"
 rich = "^10.2.2"
+pyconll = "^3.1.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
