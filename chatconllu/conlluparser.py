@@ -55,7 +55,7 @@ def construct_tiers(sentence, has_mor, has_gra):
 			if '-' in word.id:
 				continue
 			else:
-				deprel = word.misc['gr'][0]
+				deprel = word.misc['gr'].pop()
 				token_count += 1
 				g = f'{token_count}|{word.head}|{deprel.upper()}'
 				gra.append(g)
@@ -113,7 +113,7 @@ def construct_tiers(sentence, has_mor, has_gra):
 			if '-' in word.id:
 				continue
 			else:
-				deprel = word.misc['gr'][0]
+				deprel = word.misc['gr'].pop()
 				token_count += 1
 				g = f'{token_count}|{word.head}|{deprel.upper()}'
 				gra.append(g)
