@@ -20,11 +20,6 @@ _OUT_DIR = 'out'
 
 UTTERANCE = re.compile('^\\*')
 PUNCT = re.compile("([,.;?!:”])")
-# GRS = set()
-# {'mod', 'obj', 'coord', 'subj', 'com', 'pq', 'neg', 'conj', 'cjct', 'om',\
-#  'cpred', 'punct', 'det', 'obj2', 'incroot', 'root', 'xmod', 'beg', 'date',\
-#   None, 'comp', 'xjct', 'begp', 'pred', 'postmod', 'name', 'srl', 'quant',\
-#  'cpobj', 'aux', 'inf', 'jct', 'pobj', 'link', 'app', 'njct', 'cmod'}
 
 # define a mapping between UPOS tags and MOR codes.
 MOR2UPOS = {
@@ -372,10 +367,27 @@ def to_ud_values(tokens: List[Token]) -> List[Token]:
 	"""
 	for tok in tokens:
 		if type(tok.deprel) is list:
+			if not tok.misc:
+				tok.misc = tuple(f"gr={gr}" for gr in tok.deprel)
+			else:
+				tmps = []
+				for i, s in enumerate(tok.misc):
+					tmp = ""
+					if s:
+						tmp = s + f"|gr={tok.deprel[i]}"
+					else:
+						tmp = f"gr={tok.deprel[i]}"
+					tmps.append(tmp)
+				tok.misc = tuple(tmps)
 			deprel = [to_deprel(gr) for gr in tok.deprel]
 			tok.ud_deprel(deprel)
 			tok.deps = [f"{h}:{tok.deprel[x]}" for x, h in enumerate(tok.head)]
 		else:
+			if not tok.misc:
+				tok.misc = f"gr={tok.deprel}"
+			else:
+				tok.misc += f"|gr={tok.deprel}"
+			# logger.debug(tok.misc)
 			tok.ud_deprel(to_deprel(tok.deprel))
 			tok.deps = f"{tok.head}:{tok.deprel}"
 		# print(tok.deprel)
@@ -385,14 +397,13 @@ def to_upos(mor_code: str) -> str:
 	"""If given mor_code is in predefined MOR2UPOS dict, return the
 	corresponding upos, otherwise return the mor_code.
 	"""
-
 	if not mor_code:  # empty or None
 		return mor_code
 
 	if not mor_code in MOR2UPOS:
-		if not re.match(PUNCT, mor_code) and not mor_code.split(':')[0] in MOR2UPOS:
+		if not re.match(PUNCT, mor_code) and not mor_code.split(':')[0].lower() in MOR2UPOS:
 			logger.warning(f"{mor_code} does not have a corresponding UPOS in MOR2UPOS.")
-		return MOR2UPOS[mor_code.split(':')[0]] if mor_code.split(':')[0] in MOR2UPOS else mor_code
+		return MOR2UPOS[mor_code.split(':')[0]] if mor_code.split(':')[0].lower() in MOR2UPOS else mor_code
 
 	return MOR2UPOS[mor_code] if mor_code in MOR2UPOS else mor_code
 
@@ -409,8 +420,8 @@ def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 	feat_str = []
 	feat = ''
 	lemma_feats, _, translation = sub_segment.partition('=')  # translation
-	tmps = re.findall(r'[&|-]\w+', lemma_feats)
-	print(tmps)
+
+	tmps = re.findall(r"[&|-]\w+", lemma_feats)
 	if tmps:  # has feature
 		feat_str = [f"FEAT={t[1:].title()}" for t in tmps]  # need to convert to UD feats
 		feats = [f"{t}" for t in tmps]
@@ -425,7 +436,7 @@ def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 
 
 def parse_mor(mor_segment: str):
-	"""Given a word-level MOR segment, extract the pos tag, lemma, features and other information
+	"""Given a word-level MOR segment, extract the POS tag, lemma, features and other information
 	   to be stored in the MISC field.
 	"""
 	lemma = None
@@ -433,16 +444,19 @@ def parse_mor(mor_segment: str):
 	translation = None
 	feat = None
 	miscs = []
-	# logger.info(f"Input MOR segment: {mor_segment}")
+
 	pos, _, lemma_feats = mor_segment.partition("|")  # split by first |
+
 	if pos == lemma_feats:
 		miscs.append(f"form={mor_segment.replace('|', '@')}")
+	if '#' in pos:  # has prefix
+		miscs.append(f"prefix={pos.split('#')[0]}")
+		pos = pos.split('#')[-1]
 	if pos == '' or '+' in pos:  # punct
 		lemma = lemma_feats.replace('+', '')  # special case of punctuations
 		miscs.append(f"form={pos}")
 	elif '+' in lemma_feats:  # compound
 		tmps = re.split(r"\+\w+?\|", lemma_feats)
-		# logger.debug(tmps)
 		l, f, t, feat = zip(*(parse_sub(tmp) for tmp in tmps[1:]))    # tmp[0] is empty string
 		lemma = ''.join(l)
 		if any(t): translation = '+'.join(t)  # or leave empty
@@ -484,7 +498,6 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 	----TO-DO----
 	"""
-
 	tokens = []
 	idx = []
 
@@ -546,9 +559,8 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			# ---- get token info from mor ----
 			xpos, lemma, feats, misc = zip(*get_lemma_and_feats(mor[j], is_multi=True))
 			# if misc == ('', ''): misc = ''
-
 			upos = [to_upos(x.replace('+', '')) for x in xpos]
-			upos = [to_upos(x.split(':')[0]) for x in upos]
+			# upos = [to_upos(x.split(':')[0]) for x in upos]
 			if '+' in xpos:
 				xpos = None
 			tok_index = multi
@@ -570,7 +582,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 				xpos, lemma, feats, misc = get_lemma_and_feats(mor[j])
 				index = tok_index
 				upos = to_upos(xpos.replace('+', ''))
-				upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
+				# upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
 				if '+' in xpos:
 					xpos = None
 
@@ -590,6 +602,10 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 		# ---- remove + in form ----
 		form = form.replace('+', '')
+
+		# ---- lemma for PROPN ----
+		if upos == "PROPN":
+			lemma = form
 
 		# ---- create Tokens ----
 		tok = Token(index=index,
@@ -618,11 +634,11 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 	"""
 	# ---- speaker ----
 	speaker = lines[0][1:4]
-	print(f"speaker: {speaker}")
+	# print(f"speaker: {speaker}")
 
 	# ---- tiers ----
 	tiers = [x.split('\t')[0] for x in lines[1:]]
-	print(tiers)
+	# print(tiers)
 
 	# ---- tokens ----
 	tokens, utterance = normalise_utterance(lines[0].split('\t')[-1])  # normalise line (speaker removed)
