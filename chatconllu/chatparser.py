@@ -20,6 +20,85 @@ _OUT_DIR = 'out'
 
 UTTERANCE = re.compile('^\\*')
 PUNCT = re.compile("([,.;?!:”])")
+# GRS = set()
+# {'mod', 'obj', 'coord', 'subj', 'com', 'pq', 'neg', 'conj', 'cjct', 'om',\
+#  'cpred', 'punct', 'det', 'obj2', 'incroot', 'root', 'xmod', 'beg', 'date',\
+#   None, 'comp', 'xjct', 'begp', 'pred', 'postmod', 'name', 'srl', 'quant',\
+#  'cpobj', 'aux', 'inf', 'jct', 'pobj', 'link', 'app', 'njct', 'cmod'}
+
+# define a mapping between UPOS tags and MOR codes.
+MOR2UPOS = {
+		"adj":"ADJ",
+		"post":"ADP",
+		"prep":"ADP",
+		"adv":"ADV",
+		"adv:tem":"ADV",
+		"v:aux":"AUX",
+		"aux":"AUX",
+		"coord":"CCONJ",
+		"qn":"DET",
+		"det":"DET",
+		"quant":"DET",  # jpn
+		"co":"INTJ",
+		"n":"NOUN",
+		"on":"NOUN",
+		"onoma":"NOUN",  # jpn
+		"part":"PART",
+		"pro":"PRON",
+		"n:prop":"PROPN",
+		"conj":"SCONJ",
+		"comp":"SCONJ",
+		"num":"NUM",
+		"v":"VERB",
+		"inf":"PART",
+		"cop":"VERB",
+		"mod":"VERB",
+		"fil":"INTJ",  # ?
+		"neg":"ADV"  # ?
+	}
+
+# define a mapping between GRs and UD deprels.
+GR2DEPREL = {
+		'mod':'nmod',
+		'obj':'obj',  # as is
+		'coord':'cc',
+		'subj':'nsubj',
+		'com':'discourse',
+		'pq':'det',
+		'neg':'advmod',
+		'conj':'conj',  # as is
+		'cjct':'advcl',
+		'om':'discourse:omission',
+		'cpred':'ccomp',
+		'punct':'punct',  # as is
+		'det':'det',  # as is
+		'obj2':'iobj',
+		'incroot':'root',
+		'root':'root',  # as is
+		'xmod':'acl',
+		'beg':'vocative',
+		'date':'flat',
+		'comp':'ccomp',
+		'xjct':'advcl',
+		'begp':'punct',
+		'pred':'xcomp',
+		'postmod':'amod',  # or "xcomp"
+		'name':'flat:name',
+		'srl':'xcomp',
+		'quant':'det',  # if numbers 'nummod'
+		'cpobj':'obj',  # undecided
+		'aux':'aux',  # as is
+		'inf':'obj',  # undecided
+		'jct':'advmod',
+		'pobj':'obj',  # undecided
+		'link':'mark',
+		'app':'appos',
+		'njct':'obj',  # undecided
+		'cmod':'ccomp',
+		'poss':'case',  # or "nmod:poss"
+		'end':'parataxis',
+		'endp':'punct',
+	}
 
 
 def parse_chat(fp):
@@ -58,7 +137,6 @@ def parse_chat(fp):
 			tiers.append(ltmp)
 
 	return metas, utterances, final
-
 
 def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[None, None]]:
 	"""Adopted and modified from coltekin/childes-tr/misc/parse-chat.py.
@@ -234,7 +312,6 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 
 	return tokens, line
 
-
 def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 	"""Adopted and modified from coltekin/childes-tr/misc/parse-chat.py
 	For a given surface form of the token, return (surface, clean), where
@@ -275,51 +352,49 @@ def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 
 	return surface, clean
 
+def to_deprel(gr: str) -> str:
+	"""If given gr (grammatical relation) is in predefined GR2DEPREL dict, return the
+	corresponding upos, otherwise return gr.
+	"""
+	if not gr:  # empty or None
+		return gr
+
+	if not gr in GR2DEPREL:
+		logger.warning(f"{gr} does not have a corresponding deprel in GR2DEPREL.")
+
+	return GR2DEPREL[gr] if gr in GR2DEPREL else gr
+
+def to_ud_values(tokens: List[Token]) -> List[Token]:
+	"""
+	Direct mapping plus conditional mapping.
+	Conditional mapping is based on grammatical information of other
+	tokens in the sentence. (To-Do)
+	"""
+	for tok in tokens:
+		if type(tok.deprel) is list:
+			deprel = [to_deprel(gr) for gr in tok.deprel]
+			tok.ud_deprel(deprel)
+			tok.deps = [f"{h}:{tok.deprel[x]}" for x, h in enumerate(tok.head)]
+		else:
+			tok.ud_deprel(to_deprel(tok.deprel))
+			tok.deps = f"{tok.head}:{tok.deprel}"
+		# print(tok.deprel)
+	return tokens
 
 def to_upos(mor_code: str) -> str:
-	"""If given mor_code is in predefined mor2upos dict, return the
+	"""If given mor_code is in predefined MOR2UPOS dict, return the
 	corresponding upos, otherwise return the mor_code.
 	"""
-	# define a mapping between UPOS tags and MOR codes.
-	mor2upos = {
-		"adj":"ADJ",
-		"post":"ADP",
-		"prep":"ADP",
-		"adv":"ADV",
-		"adv:tem":"ADV",
-		"v:aux":"AUX",
-		"aux":"AUX",
-		"coord":"CCONJ",
-		"qn":"DET",
-		"det":"DET",
-		"quant":"DET",  # jpn
-		"co":"INTJ",
-		"n":"NOUN",
-		"on":"NOUN",
-		"onoma":"NOUN",  # jpn
-		"part":"PART",
-		"pro":"PRON",
-		"n:prop":"PROPN",
-		"conj":"SCONJ",
-		"comp":"SCONJ",
-		"num":"NUM",
-		"v":"VERB",
-		"inf":"PART",
-		"cop":"VERB",
-		"mod":"VERB",
-		"fil":"INTJ",  # ?
-		"neg":"ADV"  # ?
-	}
 
 	if not mor_code:  # empty or None
 		return mor_code
 
-	if not mor_code in mor2upos:
-		if not re.match(PUNCT, mor_code) and not mor_code.split(':')[0] in mor2upos:
-			logger.warning(f"{mor_code} does not have a corresponding UPOS in mor2upos.")
-		return mor2upos[mor_code.split(':')[0]] if mor_code.split(':')[0] in mor2upos else mor_code
+	if not mor_code in MOR2UPOS:
+		if not re.match(PUNCT, mor_code) and not mor_code.split(':')[0] in MOR2UPOS:
+			logger.warning(f"{mor_code} does not have a corresponding UPOS in MOR2UPOS.")
+		return MOR2UPOS[mor_code.split(':')[0]] if mor_code.split(':')[0] in MOR2UPOS else mor_code
 
-	return mor2upos[mor_code] if mor_code in mor2upos else mor_code
+	return MOR2UPOS[mor_code] if mor_code in MOR2UPOS else mor_code
 
 
 def parse_gra(gra_segment: str) -> Tuple[str, str]:
@@ -329,17 +404,18 @@ def parse_gra(gra_segment: str) -> Tuple[str, str]:
 
 
 def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
-	feat_pattern = re.compile(r"\d?[A-Z]+(?![a-z])")
+	feat_pattern = re.compile(r"\d?[A-Z]+[a-z]?")
 	lemma = None
 	feat_str = []
 	feat = ''
 	lemma_feats, _, translation = sub_segment.partition('=')  # translation
 	tmps = re.findall(r'[&|-]\w+', lemma_feats)
+	print(tmps)
 	if tmps:  # has feature
 		feat_str = [f"FEAT={t[1:].title()}" for t in tmps]  # need to convert to UD feats
 		feats = [f"{t}" for t in tmps]
-		feat = '#'.join(feats)
-	tmp = re.split('&|-', lemma_feats)
+		feat = '^'.join(feats)
+	tmp = re.split(r'[|&#-]', lemma_feats)
 	# lemma = tmp[0]
 	if tmp[0] == 'I' or not re.match(feat_pattern, tmp[0]):  # !!! sometimes lemma is encoded
 		lemma = tmp[0]
@@ -375,7 +451,7 @@ def parse_mor(mor_segment: str):
 		ctmps = re.split(r"\+", lemma_feats)
 		# components = [f"{tuple(ctmp.split('|'))}" for ctmp in ctmps[1:]]
 		components = [f"{ctmp.replace('|', '@')}" for ctmp in ctmps[1:]]
-		comp = '#'.join(components)
+		comp = '^'.join(components)
 		miscs.append(f"components={comp}")
 		if translation: miscs.append(f"translation={translation}")
 	else:
@@ -579,6 +655,7 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 	# ---- clean form ----
 	checked_tokens = [check_token(t) for t in tokens]
 	toks = extract_token_info(checked_tokens, gra, mor)
+	ud_toks = to_ud_values(toks)
 
 	return Sentence(speaker=speaker,
 					tiers=tiers_dict,
@@ -588,7 +665,7 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 					clean=clean,
 					comments=comments,
 					sent_id=(idx+1),
-					toks=toks
+					toks=ud_toks  # should be ud_toks
 					)
 
 

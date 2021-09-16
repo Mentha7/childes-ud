@@ -39,7 +39,7 @@ class Sentence(object):
 		return ("\n".join(fields))
 
 	def text(self):
-		tokens = [x.form for x in self.toks]
+		tokens = [x.form for x in self.toks] if self.toks else []
 		return " ".join(tokens)
 
 	def get_sent_id(self):
@@ -47,9 +47,10 @@ class Sentence(object):
 
 	def conllu_str(self, mute=False):
 		s = ""
-		for tok in self.toks:
-			if mute:
-				s += "# " + tok.conllu_str()
-			else:
-				s += tok.conllu_str()
+		if self.toks:
+			for tok in self.toks:
+				if mute:
+					s += "# " + tok.conllu_str()
+				else:
+					s += tok.conllu_str()
 		return s

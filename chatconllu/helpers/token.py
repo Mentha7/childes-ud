@@ -107,6 +107,15 @@ class Token(object):
         s+="\n"
         return s
 
+    def add_misc(self, string):
+        if self.misc:
+            self.misc += "|" + string
+        else:
+            self.misc = string
+
+    def ud_deprel(self, deprel):
+        self.deprel = deprel
+
     def ud_upos():
         pass
 

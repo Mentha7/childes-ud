@@ -28,13 +28,13 @@ def construct_tiers(sentence, has_mor, has_gra):
 			# -------- reconstruct %mor --------
 			if 'components' in word.misc.keys():  #compound
 				for v in word.misc['components']:
-					tmp = '+' + v.replace('@', '|').replace('#', '+')  # reverse to MOR coding
+					tmp = '+' + v.replace('@', '|').replace('^', '+')  # reverse to MOR coding
 					m = '|'.join([word.xpos, tmp])
 			elif word.lemma and word.xpos != 'punct':
 				m = '|'.join([word.xpos, word.lemma])
 				if 'feats' in word.misc.keys():
 					for f in word.misc['feats']:
-						tmp = f.replace('#', '')
+						tmp = f.replace('^', '')
 						m += tmp
 				if 'translation' in word.misc.keys():
 					for t in word.misc['translation']:
@@ -69,13 +69,13 @@ def construct_tiers(sentence, has_mor, has_gra):
 			# -------- reconstruct %mor --------
 			if 'components' in word.misc.keys():
 				for v in word.misc['components']:
-					tmp = '+' + v.replace('@', '|').replace('#', '+')
+					tmp = '+' + v.replace('@', '|').replace('^', '+')
 					m = '|'.join([word.xpos, tmp])
 			elif word.lemma and word.xpos != 'punct':
 				m = '|'.join([word.xpos, word.lemma])
 				if 'feats' in word.misc.keys():
 					for f in word.misc['feats']:
-						tmp = f.replace('#', '')
+						tmp = f.replace('^', '')
 						m += tmp
 				if 'translation' in word.misc.keys():
 					for t in word.misc['translation']:
