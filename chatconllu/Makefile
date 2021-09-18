@@ -39,7 +39,7 @@ run:
 #   chatconllu -d ./tests -f conllu fra
 
 runcha:
-	chatconllu -d ./tests eng
+	chatconllu -d ./tests fra
 
 runconllu:
-	chatconllu -d ./tests -f conllu eng
+	chatconllu -d ./tests -f conllu fra

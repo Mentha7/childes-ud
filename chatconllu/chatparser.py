@@ -48,51 +48,69 @@ MOR2UPOS = {
 		"inf":"PART",
 		"cop":"VERB",
 		"mod":"VERB",
+		# ---- punctuation marks ----
+		"end":"PUNCT",
+		"beg":"PUNCT",
+		"cm":"PUNCT",
+		"bq":"PUNCT",
+		"eq":"PUNCT",
+		"bq2":"PUNCT",
+		"eq2":"PUNCT",
+		# ---- hard to decide ----
+		"chi":"PROPN",
 		"fil":"INTJ",  # ?
-		"neg":"ADV"  # ?
+		"neg":"ADV",  # ?
 	}
 
 # define a mapping between GRs and UD deprels.
 GR2DEPREL = {
 		'mod':'nmod',
-		'obj':'obj',  # as is
 		'coord':'cc',
 		'subj':'nsubj',
 		'com':'discourse',
 		'pq':'det',
 		'neg':'advmod',
-		'conj':'conj',  # as is
 		'cjct':'advcl',
-		'om':'discourse:omission',
 		'cpred':'ccomp',
-		'punct':'punct',  # as is
-		'det':'det',  # as is
 		'obj2':'iobj',
 		'incroot':'root',
-		'root':'root',  # as is
 		'xmod':'acl',
 		'beg':'vocative',
 		'date':'flat',
 		'comp':'ccomp',
 		'xjct':'advcl',
-		'begp':'punct',
 		'pred':'xcomp',
-		'postmod':'amod',  # or "xcomp"
 		'name':'flat:name',
 		'srl':'xcomp',
-		'quant':'det',  # if numbers 'nummod'
-		'cpobj':'obj',  # undecided
-		'aux':'aux',  # as is
-		'inf':'obj',  # undecided
 		'jct':'advmod',
-		'pobj':'obj',  # undecided
 		'link':'mark',
 		'app':'appos',
-		'njct':'obj',  # undecided
 		'cmod':'ccomp',
-		'poss':'case',  # or "nmod:poss"
 		'end':'parataxis',
+		'enum':'conj',
+		# ---- has alternative ----
+		'poss':'case',  # or "nmod:poss"
+		'quant':'det',  # if numbers 'nummod'
+		'postmod':'amod',  # or "xcomp"
+		# ---- as is ----
+		'obj':'obj',
+		'csubj':'csubj',
+		'conj':'conj',
+		'punct':'punct',
+		'det':'det',
+		'root':'root',
+		'aux':'aux',
+		# ---- punctuations ----
 		'endp':'punct',
+		'begp':'punct',
+		'lp':'punct',
+		# ---- undecided ----
+		'om':'discourse:omission',
+		'cpobj':'obj',
+		'cobj':'obj',
+		'njct':'obj',
+		'pobj':'obj',
+		'inf':'obj',
 	}
 
 
@@ -223,6 +241,7 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 		if line[i] == " ":
 			i += 1
 		elif line[i:].startswith("<"):
+			logger.debug(prev_tokens)
 			tokens.extend(prev_tokens)
 			i += 1
 			if line[i:].startswith("<"):
@@ -231,6 +250,9 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 				s = re.match(until_rangleb, line[i:])
 				i += len(s.group(0))
 				prev_tokens = s.group(1).strip().split()
+				logger.info(s.group(0))
+				logger.info(s.group(1))
+				logger.info(prev_tokens)
 				m = re.match(until_rangleb, line[i:])
 				prev_tokens += m.group(1).strip().split()
 
@@ -249,7 +271,10 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 			prev_tokens = [s.group(0).strip()[-1]]
 		elif re.match(to_omit, line[i:]):
 			s = re.match(to_omit, line[i:])
-			tokens.extend(prev_tokens)  # keep previous tokens
+			j = i + len(s.group(0)) + 1  # add one for space character
+			if not re.match(delete_prev, line[j:]):
+				tokens.extend(prev_tokens)  # keep previous tokens
+			# logger.debug(tokens)
 			i += len(s.group(0))
 			prev_tokens = []
 		elif re.match(overlap, line[i:]):
@@ -284,9 +309,12 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 			prev_tokens = [m.group(0)] if m else []
 			i += len(m.group(0)) if m else 1
 		for m, pt in enumerate(prev_tokens):  # loop over collected 'tokens' for patterns
+			logger.debug(f"prev tok {m}: {pt}")
 			if re.match(delete_prev, pt):
+				logger.debug("inner delete")
 				prev_tokens.pop(m-1)
 			if re.match(to_replace, pt):
+				logger.debug("inner replace")
 				ind = m+1
 				while ind < len(prev_tokens):
 					if prev_tokens[ind].endswith(']'):
@@ -298,6 +326,7 @@ def normalise_utterance(line: str) -> Union[Tuple[List[str], List[str]], Tuple[N
 				prev_tokens.pop(m)
 				prev_tokens.pop(m-1)
 			if re.match(to_omit, pt):
+				logger.debug("inner omit")
 				prev_tokens.remove(pt)
 
 	tokens.extend(prev_tokens)
@@ -368,21 +397,21 @@ def to_ud_values(tokens: List[Token]) -> List[Token]:
 	for tok in tokens:
 		if type(tok.deprel) is list:
 			if not tok.misc:
-				tok.misc = tuple(f"gr={gr}" for gr in tok.deprel)
+				tok.misc = tuple(f"gr={gr}" for gr in tok.deprel if gr)
 			else:
 				tmps = []
 				for i, s in enumerate(tok.misc):
 					tmp = ""
-					if s:
+					if s and tok.deprel[i]:
 						tmp = s + f"|gr={tok.deprel[i]}"
-					else:
+					elif tok.deprel[i]:
 						tmp = f"gr={tok.deprel[i]}"
 					tmps.append(tmp)
 				tok.misc = tuple(tmps)
 			deprel = [to_deprel(gr) for gr in tok.deprel]
 			tok.ud_deprel(deprel)
 			tok.deps = [f"{h}:{tok.deprel[x]}" for x, h in enumerate(tok.head)]
-		else:
+		elif tok.deprel:
 			if not tok.misc:
 				tok.misc = f"gr={tok.deprel}"
 			else:
@@ -399,6 +428,9 @@ def to_upos(mor_code: str) -> str:
 	"""
 	if not mor_code:  # empty or None
 		return mor_code
+	elif not mor_code[:1].isalpha():
+		logger.debug(mor_code)
+		return None
 
 	if not mor_code in MOR2UPOS:
 		if not re.match(PUNCT, mor_code) and not mor_code.split(':')[0].lower() in MOR2UPOS:
@@ -688,7 +720,7 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:List[List[str]], final:List[str]):
 	with open(filename, mode='w', encoding='utf-8') as f:
 		# for k, v in meta.items():
-		# 	f.write(f"# {k}\t{v}\n")  # write meta as headers
+		#   f.write(f"# {k}\t{v}\n")  # write meta as headers
 		# f.write("\n")
 		for idx, utterance in enumerate(utterances):
 			try:

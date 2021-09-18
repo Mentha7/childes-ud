@@ -12,8 +12,8 @@ from helpers.token import Token
 
 import pyconll
 
-_TMP_DIR = 'tmp'
-_OUT_DIR = 'out'
+_OUT_DIR = Path('tests', 'out')
+_OUT_DIR.mkdir(parents=True, exist_ok=True)
 PUNCT = re.compile("([,.;?!:”])")
 STANDARD = ['sent_id', 'text', 'chat_sent', 'speaker', 'mor', 'gra', 'text =', 'final']
 
@@ -194,8 +194,9 @@ def conllu2chat(files: List['pathlib.PosixPath']):
 
 		# ---- load conllu file ----
 		logger.info(f"Loading {f} with pyconll...")
-		conll = pyconll.load_from_file(f)
-
-		fn = Path(f.stem + "_pyconll" + ".cha")
+		conll = pyconll.iter_from_file(f)
+		print(f.stem, _OUT_DIR)
+		fn = Path(_OUT_DIR, f.stem + "_pyconll" + ".cha")
+		print(fn)
 		with open(fn, 'w', encoding='utf-8') as ff:
 			to_cha(ff, conll)

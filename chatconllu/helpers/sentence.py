@@ -34,7 +34,6 @@ class Sentence(object):
 		self.toks=toks
 
 	def __str__(self):
-
 		fields = [str(getattr(self, x)) for x in self.__slots__[:]]
 		return ("\n".join(fields))
 
