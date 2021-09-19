@@ -10,6 +10,19 @@
 %\subsubsection{MOR}
 %\subsubsection{GRA}
 
+\section{Normalising Utterances}
+\subsection{Challenge: Nested Angel Brackets}
+
+The original algorithm was successful in processing flat structure with CHAT codes, but not nested structures. 
+
+Nested structures occurs with scoped symbols. Scoped symbols refer to a segment of speech instead of a single word. The tokens/words in the segment are enclosed in angle brackets, while the markers which describe the segment are enclosed in square brackets that follows the angle brackets. There can be more than one square-bracket-enclosed descriptors following one speech segment, but no other materials should be allowed between the scope enclosed in angle brackets and the symbols enclosed in square brackets.\\
+The challenge of nested angle brackets can be illustrated using the following examples.\\
+% example from Brown/Sarah/21024, sentence 733
+
+<<yeah yeah> [/] yeah> [?] .
+
+
+
 \section{Mapping GRs and deprels}
 \subsection{PRED}
 \begin{dependency}
