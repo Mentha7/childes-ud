@@ -61,6 +61,15 @@ MOR2UPOS = {
 		"chi":"PROPN",
 		"fil":"INTJ",  # ?
 		"neg":"ADV",  # ?
+		"wplay":"INTJ",
+		"bab":"INTJ",
+		"neo":"X",
+		"test":"PROPN",
+		"meta":"PROPN",
+		"phon":"X",
+		"fam":"X",
+		"uni":"X",
+		"L2":"X",
 	}
 
 # define a mapping between GRs and UD deprels.
