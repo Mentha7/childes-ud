@@ -40,7 +40,7 @@ from chatconllu import chatparser
 						("<du [/] <in &Kin> [/] <in im &Ki> [/] im Kinderladen xxx> [>] .", ['im', 'Kinderladen', 'xxx', '.']),
 						("<<bug (.) bug> [/] (.) bug> [?] .", ['bug', '.']),  # Sarah/030820 sent 656
 						("<<pattycake> [/] (.) pattycake (.) baker's man> [?] .", ['pattycake', "baker's", 'man', '.']),  # Sarah/030827 sent 614
-						("<here <monk(ey)> [/] monkey> [>] +...", ['here', 'monkey', '+...']),  # Sarah/020906 sent 210
+						("<here <monk(ey)> [/] monkey> [>] +...", ['here', 'monkey', '...']),  # Sarah/020906 sent 210
 						("<<yeah yeah> [/] yeah> [?] .", ['yeah', '.']),  # Sarah/21024 sent 733
 						("",
 						 []),  # no utterance
