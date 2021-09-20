@@ -162,7 +162,6 @@ def normalise_utterance(line):
 				push(token, groups, depth)
 			i += 1
 	return replace(remove_elements(omit(flatten(delete(groups))))), line
-	# return remove_elements(replace(omit(flatten(delete(groups))))), line
 
 def flatten(groups):
 	""" Flatten a list of lists.
@@ -175,41 +174,6 @@ def flatten(groups):
 		else:
 			flat.append(subgroup)
 	return flat
-
-# def replace(flat):
-# 	for i, f in enumerate(flat):
-# 		# logger.info(f)
-# 		if re.match(to_replace, f):
-# 			# logger.info("replace")
-# 			ind = i+1
-# 			while ind < len(flat):
-# 				if flat[ind].endswith(']'):
-# 					new = ''.join(x for x in flat[ind] if x.isalpha())
-# 					break
-# 				else:
-# 					ind += 1
-# 			flat[ind] = new
-# 			flat.pop(i)
-# 			flat.pop(i-1)
-# 	return flat
-
-# def remove_elements(flat):
-# 	for i, f in enumerate(flat):
-# 		if re.match(start_bracket, f):
-# 			# logger.debug(flat)
-# 			# logger.info("remove space-separated square-bracketed elements")
-# 			# logger.debug(f)
-# 			ind = i+1
-# 			while ind < len(flat):
-# 				if flat[ind].endswith(']'):
-# 					flat.pop(ind)
-# 					break
-# 				else:
-# 					flat.pop(ind)
-# 			flat.pop(i)
-# 		elif re.match(trailing_off, f):
-# 			flat[i] = f[1:]  # remove +
-# 	return flat
 
 def remove_elements(flat):
 	results = []
