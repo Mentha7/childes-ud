@@ -8,3 +8,23 @@ Unlike most written text or lab speech data, spontaneous speech is <chaotic> in 
 % references
 CHILDES database \cite{Macwhinney2000}\\
 the Brown Corpus <needs bibtex (Brown, 1973)>\\
+
+% converting MOR codes to UD Universal POS tags
+\subsection{POS tags mappings}
+
+\paragraph{art}
+Articles are marked as \texttt{DET} in UD Treebanks with feature \texttt{PronType=Art}.\\
+\paragraph{preart}
+\texttt{preart} are contractions of prepositions and articles, for instance the Italian \emph{alla} is the contraction of \emph{a} and \emph{la}. In UD-style annotations, words like \emph{alla} are treated as multi-word tokens and a POS tag is given to each part of the token. However, CHAT consider them to be single words with forms of their own. To keep the alignment with \%mor tier, here \texttt{preart} is mapped to \texttt{DET} because the word functions as a determiner.\\ 
+
+\paragraph{vimp}
+Imperatives are tagged with \texttt{vimp} in \%mor tier. However, in UD, imperatives are tagged with \texttt{VERB}, which is the category for all finite verbforms. Information of gender, person, number, tense, aspect, mood and voice are all specified as features. Therefore \texttt{vimp}, as an example, is mapped to \texttt{VERB} with \texttt{MOOD=Imp}.\\
+
+\paragraph{vpfx}
+Preverb/verb particles are tagged with \texttt{vpfx}. Although they are particles, according to UD's definition <insert reference to UD website in sidenote>, they belong to \texttt{ADP}.\\
+
+\paragraph{tags with no UPOS counterparts}
+
+
+
+
