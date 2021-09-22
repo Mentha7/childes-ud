@@ -49,6 +49,10 @@ MOR2UPOS = {
 		"inf":"PART",
 		"cop":"VERB",
 		"mod":"VERB",
+		"art":"DET",  # article, PronType=Art
+		"prepart":"DET",  # preposition with article
+		"vimp":"VERB",  # verb imperative Mood=Imp
+		"vpfx":"ADP",  # preverb/verbal particles, according to UD website
 		# ---- punctuation marks ----
 		"end":"PUNCT",
 		"beg":"PUNCT",
@@ -63,14 +67,24 @@ MOR2UPOS = {
 		"neg":"ADV",  # ?
 		"wplay":"INTJ",
 		"bab":"INTJ",
-		"neo":"X",
-		"test":"PROPN",
-		"meta":"PROPN",
-		"phon":"X",
-		"fam":"X",
-		"uni":"X",
-		"L2":"X",
+		# "neo":"X",
+		# "test":"PROPN",
+		# "meta":"PROPN",
+		# "phon":"X",
+		# "fam":"X",
+		# "uni":"X",
+		# "L2":"X",
 		"sing":"INTJ",
+		# ---- none ----
+		"none":"_",
+		"dia":"_",
+		"test":"_",
+		"meta":"_",
+		"phon":"_",
+		"fam":"_",
+		"uni":"_",
+		"L2":"_",
+		"neo":"_",
 	}
 
 # define a mapping between GRs and UD deprels.
@@ -169,15 +183,16 @@ def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 	"""
 
 	# ---- define unidentifiable patterns ----
-	unintelligible = r"(.*?)?xxx(.*?)?"
-	phono_coding = "yyy"
-	untranscribed = "www"
+	# unintelligible = r"xxx"
+	phono_coding = r"yyy"
+	untranscribed = r"www"
 	phono_fragments = r"^&"
-	unidentifiable = [unintelligible,
-						phono_coding,
-						untranscribed,
-						phono_fragments,
-						]
+	unidentifiable = [
+		# unintelligible,
+		phono_coding,
+		untranscribed,
+		phono_fragments,
+	]
 
 	to_omit = re.compile("|".join(unidentifiable))
 
@@ -191,6 +206,7 @@ def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 
 	# define special symbols translation dict
 	clean = surface.replace(' ', '')
+	clean = clean.replace('xxx', '')
 	clean = clean.replace('(', '').replace(')', '')
 	clean = clean.replace('0', '')  # 0token is omitted token
 	clean = clean.replace('‡', ',')  # prefixed interactional marker

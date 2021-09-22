@@ -20,6 +20,8 @@ quotation_follows = r"^\+\"/\."
 quick_uptake = r"^\+\^"
 lazy_overlap = r"^\+<"
 error_marking = r"^\[\*\]"
+prosody_within_words = r"^[:\/]*$"
+semicolon = r";"
 
 omission = [
 	pause,
@@ -34,6 +36,8 @@ omission = [
 	quick_uptake,
 	lazy_overlap,
 	error_marking,
+	prosody_within_words,
+	semicolon,
 	]
 # -------- define delete previous token/scope pattern --------
 retracing_no_angle_brackets = r"^\[/(?:[/?])?\]"  # [//] or [/?] or [/] --> [retrace]
@@ -79,6 +83,7 @@ trailing_off = re.compile(r"\+...")  # +...
 special_terminators = re.compile(r'^\+(?:/(?:/\.|[.?])|"/\.)')
 
 quotation = re.compile(r"[“”]")
+
 
 def push(obj, l, depth):
 	"""Based on the answer on
@@ -169,7 +174,7 @@ def normalise_utterance(line):
 			if token:
 				push(token, groups, depth)
 			i += 1
-	return replace(remove_elements(omit(flatten(delete(groups))))), line
+	return replace_token(remove_elements(omit(flatten(delete(groups))))), line
 	# return delete(groups)
 
 def flatten(groups):
@@ -200,20 +205,25 @@ def remove_elements(flat):
 
 	return results
 
-def replace(flat):
+def replace_token(flat):
 	results = []
 	replace = False
 	replace_tmp = []
 
+	# print(flat)
+
 	for i, f in enumerate(flat):
-		if re.match(to_replace, f):
+		if isinstance(f, list):
+			replace_token(f)
+
+		elif re.match(to_replace, f):
 			replace = True
 
 		if replace:
 			replace_tmp.append(f)
 		else:
 			results.append(f)
-
+		# ---- start replacing ----
 		if replace and f.endswith(']'):
 			replace_tmp[-1] = replace_tmp[-1][:-1]
 			results.pop()
@@ -256,13 +266,22 @@ def delete(groups):
 			# print(f"{g} match delete previous")
 			# print(f"{results}")
 			if "[:" in results or "[::" in results:
-				results = replace(results)
-			out = results.pop()
+				results = replace_token(results)
+				# logger.info(results)
+				out = results.pop() if results else None
+				# logger.info(results)
+			else:
+				out = results.pop() if results else None
 			# print(f"after pop: {results}")
-			while not isinstance(out, list) and (re.match(to_omit, out) or re.match(overlap, out)):
-				# print(f"{out} trigger while")
-				out = results.pop()
-				# print(f"while loop pop: {results}")
+			if out:
+				while not isinstance(out, list) and (re.match(to_omit, out) or re.match(overlap, out)):
+					# print(f"{out} trigger while")
+					# if re.match(to_omit, out):
+					# 	print("1")
+					# elif re.match(overlap, out):
+					# 	print("2")
+					out = results.pop() if results else None
+					# print(f"while loop pop {out} : {results}")
 		else:
 			# print(f"append {g} to results")
 			results.append(g)
@@ -295,9 +314,11 @@ if __name__ == '__main__':
 	# normalise_utterance("<&h> [/?] her [^ ew:she] a [^ epronoun] pour [^ ev] a [^ ew:the] a [^ emorph] juice in there [^ eu] .")
 	# print(normalise_utterance("<and I will> [?] [//] (.) and I was +..."))
 	# print(normalise_utterance("<and I will> [//] (.) and I was +..."))
-	print(normalise_utterance("when it's one it's “man (.)” and when there're two (.) it's +..."))
+	# print(normalise_utterance("when it's one it's “man (.)” and when there're two (.) it's +..."))
 	# print(normalise_utterance("<do you want> [<] [>] [/] do you wanna go on a bike ?"))
 
-	print(normalise_utterance("<do you <want> [//]> [<] [>] dfd [/] do you wanna go on a bike ?"))
+	# print(normalise_utterance("<do you <want> [//]> [<] [>] dfd [/] do you wanna go on a bike ?"))
 	print(normalise_utterance("der [: the] [//] this do this (12.) ."))
-
+	print(normalise_utterance("volo [: voglio] fare <la cala> [//] la scala [>] ."))
+	print(normalise_utterance("vanno la notte rin [: in] giro <le mamme> [/] le mamme ca@wp sono xxx . [+ r]"))
+	print(normalise_utterance("ardalo [: guardalo] <perché ba(lla)> [//] perché balla ?"))
