@@ -135,6 +135,9 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			for k in sentence._meta.keys():
 				if k.startswith('@'):
 					outfile.write(f"{k}\n")
+			# ---- empty sentences (utterances) ----
+			if 'empty_chat_sent' in sentence._meta.keys():
+				outfile.write(f"*{sentence.meta_value('empty_speaker')}:\t{sentence.meta_value('empty_chat_sent')}\n")
 			# ---- sentences (utterances) ----
 			outfile.write(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
 			# ----- check if mor and gra tier are present ----

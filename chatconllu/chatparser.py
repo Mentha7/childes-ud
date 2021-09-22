@@ -70,6 +70,7 @@ MOR2UPOS = {
 		"fam":"X",
 		"uni":"X",
 		"L2":"X",
+		"sing":"INTJ",
 	}
 
 # define a mapping between GRs and UD deprels.
@@ -559,19 +560,22 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 					f.write(f"# {m}\n")
 			if idx == 0:
 				f.write(f"# final = {final}\n")
-			f.write(f"# sent_id = {sent.get_sent_id()}\n")
-			f.write(f"# text = {sent.text()}\n")
-			f.write(f"# chat_sent = {sent.chat_sent}\n")
-			f.write(f"# speaker = {sent.speaker}\n")
-			for t in sent.tiers.keys():
-				f.write(f"# {t} = {sent.tiers.get(t)}\n")
-			if not sent.toks:
-				f.write(sent.conllu_str(mute=True))
-			if sent.text() == '.':
-				f.write(sent.conllu_str(mute=True))
+			if not sent.toks or sent.text() == '.':
+				f.write(f"# empty_speaker = {sent.speaker}\n")
+				f.write(f"# empty_chat_sent = {sent.chat_sent}\n")
+				# f.write(sent.conllu_str(mute=True))
+			# if sent.text() == '.':
+			# 	f.write(f"# empty = {sent.chat_sent}\n")
+			# 	f.write(sent.conllu_str(mute=True))
 			else:
+				f.write(f"# sent_id = {sent.get_sent_id()}\n")
+				f.write(f"# text = {sent.text()}\n")
+				f.write(f"# chat_sent = {sent.chat_sent}\n")
+				f.write(f"# speaker = {sent.speaker}\n")
+				for t in sent.tiers.keys():
+					f.write(f"# {t} = {sent.tiers.get(t)}\n")
 				f.write(sent.conllu_str())
-			f.write("\n")
+				f.write("\n")
 
 
 def chat2conllu(files: List['pathlib.PosixPath']):
