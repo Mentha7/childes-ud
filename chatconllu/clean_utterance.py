@@ -255,7 +255,7 @@ def delete(groups):
 		elif re.match(delete_prev, g):
 			# print(f"{g} match delete previous")
 			# print(f"{results}")
-			if "[:" in results:
+			if "[:" in results or "[::" in results:
 				results = replace(results)
 			out = results.pop()
 			# print(f"after pop: {results}")
