@@ -28,6 +28,60 @@ STANDARD = [
 	'empty_chat_sent',
 	]
 
+def construct_mwe(sentence, tier):
+	# -------- construct tier for multi-word tokens--------
+	mwt = [sentence[k] for k in tier.keys() if '-' in k]
+	for k in mwt:
+		if 'type' in k.misc.keys():
+			start, _, end = k.id.partition('-')
+			type = next(iter(k.misc['type']))
+			p = type.join(tier.pop(str(n)) for n in range(int(start), int(end) + 1))
+		else:  # use arbitrary symbol '~'
+			p = '~'.join(tier.pop(str(n)) for n in range(int(start), int(end) + 1))
+		tier[k.id] = p
+	return tier
+
+def construct_gra_cnl(sentence, is_cnl=False):
+	token_count = 0
+	gra = []
+	for i, word in enumerate(sentence):
+		g = ''
+		if '-' in word.id:
+			continue
+		elif not is_cnl:
+			deprel = 'None'
+			token_count += 1
+			head = 'None'
+			g = f'{token_count}|{head}|{deprel}'
+			g = g.replace('None', '_')
+		else:
+			deprel = word.deprel if word.deprel else 'None'
+			token_count += 1
+			head = word.head if word.head else 'None'
+			g = f'{token_count}|{head}|{deprel}'
+		gra.append(g)
+	return gra
+
+def construct_mor_pos(sentence, is_pos=False):
+	mor = {}
+	for i, word in enumerate(sentence):
+		m = ''
+		if not '-' in word.id:
+			if not is_pos:
+				if word.lemma and re.match(PUNCT, word.lemma) and len(word.lemma)==1:  # punctuation's mor is form
+					m = word.lemma
+				else:
+					upos = 'None'
+					lemma = 'None'
+					m = f'{upos}|{lemma}'
+					m = m.replace('None', '_')
+			else:
+				upos = word.upos.lower() if word.upos else 'None'
+				lemma = word.lemma if word.lemma else 'None'
+				m = f'{upos}|{lemma}'
+		mor[word.id] = m
+	return mor
+
 def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra=False, generate_cnl=False, generate_pos=False):
 	mor = {}
 	gra = []
@@ -83,13 +137,7 @@ def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra
 				g = g.replace('None', '_')
 				gra.append(g)
 		# -------- reconstruct %mor for multi-word tokens--------
-		mwt = [sentence[k] for k in mor.keys() if '-' in k]
-		for k in mwt:
-			if 'type' in k.misc.keys():
-				start, _, end = k.id.partition('-')
-				type = next(iter(k.misc['type']))
-				m = type.join(mor.pop(str(n)) for n in range(int(start), int(end) + 1))
-				mor[k.id] = m
+		construct_mwe(sentence, mor)
 	elif has_mor:
 		for i, word in enumerate(sentence):
 			m = ''
@@ -120,25 +168,8 @@ def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra
 					m  = p + "#" + m
 				# m = f"{word.misc['prefix'][0]}#{m}"
 			mor[word.id] = m
-		# --------- reconstruct empty %gra --------
-			if generate_gra:
-				if '-' in word.id:
-					continue
-				else:
-					deprel = 'None'
-					token_count += 1
-					head = 'None'
-				g = f'{token_count}|{head}|{deprel}'
-				g = g.replace('None', '_')
-				gra.append(g)
 		# -------- reconstruct %mor for multi-word tokens--------
-		mwt = [sentence[k] for k in mor.keys() if '-' in k]
-		for k in mwt:
-			if 'type' in k.misc.keys():
-				start, _, end = k.id.partition('-')
-				type = next(iter(k.misc['type']))
-				m = type.join(mor.pop(str(n)) for n in range(int(start), int(end) + 1))
-				mor[k.id] = m
+		construct_mwe(sentence, mor)
 	elif has_gra:
 		for i, word in enumerate(sentence):
 			g = ''
@@ -158,32 +189,20 @@ def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra
 					head = word.head
 				g = f'{token_count}|{head}|{deprel.upper()}'
 				gra.append(g)
-			# -------- reconstruct empty %mor --------
-			if generate_mor:
-				m = f'{word.upos}|{word.lemma}'
-				g = g.replace('None', '_')
-				mor[word.id] = m
 	if generate_cnl:
-		for i, word in enumerate(sentence):
-			c = ''
-			# -------- construct %cnl --------
-			if '-' in word.id:
-				continue
-			else:
-				deprel = word.deprel if word.deprel else 'None'
-				cnl_count += 1
-				head = word.head if word.head else 'None'
-			c = f'{cnl_count}|{head}|{deprel}'
-			cnl.append(c)
+		cnl = construct_gra_cnl(sentence, generate_cnl)
+	if generate_gra:  # construct empty %gra
+		gra = construct_gra_cnl(sentence)
 	if generate_pos:
-		for i, word in enumerate(sentence):
-			upos = word.upos.lower() if word.upos else 'None'
-			lemma = word.lemma if word.lemma else 'None'
-			p = f'{upos}|{lemma}'
-			pos[word.id] = p
+		pos = construct_mor_pos(sentence, generate_pos)
+		# -------- construct %pos for multi-word tokens--------
+		construct_mwe(sentence, pos)
+	if generate_mor:  # construct empty %mor
+		mor = construct_mor_pos(sentence)
+		# -------- reconstruct %mor for multi-word tokens--------
+		construct_mwe(sentence, mor)
 
 	return mor, gra, cnl, pos
-
 
 
 def to_cha(outfile, conll: 'pyconll.Conll', generate_mor=False, generate_gra=False, generate_cnl=False, generate_pos=False):

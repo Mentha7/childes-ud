@@ -17,12 +17,16 @@ from helpers.token import Token
 from clean_utterance import normalise_utterance
 
 
-_TMP_DIR = 'tmp'
-_OUT_DIR = 'out'
-
-UTTERANCE = re.compile('^\\*')
 PUNCT = re.compile("([,.;?!:”])")
 FEAT = re.compile(r"^\d?[A-Z]+$")
+
+# ---- define unidentifiable patterns to omit----
+unidentifiable = [
+	r"yyy",  # phono_coding
+	r"www",  # untranscribed
+	r"^&",  # phono_fragments
+	]
+TO_OMIT = re.compile("|".join(unidentifiable))
 
 # define a mapping between MOR codes and UPOS tags.
 MOR2UPOS = {
@@ -64,20 +68,12 @@ MOR2UPOS = {
 		"bq2":"PUNCT",
 		"eq2":"PUNCT",
 		# ---- hard to decide ----
-		# "chi":"PROPN",
 		"fil":"INTJ",  # ?
 		"neg":"ADV",  # ?
 		"wplay":"INTJ",  # wordplay
 		"bab":"INTJ",  # babbling
-		# "neo":"X",
-		# "test":"PROPN",
-		# "meta":"PROPN",
-		# "phon":"X",
-		# "fam":"X",
-		# "uni":"X",
-		# "L2":"X",
 		"sing":"INTJ",  # singing
-		# ---- none ----
+		# ---- empty or X? ----
 		"none":"X",
 		"dia":"X",  # dialect
 		"test":"X",  # test words like "wug"
@@ -103,7 +99,7 @@ GR2DEPREL = {
 		'obj2':'iobj',
 		'incroot':'root',
 		'xmod':'acl',
-		'beg':'vocative',  # or parataxis, change head from 0 to root's index
+		# 'beg':'vocative',  # or parataxis, change head from 0 to root's index
 		'date':'flat',
 		'comp':'ccomp',
 		'xjct':'advcl',
@@ -114,7 +110,7 @@ GR2DEPREL = {
 		'link':'mark',
 		'app':'appos',
 		'cmod':'ccomp',
-		'end':'parataxis',
+		# 'end':'parataxis',
 		'enum':'conj',
 		# ---- has alternative ----
 		'poss':'case',  # or "nmod:poss"
@@ -143,35 +139,48 @@ GR2DEPREL = {
 
 
 def parse_chat(fp):
-	utterances = []
-	utterance = []
-	metas = []
-	meta = []
+	""" For a open file in CHAT format, get the utterances grouped with
+	their dependent tiers, meta data including headers and comments, and
+	the final lines of the file.
+	"""
+
+	meta, metas = [], []
+	tiers, utterances = [], []
 	final = []
-	tiers = []
+
 	lines = fp.readlines()
 	i = 0
 	ltmp = ""
+
 	while i < len(lines):
+		# ---- obtain full lines by appending tab-initiated continuations to previous lines ----
 		if not lines[i].startswith("\t"):
 			ltmp = lines[i].strip()
 			i += 1
 		while i < len(lines) and lines[i].startswith("\t"):
 			ltmp += " " + lines[i].strip()
 			i += 1
+		# ---- decide type of ltmp ----
+		#  if ltmp starts with:
+		#    *: utterance
+		#    @: meta
+		#    %: dependent tier
 		if ltmp.startswith("*"):
+			# ---- collect previous meta, clear meta ----
 			metas.append(meta)
-			if tiers:
-				utterances[-1].extend(tiers)
-			tiers = []
-			utterance.append(ltmp)
-			utterances.append(utterance)
 			meta = []
-			utterance = []
-		if ltmp.startswith("@"):
+			# ---- if tiers, add to previous utterance, clear tiers ----
 			if tiers: utterances[-1].extend(tiers)
 			tiers = []
+			# ---- add current line to utterances ----
+			utterances.append([ltmp])  # as list to hold dependent tiers
+		if ltmp.startswith("@"):
+			# ---- if tiers, add to previous utterance, clear tiers ----
+			if tiers: utterances[-1].extend(tiers)
+			tiers = []
+			# ---- add current line to meta ----
 			meta.append(ltmp)
+			# ---- if EOF, store remaining meta in final ----
 			if ltmp == "@End":
 				final.extend(meta)
 		if ltmp.startswith("%"):
@@ -179,58 +188,48 @@ def parse_chat(fp):
 
 	return metas, utterances, final
 
-def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
+def check_token(surface: str) -> Tuple[str, str]:
 	"""Adopted and modified from coltekin/childes-tr/misc/parse-chat.py
 	For a given surface form of the token, return (surface, clean), where
 	clean is the token form without CHAT codes.
 	"""
 
-	# ---- define unidentifiable patterns ----
-	phono_coding = r"yyy"
-	untranscribed = r"www"
-	phono_fragments = r"^&"
-	unidentifiable = [
-		phono_coding,
-		untranscribed,
-		phono_fragments,
-	]
-
-	to_omit = re.compile("|".join(unidentifiable))
-
 	if surface is None:
 		return None, None
 
 	clean=''
-	if re.match(to_omit, surface):   # phonological forms are omitted
+	if re.match(TO_OMIT, surface):   # phonological forms are also omitted
 		return surface, clean
 
-	# define special symbols translation dict
+	# remove unwanted markings to normalise token form
 	clean = surface.replace(' ', '')
-	clean = clean.replace('xxx', '')  # unintelligible, in 'wxxxord'
+	clean = clean.replace('xxx', '')  # unintelligible, 'wxxxord' --> 'word'
 	clean = clean.replace('(', '').replace(')', '')
 	clean = clean.replace('0', '')  # 0token is omitted token
 	clean = clean.replace('‡', ',')  # prefixed interactional marker
 	clean = clean.replace('„', ',')  # suffixed interactional marker
-	# clean = clean.replace('_', ' ')  # compound
-
+	# clean = clean.replace('_', ' ')  # compound, uncomment to remove '_' in compounds
 	if "@" in clean:
-		clean = clean[:clean.index("@")]  # drops any @endings
+		clean = clean[:clean.index("@")]  # drop any @endings
 
 	return surface, clean
 
-def to_deprel(gr: str) -> str:
-	"""If the given gr (grammatical relation) is in the predefined GR2DEPREL dict,
-	return the corresponding deprel, otherwise return gr (and give a warning).
-	"""
-	if not gr:  # empty or None
-		return gr
-	if not gr in GR2DEPREL:
-		logger.warning(f"{gr} does not have a corresponding deprel in GR2DEPREL.")
+# def to_deprel(gr: str) -> str:
+	# Directly translate a given GR (grammatical relation) to its UD counterpart
+	# using predefined dictionary GR2DEPREL.
+	# If the given gr is in GR2DEPREL, return its corresponding deprel,
+	# otherwise return gr (and give a warning).
 
-	return GR2DEPREL[gr] if gr in GR2DEPREL else gr
+# 	if not gr:  # empty or None
+# 		return gr
+# 	if not gr in GR2DEPREL:
+# 		logger.warning(f"{gr} does not have a corresponding deprel in GR2DEPREL.")
+
+# 	return GR2DEPREL[gr] if gr in GR2DEPREL else gr
 
 def root_token(tokens: List[Token]) -> int:
-	"""Get the token index of the real root in multi-root sentences.
+	"""Get index of the real root in multi-root sentences.
+	Current solution is perhaps inefficient.
 	"""
 	root_idx = -1
 	for tok in tokens:
@@ -242,60 +241,96 @@ def root_token(tokens: List[Token]) -> int:
 			root_idx = tok.index
 	return root_idx if root_idx > 0 else None
 
-def to_ud_values(tokens: List[Token]) -> List[Token]:
-	"""
-	Direct mapping plus conditional mapping.
+
+def change_head_to_root(tok: Token, tokens: List[Token], is_multi=False, i=-1):
+	"""Store original head in MISC, change head to root."""
+	if is_multi and i >= 0:
+		if not tok.misc[i]:
+			tok.misc[i] = f"head={str(tok.head[i])}"
+		else:
+			tok.misc[i] += f"|head={str(tok.head[i])}"
+		tok.head[i] = root_token(tokens)
+	else:
+		if not tok.misc:
+			tok.misc = f"head={str(tok.head)}"
+		else:
+			tok.misc += f"|head={str(tok.head)}"
+		tok.head = root_token(tokens)
+
+def conditional_deprel(gr: str, tok: Token, tokens: List[Token], is_multi=False, upos: str=None, lemma: str=None, i=-1) -> str:
+	"""Translate a given GR (grammatical relation) to its UD counterpart
+	using conditional mapping for several selected cases, the rest uses dictionary mapping.
 	Conditional mapping is based on grammatical information of other
-	tokens in the sentence. (To-Do)
+	tokens in the sentence.
+
+	To-Dos:
+	--------
+	- be extended to include more cases
+	- use morph dict to organise input
+	"""
+	if gr == 'beg':
+		if upos and upos not in ['INTJ', 'PROPN']:
+			logger.info("BEG but not vocative.")
+			return 'parataxis'
+		else:
+			return 'vocative'
+		change_head_to_root(tok, tokens, is_multi, i)
+	elif gr == 'end':
+		return 'parataxis'
+		change_head_to_root(tok, tokens, is_multi, i)
+	# ---- dict translation ----
+	elif not gr in GR2DEPREL:
+		logger.warning(f"{gr} does not have a corresponding deprel in GR2DEPREL.")
+		return gr
+	else:
+		return GR2DEPREL[gr]
+
+def gr2deprel(tok: Token, tokens: List[Token], is_multi=False):
+	"""Stores original GR in MISC, translate a given GR (grammatical relation)
+	to its UD counterpart and modify deps accordingly, also works for multi-word tokens.
+	"""
+	upos = ''
+	lemma = ''
+	if is_multi:
+		if not tok.misc:
+			tok.misc = tuple(f"gr={gr}" for gr in tok.deprel if gr)
+		else:
+			tok.misc = tuple((s + f"|gr={tok.deprel[i]}" if s else f"gr={tok.deprel[i]}" for i, s in enumerate(tok.misc) if tok.deprel[i]))
+			# ==== readable version ====
+			# tmps = []
+			# for i, s in enumerate(tok.misc):
+			# 	tmp = ""
+			# 	if s and tok.deprel[i]:
+			# 		tmp = s + f"|gr={tok.deprel[i]}"
+			# 	elif tok.deprel[i]:
+			# 		tmp = f"gr={tok.deprel[i]}"
+			# 	tmps.append(tmp)
+			# tok.misc = tuple(tmps)
+		for i, gr in enumerate(tok.deprel):
+			upos = tok.upos[i] if tok.upos else ''
+			lemma = tok.lemma[i] if tok.lemma else ''
+			tok.deprel[i] = conditional_deprel(gr, tok, tokens, is_multi, upos, lemma, i)
+			tok.deps[i] = f"{tok.head[i]}:{tok.deprel[i]}"
+	else:
+		if not tok.misc:
+			tok.misc = f"gr={tok.deprel}"
+		else:
+			tok.misc += f"|gr={tok.deprel}"
+		gr = tok.deprel  # less confusing name
+		upos = tok.upos
+		tok.assign_ud_deprel(conditional_deprel(gr, tok, tokens, is_multi, upos, lemma))
+		tok.deps = f"{tok.head}:{tok.deprel}"
+
+def to_ud_values(tokens: List[Token]) -> List[Token]:
+	""" Translate CHAT annotations to UD values, currently for GRs to deprels.
+	This method can also be extended for future decision of feature types and values
+	if one would like to convert them to UD style. (To-Do)
 	"""
 	for tok in tokens:
 		if type(tok.deprel) is list:  # multi-word tokens
-			if not tok.misc:
-				tok.misc = tuple(f"gr={gr}" for gr in tok.deprel if gr)
-			else:
-				tmps = []
-				for i, s in enumerate(tok.misc):
-					tmp = ""
-					if s and tok.deprel[i]:
-						tmp = s + f"|gr={tok.deprel[i]}"
-					elif tok.deprel[i]:
-						tmp = f"gr={tok.deprel[i]}"
-					tmps.append(tmp)
-				tok.misc = tuple(tmps)
-			deprel = [to_deprel(gr) for gr in tok.deprel]
-			tok.ud_deprel(deprel)
-			tok.deps = [f"{h}:{tok.deprel[x]}" for x, h in enumerate(tok.head)]
-		elif tok.deprel:
-			if not tok.misc:
-				tok.misc = f"gr={tok.deprel}"
-			else:
-				tok.misc += f"|gr={tok.deprel}"
-			# logger.debug(tok.misc)
-			# ---- get the right deprel ----
-			if tok.deprel == 'beg':
-				if tok.upos not in ['INTJ', 'PROPN']:
-					print("is not vocative.")
-					tok.ud_deprel('parataxis')
-				else:
-					tok.ud_deprel("vocative")
-				# ----- change head -----
-				if not tok.misc:
-					tok.misc = f"head={str(tok.head)}"
-				else:
-					tok.misc += f"|head={str(tok.head)}"
-				tok.head = root_token(tokens)
-			elif tok.deprel == 'end':
-				tok.ud_deprel('parataxis')
-				# ----- change head -----
-				if not tok.misc:
-					tok.misc = f"head={str(tok.head)}"
-				else:
-					tok.misc += f"|head={str(tok.head)}"
-				tok.head = root_token(tokens)
-			else:
-				tok.ud_deprel(to_deprel(tok.deprel))
-			tok.deps = f"{tok.head}:{tok.deprel}"
-		# print(tok.deprel)
+			gr2deprel(tok, tokens, is_multi=True)
+		elif tok.deprel:  # normal tokens
+			gr2deprel(tok, tokens)
 	return tokens
 
 def to_upos(mor_code: str) -> str:

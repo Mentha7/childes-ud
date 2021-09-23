@@ -44,12 +44,12 @@ class Sentence(object):
 	def get_sent_id(self):
 		return self.sent_id
 
-	def conllu_str(self, mute=False):
+	def conllu_str(self, clear_mor=False, clear_gra=False, clear_misc=False, mute=False):
 		s = ""
 		if self.toks:
 			for tok in self.toks:
 				if mute:
-					s += "# " + tok.conllu_str()
+					s += "# " + tok.conllu_str(clear_mor, clear_gra, clear_misc)
 				else:
-					s += tok.conllu_str()
+					s += tok.conllu_str(clear_mor, clear_gra, clear_misc)
 		return s
