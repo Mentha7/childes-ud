@@ -3,6 +3,7 @@ Utilities to parse files in CHILDES CHAT format.
 """
 import sys, os
 import re
+import ast
 import fileinput
 from itertools import chain
 from typing import List, Tuple, Dict, Union
@@ -210,7 +211,7 @@ def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 	clean = clean.replace('0', '')  # 0token is omitted token
 	clean = clean.replace('‡', ',')  # prefixed interactional marker
 	clean = clean.replace('„', ',')  # suffixed interactional marker
-	clean = clean.replace('_', ' ')  # compound
+	# clean = clean.replace('_', ' ')  # compound
 
 	if "@" in clean:
 		clean = clean[:clean.index("@")]  # drops any @endings
@@ -587,7 +588,14 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 					toks=ud_toks  # should be ud_toks
 					)
 
-def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:List[List[str]], final:List[str]):
+def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:List[List[str]], final:List[str], clear_mor=False, clear_gra=False, clear_misc=False):
+	final_empty = []
+	final_idx = -1
+	sent = create_sentence(final_idx, utterances[final_idx])
+	while not sent.text() or sent.text() in ['.', '0 .']:
+		final_empty.append(sent)
+		final_idx -= 1
+		sent = create_sentence(final_idx, utterances[final_idx])
 	with open(filename, mode='w', encoding='utf-8') as f:
 		for idx, utterance in enumerate(utterances):
 			try:
@@ -601,9 +609,26 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 					f.write(f"# {m}\n")
 			if idx == 0:
 				f.write(f"# final = {final}\n")
-			if not sent.toks or sent.text() == '.':
+				f.write(f"# final_sents = {final_empty}\n")
+			if idx == final_idx + len(utterances) - 1:
+				print(idx)
+				while final_empty:
+					sent = final_empty.pop()
+					f.write(f"# final_sent{final_idx} = *{sent.speaker}:\t{sent.chat_sent}\n")
+					for t in sent.tiers.keys():
+						if t[0].islower():
+							symbol = '%'
+							val = ' '.join(sent.tiers[t])
+						else:
+							symbol = '@'
+							val = sent.comments
+						f.write(f"# final_{t} = {symbol}{t}:\t{val}\n")
+
+			elif idx < final_idx + len(utterances) and not sent.toks or sent.text() == '.':
 				f.write(f"# empty_speaker = {sent.speaker}\n")
 				f.write(f"# empty_chat_sent = {sent.chat_sent}\n")
+				for t in sent.tiers.keys():
+					f.write(f"# empty_{t} = {sent.tiers.get(t)}\n")
 				# f.write(sent.conllu_str(mute=True))
 			# if sent.text() == '.':
 			# 	f.write(f"# empty = {sent.chat_sent}\n")
@@ -615,10 +640,11 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 				f.write(f"# speaker = {sent.speaker}\n")
 				for t in sent.tiers.keys():
 					f.write(f"# {t} = {sent.tiers.get(t)}\n")
-				f.write(sent.conllu_str())
+				f.write(sent.conllu_str(clear_mor, clear_gra, clear_misc))
+				# f.write(sent.conllu_str())
 				f.write("\n")
 
-def chat2conllu(files: List['pathlib.PosixPath']):
+def chat2conllu(files: List['pathlib.PosixPath'], clear_mor=False, clear_gra=False, clear_misc=False):
 	for f in files:
 		# ----- skip converted files ----
 		# if f.with_suffix(".conllu").is_file():
@@ -630,7 +656,7 @@ def chat2conllu(files: List['pathlib.PosixPath']):
 			metas, utterances, final = parse_chat(fp)
 
 			fn = f.with_suffix(".conllu")
-			to_conllu(fn, metas, utterances, final)
+			to_conllu(fn, metas, utterances, final, clear_mor, clear_gra, clear_misc)
 
 if __name__ == "__main__":
 

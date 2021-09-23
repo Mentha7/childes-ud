@@ -28,10 +28,13 @@ STANDARD = [
 	'empty_chat_sent',
 	]
 
-def construct_tiers(sentence, has_mor, has_gra):
+def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra=False, generate_cnl=False, generate_pos=False):
 	mor = {}
 	gra = []
+	cnl = []
+	pos = {}
 	token_count = 0
+	cnl_count = 0
 	if has_mor and has_gra:
 		for i, word in enumerate(sentence):
 			m = ''
@@ -41,7 +44,7 @@ def construct_tiers(sentence, has_mor, has_gra):
 				for v in word.misc['components']:
 					tmp = '+' + v.replace('@', '|').replace('^', '+')  # reverse to MOR coding
 					m = '|'.join([word.xpos, tmp])
-			elif word.lemma and word.xpos != 'punct':
+			elif word.lemma and word.xpos and word.xpos != 'punct':
 				m = '|'.join([word.xpos, word.lemma])
 				if 'feats' in word.misc.keys():
 					for f in word.misc['feats']:
@@ -66,9 +69,18 @@ def construct_tiers(sentence, has_mor, has_gra):
 			if '-' in word.id:
 				continue
 			else:
-				deprel = word.misc['gr'].pop()
+				if 'gr' in word.misc.keys():
+					deprel = word.misc['gr'].pop()
+				else:
+					deprel = 'None'
 				token_count += 1
-				g = f'{token_count}|{word.head}|{deprel.upper()}'
+				if 'head' in word.misc.keys():
+					for h in word.misc['head']:
+						head = h
+				else:
+					head = word.head if word.head else 'None'
+				g = f'{token_count}|{head}|{deprel.upper()}'
+				g = g.replace('None', '_')
 				gra.append(g)
 		# -------- reconstruct %mor for multi-word tokens--------
 		mwt = [sentence[k] for k in mor.keys() if '-' in k]
@@ -108,6 +120,17 @@ def construct_tiers(sentence, has_mor, has_gra):
 					m  = p + "#" + m
 				# m = f"{word.misc['prefix'][0]}#{m}"
 			mor[word.id] = m
+		# --------- reconstruct empty %gra --------
+			if generate_gra:
+				if '-' in word.id:
+					continue
+				else:
+					deprel = 'None'
+					token_count += 1
+					head = 'None'
+				g = f'{token_count}|{head}|{deprel}'
+				g = g.replace('None', '_')
+				gra.append(g)
 		# -------- reconstruct %mor for multi-word tokens--------
 		mwt = [sentence[k] for k in mor.keys() if '-' in k]
 		for k in mwt:
@@ -116,7 +139,6 @@ def construct_tiers(sentence, has_mor, has_gra):
 				type = next(iter(k.misc['type']))
 				m = type.join(mor.pop(str(n)) for n in range(int(start), int(end) + 1))
 				mor[k.id] = m
-		# --------- reconstruct empty %gra --------
 	elif has_gra:
 		for i, word in enumerate(sentence):
 			g = ''
@@ -124,16 +146,47 @@ def construct_tiers(sentence, has_mor, has_gra):
 			if '-' in word.id:
 				continue
 			else:
-				deprel = word.misc['gr'].pop()
+				if 'gr' in word.misc.keys():
+					deprel = word.misc['gr'].pop()
+				else:
+					deprel = 'None'
 				token_count += 1
-				g = f'{token_count}|{word.head}|{deprel.upper()}'
+				if 'head' in word.misc.keys():
+					for h in word.misc['head']:
+						head = h
+				else:
+					head = word.head
+				g = f'{token_count}|{head}|{deprel.upper()}'
 				gra.append(g)
 			# -------- reconstruct empty %mor --------
-	return mor, gra
+			if generate_mor:
+				m = f'{word.upos}|{word.lemma}'
+				g = g.replace('None', '_')
+				mor[word.id] = m
+	if generate_cnl:
+		for i, word in enumerate(sentence):
+			c = ''
+			# -------- construct %cnl --------
+			if '-' in word.id:
+				continue
+			else:
+				deprel = word.deprel if word.deprel else 'None'
+				cnl_count += 1
+				head = word.head if word.head else 'None'
+			c = f'{cnl_count}|{head}|{deprel}'
+			cnl.append(c)
+	if generate_pos:
+		for i, word in enumerate(sentence):
+			upos = word.upos.lower() if word.upos else 'None'
+			lemma = word.lemma if word.lemma else 'None'
+			p = f'{upos}|{lemma}'
+			pos[word.id] = p
+
+	return mor, gra, cnl, pos
 
 
 
-def to_cha(outfile, conll: 'pyconll.Conll'):
+def to_cha(outfile, conll: 'pyconll.Conll', generate_mor=False, generate_gra=False, generate_cnl=False, generate_pos=False):
 	final = []
 	for sentence in conll:
 		mor = {}
@@ -149,16 +202,31 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 			# ---- empty sentences (utterances) ----
 			if 'empty_chat_sent' in sentence._meta.keys():
 				outfile.write(f"*{sentence.meta_value('empty_speaker')}:\t{sentence.meta_value('empty_chat_sent')}\n")
+				for k in sentence._meta.keys():
+					if k.startswith('empty_') and k not in STANDARD and '\t' not in k:
+						_, _, tier = k.partition('_')
+						val = ' '.join(ast.literal_eval(sentence.meta_value(k)))
+						outfile.write(f"%{tier}:\t{val}\n")
 			# ---- sentences (utterances) ----
 			outfile.write(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
 			# ----- check if mor and gra tier are present ----
 			if 'mor' in sentence._meta.keys(): has_mor = True
 			if 'gra' in sentence._meta.keys(): has_gra = True
-
+			# check the first token for each sentence (or the second for multiword tokens)
+			if sentence._tokens:
+				t = sentence._tokens[0]
+				if t.is_multiword():
+					# logger.debug(f"{t.form} is a multi-word token.")
+					t = sentence._tokens[1]
+				if t.lemma is not None:
+					has_mor = True
+				else: has_mor = False
+				if t.head is not None: has_gra = True
+				else: has_gra = False
 			else:  # sentence is empty?
 				logger.warning(f"sent {sentence.id} has no tokens, check if it's well-formed.")  # utterances like `xxx .` are still recoverable.
 
-			mor, gra = construct_tiers(sentence, has_mor, has_gra)
+			mor, gra, cnl, pos = construct_tiers(sentence, has_mor, has_gra, generate_mor, generate_gra, generate_cnl, generate_pos)
 			if mor:
 				outfile.write(f"%mor:\t{' '.join(list(mor.values()))}\n")
 				# outfile.write(f"%MOR:\t{' '.join(ast.literal_eval(sentence.meta_value('mor')))}\n")  # for easy comparison
@@ -184,12 +252,24 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 				# logger.debug(ast.literal_eval(sentence.meta_value('gra')))
 				# assert len(gra) == len(ast.literal_eval(sentence.meta_value('gra')))
 				# assert ' '.join(gra) == ' '.join(ast.literal_eval(sentence.meta_value('gra')))
+			if cnl:
+				outfile.write(f"%cnl:\t{' '.join(cnl)}\n")
+			if pos:
+				outfile.write(f"%pos:\t{' '.join(list(pos.values()))}\n")
 		else:  # no utterance '0 .'
 			logger.warning(f"sent {sentence.id} has no utterance.")
 		for k in sentence._meta.keys():
-			if not k.startswith('@') and k not in STANDARD and '\t' not in k:
-				val = ' '.join(ast.literal_eval(sentence.meta_value(k)))
-				outfile.write(f"%{k}:\t{val}\n")
+			if not k.startswith('@') and not k.startswith('empty_') and not k.startswith('final_') and k not in STANDARD and '\t' not in k:
+				try:
+					val = ' '.join(ast.literal_eval(sentence.meta_value(k)))
+					outfile.write(f"%{k}:\t{val}\n")
+				except SyntaxError:
+					continue
+				except ValueError:
+					continue
+		for k in sentence._meta.keys():
+			if k.startswith("final_"):
+				outfile.write(f"{sentence.meta_value(k)}\n")
 		if 'final' in sentence._meta.keys():
 			final = ast.literal_eval(sentence.meta_value('final'))
 	if final:
@@ -201,7 +281,7 @@ def to_cha(outfile, conll: 'pyconll.Conll'):
 	# quit()
 
 
-def conllu2chat(files: List['pathlib.PosixPath']):
+def conllu2chat(files: List['pathlib.PosixPath'], generate_mor=False, generate_gra=False, generate_cnl=False, generate_pos=False):
 	for f in files:
 		# if f.with_suffix(".cha").is_file():
 		#   continue
@@ -213,4 +293,4 @@ def conllu2chat(files: List['pathlib.PosixPath']):
 		fn = Path(_OUT_DIR, f.stem + "_pyconll" + ".cha")
 		print(fn)
 		with open(fn, 'w', encoding='utf-8') as ff:
-			to_cha(ff, conll)
+			to_cha(ff, conll, generate_mor, generate_gra, generate_cnl, generate_pos)
