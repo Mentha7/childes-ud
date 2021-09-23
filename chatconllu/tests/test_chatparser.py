@@ -60,10 +60,10 @@ def test_normalise_utterance_all(form, toks):
 						("0token", "token"),  # 0token is omitted token
 						("‡", ","),  # prefixed interactional marker
 						("„", ","),  # suffixed interactional marker
-						("all_gone", "all gone"),  # compound
+						("all_gone", "all_gone"),  # compound
 						("commydit@o", "commydit"),  # onomatopoeia
 						("blah@q", "blah"),  # meta-linguistic use
-						("0all_gone@q", "all gone"),  # mixture
+						("0all_gone@q", "all_gone"),  # mixture
 						("", ""),  # empty
 						(None, None),  # none
 						])
