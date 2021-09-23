@@ -14,7 +14,7 @@ from collections import OrderedDict
 from logger import logger
 from helpers.sentence import Sentence
 from helpers.token import Token
-from clean_utterance import normalise_utterance
+from helpers.clean_utterance import normalise_utterance
 
 
 PUNCT = re.compile("([,.;?!:”])")
