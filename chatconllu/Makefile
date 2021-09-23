@@ -39,7 +39,27 @@ run:
 #   chatconllu -d ./tests -f conllu fra
 
 runcha:
-	chatconllu -d ./tests fra
+	chatconllu -d ./tests eng
 
 runconllu:
-	chatconllu -d ./tests -f conllu fra
+	chatconllu -d ./tests -f conllu eng
+
+# validatecha:
+
+validateconllu:
+	python tests/validate.py --lang en --level 2 tests/eng/*.conllu
+
+clearconllu:
+	chatconllu -d ./tests --no-mor --no-mor --no-misc eng
+
+emptytiers:
+	chatconllu -d ./tests --new-mor --new-gra eng
+
+addtiers:
+	chatconllu -d ./tests --cnl --pos eng
+
+seediff:
+	icdiff ./tests/eng/{}
+
+thesis:
+	cd ../thesis/ba-thesis && lualatex main.tex
