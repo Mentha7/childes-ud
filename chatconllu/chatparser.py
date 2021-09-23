@@ -21,12 +21,13 @@ _OUT_DIR = 'out'
 
 UTTERANCE = re.compile('^\\*')
 PUNCT = re.compile("([,.;?!:”])")
+FEAT = re.compile(r"^\d?[A-Z]+$")
 
-# define a mapping between UPOS tags and MOR codes.
+# define a mapping between MOR codes and UPOS tags.
 MOR2UPOS = {
 		"adj":"ADJ",
-		"post":"ADP",
-		"prep":"ADP",
+		"post":"ADP",  # adpositions
+		"prep":"ADP",  # adpositions
 		"adv":"ADV",
 		"adv:tem":"ADV",
 		"v:aux":"AUX",
@@ -35,10 +36,10 @@ MOR2UPOS = {
 		"qn":"DET",
 		"det":"DET",
 		"quant":"DET",  # jpn
-		"co":"INTJ",
+		"co":"INTJ",  # interjection, interaction
 		"n":"NOUN",
-		"on":"NOUN",
-		"onoma":"NOUN",  # jpn
+		"on":"NOUN",  # onomatopoeia
+		"onoma":"NOUN",  # jpn onomatopoeia
 		"part":"PART",
 		"pro":"PRON",
 		"n:prop":"PROPN",
@@ -46,13 +47,13 @@ MOR2UPOS = {
 		"comp":"SCONJ",
 		"num":"NUM",
 		"v":"VERB",
-		"inf":"PART",
+		"inf":"PART",  # infinitive particles
 		"cop":"VERB",
 		"mod":"VERB",
 		"art":"DET",  # article, PronType=Art
 		"prepart":"DET",  # preposition with article
 		"vimp":"VERB",  # verb imperative Mood=Imp
-		"vpfx":"ADP",  # preverb/verbal particles, according to UD website
+		"vpfx":"ADP",  # preverb/verbal particles, according to UD website shouldn't be PART
 		# ---- punctuation marks ----
 		"end":"PUNCT",
 		"beg":"PUNCT",
@@ -62,11 +63,11 @@ MOR2UPOS = {
 		"bq2":"PUNCT",
 		"eq2":"PUNCT",
 		# ---- hard to decide ----
-		"chi":"PROPN",
+		# "chi":"PROPN",
 		"fil":"INTJ",  # ?
 		"neg":"ADV",  # ?
-		"wplay":"INTJ",
-		"bab":"INTJ",
+		"wplay":"INTJ",  # wordplay
+		"bab":"INTJ",  # babbling
 		# "neo":"X",
 		# "test":"PROPN",
 		# "meta":"PROPN",
@@ -74,17 +75,18 @@ MOR2UPOS = {
 		# "fam":"X",
 		# "uni":"X",
 		# "L2":"X",
-		"sing":"INTJ",
+		"sing":"INTJ",  # singing
 		# ---- none ----
-		"none":"_",
-		"dia":"_",
-		"test":"_",
-		"meta":"_",
-		"phon":"_",
-		"fam":"_",
-		"uni":"_",
-		"L2":"_",
-		"neo":"_",
+		"none":"X",
+		"dia":"X",  # dialect
+		"test":"X",  # test words like "wug"
+		"meta":"X",  # metalinguistic use
+		"phon":"X",  # phonologically consistent form
+		"fam":"X",  # family-specific form
+		"uni":"X",  # Unibet transcription
+		"L2":"X",  # second-language form
+		"neo":"X",  # neologism
+		"chi":"X",  # child-invented form
 	}
 
 # define a mapping between GRs and UD deprels.
@@ -100,7 +102,7 @@ GR2DEPREL = {
 		'obj2':'iobj',
 		'incroot':'root',
 		'xmod':'acl',
-		'beg':'vocative',
+		'beg':'vocative',  # or parataxis, change head from 0 to root's index
 		'date':'flat',
 		'comp':'ccomp',
 		'xjct':'advcl',
@@ -179,16 +181,14 @@ def parse_chat(fp):
 def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 	"""Adopted and modified from coltekin/childes-tr/misc/parse-chat.py
 	For a given surface form of the token, return (surface, clean), where
-	clean is the token form without CHILDES codes.
+	clean is the token form without CHAT codes.
 	"""
 
 	# ---- define unidentifiable patterns ----
-	# unintelligible = r"xxx"
 	phono_coding = r"yyy"
 	untranscribed = r"www"
 	phono_fragments = r"^&"
 	unidentifiable = [
-		# unintelligible,
 		phono_coding,
 		untranscribed,
 		phono_fragments,
@@ -203,10 +203,9 @@ def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 	if re.match(to_omit, surface):   # phonological forms are omitted
 		return surface, clean
 
-
 	# define special symbols translation dict
 	clean = surface.replace(' ', '')
-	clean = clean.replace('xxx', '')
+	clean = clean.replace('xxx', '')  # unintelligible, in 'wxxxord'
 	clean = clean.replace('(', '').replace(')', '')
 	clean = clean.replace('0', '')  # 0token is omitted token
 	clean = clean.replace('‡', ',')  # prefixed interactional marker
@@ -219,16 +218,28 @@ def check_token(surface: str) -> Union[Tuple[str, str], Tuple[None, None]]:
 	return surface, clean
 
 def to_deprel(gr: str) -> str:
-	"""If given gr (grammatical relation) is in predefined GR2DEPREL dict, return the
-	corresponding upos, otherwise return gr.
+	"""If the given gr (grammatical relation) is in the predefined GR2DEPREL dict,
+	return the corresponding deprel, otherwise return gr (and give a warning).
 	"""
 	if not gr:  # empty or None
 		return gr
-
 	if not gr in GR2DEPREL:
 		logger.warning(f"{gr} does not have a corresponding deprel in GR2DEPREL.")
 
 	return GR2DEPREL[gr] if gr in GR2DEPREL else gr
+
+def root_token(tokens: List[Token]) -> int:
+	"""Get the token index of the real root in multi-root sentences.
+	"""
+	root_idx = -1
+	for tok in tokens:
+		if tok.deprel == 'root':
+			root_idx = tok.index
+		elif tok.deprel == 'incroot':
+			root_idx = tok.index
+		elif tok.head == '0' and tok.deprel not in ['vocative', 'parataxis']:
+			root_idx = tok.index
+	return root_idx if root_idx > 0 else None
 
 def to_ud_values(tokens: List[Token]) -> List[Token]:
 	"""
@@ -237,7 +248,7 @@ def to_ud_values(tokens: List[Token]) -> List[Token]:
 	tokens in the sentence. (To-Do)
 	"""
 	for tok in tokens:
-		if type(tok.deprel) is list:
+		if type(tok.deprel) is list:  # multi-word tokens
 			if not tok.misc:
 				tok.misc = tuple(f"gr={gr}" for gr in tok.deprel if gr)
 			else:
@@ -259,19 +270,40 @@ def to_ud_values(tokens: List[Token]) -> List[Token]:
 			else:
 				tok.misc += f"|gr={tok.deprel}"
 			# logger.debug(tok.misc)
-			tok.ud_deprel(to_deprel(tok.deprel))
+			# ---- get the right deprel ----
+			if tok.deprel == 'beg':
+				if tok.upos not in ['INTJ', 'PROPN']:
+					print("is not vocative.")
+					tok.ud_deprel('parataxis')
+				else:
+					tok.ud_deprel("vocative")
+				# ----- change head -----
+				if not tok.misc:
+					tok.misc = f"head={str(tok.head)}"
+				else:
+					tok.misc += f"|head={str(tok.head)}"
+				tok.head = root_token(tokens)
+			elif tok.deprel == 'end':
+				tok.ud_deprel('parataxis')
+				# ----- change head -----
+				if not tok.misc:
+					tok.misc = f"head={str(tok.head)}"
+				else:
+					tok.misc += f"|head={str(tok.head)}"
+				tok.head = root_token(tokens)
+			else:
+				tok.ud_deprel(to_deprel(tok.deprel))
 			tok.deps = f"{tok.head}:{tok.deprel}"
 		# print(tok.deprel)
 	return tokens
 
 def to_upos(mor_code: str) -> str:
-	"""If given mor_code is in predefined MOR2UPOS dict, return the
-	corresponding upos, otherwise return the mor_code.
+	"""If the given mor_code is in the predefined MOR2UPOS dict, return the
+	corresponding upos, otherwise return mor_code.
 	"""
 	if not mor_code:  # empty or None
 		return mor_code
-	elif not mor_code[:1].isalpha():
-		# logger.debug(mor_code)
+	elif not mor_code[:1].isalpha():  # for '+...' and things alike
 		return None
 
 	if not mor_code in MOR2UPOS:
@@ -281,12 +313,10 @@ def to_upos(mor_code: str) -> str:
 
 	return MOR2UPOS[mor_code] if mor_code in MOR2UPOS else mor_code
 
-
 def parse_gra(gra_segment: str) -> Tuple[str, str]:
 	head = gra_segment.split('|')[1]
 	deprel = gra_segment.split('|')[-1].lower()
 	return head, deprel
-
 
 def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 	feat_pattern = re.compile(r"\d?[A-Z]+[a-z]?")
@@ -302,12 +332,14 @@ def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 		feat = '^'.join(feats)
 	tmp = re.split(r'[|&#-]', lemma_feats)
 	# lemma = tmp[0]
-	if tmp[0] == 'I' or not re.match(feat_pattern, tmp[0]):  # !!! sometimes lemma is encoded
+	if tmp[0] == 'I' or not re.match(FEAT, tmp[0]):  # !!! sometimes lemma is encoded
 		lemma = tmp[0]
+	elif re.match(FEAT, tmp[0]):
+		logger.info(tmp[0])
+		feat_str = tmp[0] + '^' + feat_str if feat_str else tmp[0]
 	if not feat_str:
 		feat_str = ''
 	return lemma, feat_str, translation, feat
-
 
 def parse_mor(mor_segment: str):
 	"""Given a word-level MOR segment, extract the POS tag, lemma, features and other information
@@ -350,13 +382,11 @@ def parse_mor(mor_segment: str):
 	# logger.info(f"pos:{pos}\nlemma:{lemma}\nfeats:{feat_str}\nmisc:{misc}")
 	return pos, lemma, feat_str, misc
 
-
 def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], Tuple]:
 	if is_multi:
 		return [parse_mor(l) for l in re.split(r"~|\$", mor_segment)]  # ['pro:int|what', 'aux|be&3S']
 	else:
 		return parse_mor(mor_segment)
-
 
 def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
 	"""Extract information from mor and gra tiers when supplied, create Token objects with the information.
@@ -364,13 +394,11 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 	Parameters:
 	-----------
 	checked_tokens: list of token tuples (surface, clean), returned by `check_token()`.
-	gra: list of gra segments roughly corresponds to the list of tokens, since multi-word tokens
+	gra: list of gra segments roughly correspond to the list of tokens, since multi-word tokens
 		 have separated gra segments.
 	mor: list of mor segments with one-to-one correspondance with the list of tokens.
 
 	Return value: a list of chatconllu.Token objects.
-
-	----TO-DO----
 	"""
 	tokens = []
 	idx = []
@@ -415,26 +443,29 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		type = None
 		surface = None  # don't need this attribute, to be removed in Token
 		translation=None
+
 		# ---- simplified logic ----
-		# if j in idx: multi-word tokens
-		# if mor: lemma for compounds
-		# if gra: head, deprel and deps
-		# modify compound form, assign PUNCT to punctuations
-		# add translation to MISC field
-		# create Tokens
+			# if j in idx: multi-word tokens
+				# if mor: lemma for compounds
+				# if gra: head, deprel and deps
+			# else: normal tokens
+				# if mor: lemma for compounds
+				# if gra: head, deprel and deps
+			# modify compound form, assign PUNCT to punctuations, modify lemma for proper nouns
+			# create Tokens
+		# ---------------------------
 		if j in idx:  # multi-word tokens, implies has mor tier
 			m = idx.index(j)  # the current token is the m th multi-word token in this utterance
 			index = index + m
 			num = len(re.split(r'~|\$', mor[j]))  # number of components in mwt
 			multi = index + num - 1
 			# logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
+			# ---- get clitics type, for reconstruction of %mor  ----
 			if re.findall(r'~|\$', mor[j]):
 				type = re.findall(r'~|\$', mor[j])
 			# ---- get token info from mor ----
 			xpos, lemma, feats, misc = zip(*get_lemma_and_feats(mor[j], is_multi=True))
-			# if misc == ('', ''): misc = ''
 			upos = [to_upos(x.replace('+', '')) for x in xpos]
-			# upos = [to_upos(x.split(':')[0]) for x in upos]
 			if '+' in xpos:
 				xpos = None
 			tok_index = multi
@@ -456,7 +487,6 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 				xpos, lemma, feats, misc = get_lemma_and_feats(mor[j])
 				index = tok_index
 				upos = to_upos(xpos.replace('+', ''))
-				# upos = to_upos(upos.split(':')[0]) if ':' in upos else upos
 				if '+' in xpos:
 					xpos = None
 
@@ -497,14 +527,13 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					surface=surface)
 		if tok.index is not None:
 			tokens.append(tok)
-		# print(tok.feats)
+		# logger.info(tok.feats)
 
 	return tokens
 
-
 def create_sentence(idx: int, lines: List[str]) -> Sentence:
-	"""Given idx and lines, create a Sentence object.
-
+	"""Given utterance index and all lines pertaining to the utterance,
+	create a Sentence object.
 	"""
 	# ---- speaker ----
 	speaker = lines[0][1:4]
@@ -558,12 +587,8 @@ def create_sentence(idx: int, lines: List[str]) -> Sentence:
 					toks=ud_toks  # should be ud_toks
 					)
 
-
 def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:List[List[str]], final:List[str]):
 	with open(filename, mode='w', encoding='utf-8') as f:
-		# for k, v in meta.items():
-		#   f.write(f"# {k}\t{v}\n")  # write meta as headers
-		# f.write("\n")
 		for idx, utterance in enumerate(utterances):
 			try:
 				sent = create_sentence(idx, utterance)
@@ -593,9 +618,9 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 				f.write(sent.conllu_str())
 				f.write("\n")
 
-
 def chat2conllu(files: List['pathlib.PosixPath']):
 	for f in files:
+		# ----- skip converted files ----
 		# if f.with_suffix(".conllu").is_file():
 		#   continue
 
@@ -607,16 +632,20 @@ def chat2conllu(files: List['pathlib.PosixPath']):
 			fn = f.with_suffix(".conllu")
 			to_conllu(fn, metas, utterances, final)
 
-
 if __name__ == "__main__":
-	# test = ['beg|beg', '+"/.', 'pro:sub|I', 'pro:sub|I~v|will']
 
-	# pos, lemma, feat_str, misc = get_lemma_and_feats(test[0])
+	test = [
+		'beg|beg',
+	 	'+"/.',
+	 	'pro:sub|I',
+	 	'pro:sub|I~v|will',
+	 	'adj|Jamie&dn-POSS'
+	 	]
 
-	# pos, lemma, feat_str, misc = zip(*get_lemma_and_feats(test[1], is_multi=True))
+	for t in test:
+		pos, lemma, feat_str, misc = get_lemma_and_feats(t)
+		logger.info(pos)
+		logger.info(lemma)
+		logger.info(feat_str)
+		logger.info(misc)
 
-	# logger.info(pos)
-	# logger.info(lemma)
-	# logger.info(feat_str)
-	# logger.info(misc)
-	pass

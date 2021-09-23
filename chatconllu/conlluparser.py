@@ -15,7 +15,18 @@ import pyconll
 _OUT_DIR = Path('tests', 'out')
 _OUT_DIR.mkdir(parents=True, exist_ok=True)
 PUNCT = re.compile("([,.;?!:”])")
-STANDARD = ['sent_id', 'text', 'chat_sent', 'speaker', 'mor', 'gra', 'text =', 'final']
+STANDARD = [
+	'sent_id',
+	'text',
+	'chat_sent',
+	'speaker',
+	'mor',
+	'gra',
+	'text =',
+	'final',
+	'empty_speaker',
+	'empty_chat_sent',
+	]
 
 def construct_tiers(sentence, has_mor, has_gra):
 	mor = {}
