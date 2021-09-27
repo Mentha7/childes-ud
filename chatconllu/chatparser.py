@@ -392,7 +392,7 @@ def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 		# logger.info(feat)
 		feat_str = tmp[0] + '^' + feat if feat else tmp[0]
 		all_feats.update(tmps)
-	if not feat_str:
+	if not feat_str or not isinstance(feat_str, list):
 		feat_str = ''
 
 	return lemma, feat_str, translation, feat
@@ -768,13 +768,18 @@ if __name__ == "__main__":
 		'+"/.',
 		'pro:sub|I',
 		'pro:sub|I~v|will',
-		'adj|Jamie&dn-POSS'
+		'adj|Jamie&dn-POSS',
+		'n:prop|Q',
 		]
 
-	for t in test:
+	for t in test[3:]:
+		# q = get_lemma_and_feats(t, is_multi=True)
+		# print(q)
 		pos, lemma, feat_str, misc = get_lemma_and_feats(t)
+		logger.info("----------------------------")
 		logger.info(pos)
 		logger.info(lemma)
 		logger.info(feat_str)
 		logger.info(misc)
+		# quit()
 

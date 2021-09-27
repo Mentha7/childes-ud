@@ -241,6 +241,7 @@ def to_cha(outfile, conll: 'pyconll.Conll', generate_mor=False, generate_gra=Fal
 						outfile.write(f"%{tier}:\t{val}\n")
 			# ---- sentences (utterances) ----
 			outfile.write(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
+			logger.info(f"*{sentence.meta_value('speaker')}:\t{sentence.meta_value('chat_sent')}\n")
 			# ----- check if mor and gra tier are present ----
 			if 'mor' in sentence._meta.keys(): has_mor = True
 			if 'gra' in sentence._meta.keys(): has_gra = True
@@ -259,12 +260,15 @@ def to_cha(outfile, conll: 'pyconll.Conll', generate_mor=False, generate_gra=Fal
 				logger.warning(f"sent {sentence.id} has no tokens, check if it's well-formed.")  # utterances like `xxx .` are still recoverable.
 
 			mor, gra, cnl, pos = construct_tiers(sentence, has_mor, has_gra, generate_mor, generate_gra, generate_cnl, generate_pos)
+			# logger.debug(263)
 			if mor:
 				outfile.write(f"%mor:\t{' '.join(list(mor.values()))}\n")
 				# outfile.write(f"%MOR:\t{' '.join(ast.literal_eval(sentence.meta_value('mor')))}\n")  # for easy comparison
 				# outfile.write('\n')  # easy on the eye
+			# logger.debug(268)
 			if gra:
 				outfile.write(f"%gra:\t{' '.join(gra)}\n")
+			# logger.debug(271)
 				# outfile.write(f"%GRA:\t{' '.join(ast.literal_eval(sentence.meta_value('gra')))}\n")  # for easy comparison
 				# outfile.write('\n')  # easy on the eye
 				# logger.debug(list(mor.values()))
