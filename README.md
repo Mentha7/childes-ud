@@ -80,7 +80,7 @@ chatconllu <CHILDES databases dir> <database name(s)> --new-mor --new-gra
 
 Empty values are represented by `_`.
 
-However, if you pass .conllu files through UDPipe and want to generate dependent tiers based on the augmented information, you could use:
+However, if you pass .conllu files through [UDPipe](https://ufal.mff.cuni.cz/udpipe) and want to generate dependent tiers based on the augmented information, you could use:
 
 ```
 chatconllu <CHILDES databases dir> <database name> -f conllu -fn <processed conllu file> --cnl --pos
