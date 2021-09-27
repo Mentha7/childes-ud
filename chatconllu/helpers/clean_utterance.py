@@ -40,7 +40,7 @@ omission = [
     semicolon,
     ]
 # -------- define delete previous token/scope pattern --------
-retracing_no_angle_brackets = r"^\[/(?:[/?])?\]"  # [//] or [/?] or [/] --> [retrace]
+retracing_no_angle_brackets = r"^\[/(?:[\-/?])?\]"  # [//] or [/?] or [/] or [/-] --> [retrace]
 x_retrace = r"^\[[=%?] [()@\-\+\.\"\w]+(\')?\w*( [()@\-\+\.\"\w]+)*( )??\] \[/(?:[/?])?\]"
 
 delete_previous = [
@@ -76,7 +76,8 @@ delete_prev = re.compile('|'.join(delete_previous))
 
 start_bracket = re.compile('|'.join(start))
 
-overlap = re.compile(r"^\[?[<>]\]")
+# overlap = re.compile(r"^\[?[<>]\]")
+overlap = re.compile(r"^(?:\[[<>]\]|\+<)")
 
 trailing_off = re.compile(r"\+...")  # +...
 
@@ -116,7 +117,7 @@ def normalise_utterance(line):
     i = 0
     while i < len(line):
         if line[i] == '<':
-            if i !=0 and line[i-1] == '[':
+            if i !=0 and (line[i-1] == '[' or line[i-1] == '+'):
                 # print("2: is scoped symbol, do not open")
                 tmp.append(line[i])
                 i += 1
@@ -174,6 +175,7 @@ def normalise_utterance(line):
             if token:
                 push(token, groups, depth)
             i += 1
+    # print(groups)
     return replace_token(remove_elements(omit(flatten(delete(groups))))), line
     # return delete(groups)
 

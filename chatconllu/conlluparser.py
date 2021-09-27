@@ -26,6 +26,8 @@ STANDARD = [
 	'final',
 	'empty_speaker',
 	'empty_chat_sent',
+	'final_sents',
+	'final_comments'
 	]
 
 def construct_mwe(sentence, tier):
@@ -204,6 +206,17 @@ def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra
 
 	return mor, gra, cnl, pos
 
+def process_final_sents(meta_key: str, sentence):
+	if meta_key.startswith("final_") and meta_key not in STANDARD:
+		name = meta_key.replace("final_", '')[:-2]
+		print(name)
+		if len(name)==3 and name.islower():
+			val = ' '.join(ast.literal_eval(sentence.meta_value(meta_key)))
+			return f"%{name}:\t{val}\n"
+		elif name.isupper():
+			return f"*{name}:\t{sentence.meta_value(meta_key)}\n"
+	if meta_key.endswith("comments"):
+		return f"{sentence.meta_value(meta_key)}\n"
 
 def to_cha(outfile, conll: 'pyconll.Conll', generate_mor=False, generate_gra=False, generate_cnl=False, generate_pos=False):
 	final = []
@@ -287,8 +300,9 @@ def to_cha(outfile, conll: 'pyconll.Conll', generate_mor=False, generate_gra=Fal
 				except ValueError:
 					continue
 		for k in sentence._meta.keys():
-			if k.startswith("final_"):
-				outfile.write(f"{sentence.meta_value(k)}\n")
+			s = process_final_sents(k, sentence)
+			if s:
+				outfile.write(s)
 		if 'final' in sentence._meta.keys():
 			final = ast.literal_eval(sentence.meta_value('final'))
 	if final:

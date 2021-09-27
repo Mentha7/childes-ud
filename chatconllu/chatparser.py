@@ -15,10 +15,13 @@ from logger import logger
 from helpers.sentence import Sentence
 from helpers.token import Token
 from helpers.clean_utterance import normalise_utterance
+from features import mor2feats
 
+all_feats = set()
 
 PUNCT = re.compile("([,.;?!:”])")
 FEAT = re.compile(r"^\d?[A-Z]+$")
+EMPTY = ['.', '0 .', '']
 
 # ---- define unidentifiable patterns to omit----
 unidentifiable = [
@@ -220,12 +223,12 @@ def check_token(surface: str) -> Tuple[str, str]:
 	# If the given gr is in GR2DEPREL, return its corresponding deprel,
 	# otherwise return gr (and give a warning).
 
-# 	if not gr:  # empty or None
-# 		return gr
-# 	if not gr in GR2DEPREL:
-# 		logger.warning(f"{gr} does not have a corresponding deprel in GR2DEPREL.")
+#   if not gr:  # empty or None
+#       return gr
+#   if not gr in GR2DEPREL:
+#       logger.warning(f"{gr} does not have a corresponding deprel in GR2DEPREL.")
 
-# 	return GR2DEPREL[gr] if gr in GR2DEPREL else gr
+#   return GR2DEPREL[gr] if gr in GR2DEPREL else gr
 
 def root_token(tokens: List[Token]) -> int:
 	"""Get index of the real root in multi-root sentences.
@@ -257,6 +260,7 @@ def change_head_to_root(tok: Token, tokens: List[Token], is_multi=False, i=-1):
 			tok.misc += f"|head={str(tok.head)}"
 		tok.head = root_token(tokens)
 
+
 def conditional_deprel(gr: str, tok: Token, tokens: List[Token], is_multi=False, upos: str=None, lemma: str=None, i=-1) -> str:
 	"""Translate a given GR (grammatical relation) to its UD counterpart
 	using conditional mapping for several selected cases, the rest uses dictionary mapping.
@@ -269,15 +273,21 @@ def conditional_deprel(gr: str, tok: Token, tokens: List[Token], is_multi=False,
 	- use morph dict to organise input
 	"""
 	if gr == 'beg':
+		# print("beg")
 		if upos and upos not in ['INTJ', 'PROPN']:
 			logger.info("BEG but not vocative.")
+			# print(tokens)
+			change_head_to_root(tok, tokens, is_multi, i)
+			# print("change head")
 			return 'parataxis'
 		else:
+			# print(tokens)
+			change_head_to_root(tok, tokens, is_multi, i)
+			# print("change head")
 			return 'vocative'
-		change_head_to_root(tok, tokens, is_multi, i)
 	elif gr == 'end':
-		return 'parataxis'
 		change_head_to_root(tok, tokens, is_multi, i)
+		return 'parataxis'
 	# ---- dict translation ----
 	elif not gr in GR2DEPREL:
 		logger.warning(f"{gr} does not have a corresponding deprel in GR2DEPREL.")
@@ -299,12 +309,12 @@ def gr2deprel(tok: Token, tokens: List[Token], is_multi=False):
 			# ==== readable version ====
 			# tmps = []
 			# for i, s in enumerate(tok.misc):
-			# 	tmp = ""
-			# 	if s and tok.deprel[i]:
-			# 		tmp = s + f"|gr={tok.deprel[i]}"
-			# 	elif tok.deprel[i]:
-			# 		tmp = f"gr={tok.deprel[i]}"
-			# 	tmps.append(tmp)
+			#   tmp = ""
+			#   if s and tok.deprel[i]:
+			#       tmp = s + f"|gr={tok.deprel[i]}"
+			#   elif tok.deprel[i]:
+			#       tmp = f"gr={tok.deprel[i]}"
+			#   tmps.append(tmp)
 			# tok.misc = tuple(tmps)
 		for i, gr in enumerate(tok.deprel):
 			upos = tok.upos[i] if tok.upos else ''
@@ -355,7 +365,6 @@ def parse_gra(gra_segment: str) -> Tuple[str, str]:
 	return head, deprel
 
 def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
-	feat_pattern = re.compile(r"\d?[A-Z]+[a-z]?")
 	lemma = None
 	feat_str = []
 	feat = ''
@@ -363,18 +372,27 @@ def parse_sub(sub_segment: str)-> Tuple[Union[str, None], List[str], str, str]:
 
 	tmps = re.findall(r"[&|-]\w+", lemma_feats)
 	if tmps:  # has feature
-		feat_str = [f"FEAT={t[1:].title()}" for t in tmps]  # need to convert to UD feats
+		# feat_str = [f"FEAT={t[1:].title()}" for t in tmps]  # need to convert to UD feats
+		feat_str = [mor2feats(t) for t in tmps]
+		feat_str = list(filter(None, feat_str))
+		feat_str.sort()
+		# logger.info(feat_str)
 		feats = [f"{t}" for t in tmps]
 		feat = '^'.join(feats)
 	tmp = re.split(r'[|&#-]', lemma_feats)
-	# lemma = tmp[0]
+		# lemma = tmp[0]
 	if tmp[0] == 'I' or not re.match(FEAT, tmp[0]):  # !!! sometimes lemma is encoded
 		lemma = tmp[0]
-	elif re.match(FEAT, tmp[0]):
-		logger.info(tmp[0])
-		feat_str = tmp[0] + '^' + feat_str if feat_str else tmp[0]
+		all_feats.update(tmps[1:])
+	elif tmp and re.match(FEAT, tmp[0]):
+		# logger.info(tmp[0])
+		# logger.info(feat_str)
+		# logger.info(feat)
+		feat_str = tmp[0] + '^' + feat if feat else tmp[0]
+		all_feats.update(tmps)
 	if not feat_str:
 		feat_str = ''
+
 	return lemma, feat_str, translation, feat
 
 def parse_mor(mor_segment: str):
@@ -627,11 +645,24 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 	final_empty = []
 	final_idx = -1
 	sent = create_sentence(final_idx, utterances[final_idx])
-	while not sent.text() or sent.text() in ['.', '0 .']:
-		final_empty.append(sent)
+	while sent.text() in EMPTY:
+		print(f"final sent at index {final_idx}: {sent.chat_sent}")
+		tiers = [k for k in sent.tiers.keys()]
+		tiers.reverse()
+		for t in tiers:
+			final_empty.append(f"# final_{t}_{-final_idx} = {sent.tiers.get(t)}\n")
+		final_empty.append(f"# final_{sent.speaker}_{-final_idx} = {sent.chat_sent}\n")
+		coms = [k for k in metas[final_idx]]
+		coms.reverse()
+		for c in coms:
+			final_empty.append(f"# final_comments = {c}\n")
 		final_idx -= 1
 		sent = create_sentence(final_idx, utterances[final_idx])
+	print(final_empty)
 	with open(filename, mode='w', encoding='utf-8') as f:
+		for m in metas[0]:
+			f.write(f"# {m}\n")
+		empty = []
 		for idx, utterance in enumerate(utterances):
 			try:
 				sent = create_sentence(idx, utterance)
@@ -639,52 +670,113 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 				logger.exception(e)
 				logger.info(f"writing sent {utterance} to {filename}...")
 				raise
-			if metas[idx]:  # if has comments/headers
+			if metas[idx] and not sent.text() in EMPTY:  # if has comments/headers
 				for m in metas[idx]:
 					f.write(f"# {m}\n")
 			if idx == 0:
 				f.write(f"# final = {final}\n")
 				f.write(f"# final_sents = {final_empty}\n")
-			if idx == final_idx + len(utterances) - 1:
-				print(idx)
-				while final_empty:
-					sent = final_empty.pop()
-					f.write(f"# final_sent{final_idx} = *{sent.speaker}:\t{sent.chat_sent}\n")
-					for t in sent.tiers.keys():
-						if t[0].islower():
-							symbol = '%'
-							val = ' '.join(sent.tiers[t])
-						else:
-							symbol = '@'
-							val = sent.comments
-						f.write(f"# final_{t} = {symbol}{t}:\t{val}\n")
 
-			elif idx < final_idx + len(utterances) and not sent.toks or sent.text() == '.':
-				f.write(f"# empty_speaker = {sent.speaker}\n")
-				f.write(f"# empty_chat_sent = {sent.chat_sent}\n")
-				for t in sent.tiers.keys():
-					f.write(f"# empty_{t} = {sent.tiers.get(t)}\n")
-				# f.write(sent.conllu_str(mute=True))
-			# if sent.text() == '.':
-			# 	f.write(f"# empty = {sent.chat_sent}\n")
-			# 	f.write(sent.conllu_str(mute=True))
-			else:
-				f.write(f"# sent_id = {sent.get_sent_id()}\n")
-				f.write(f"# text = {sent.text()}\n")
-				f.write(f"# chat_sent = {sent.chat_sent}\n")
-				f.write(f"# speaker = {sent.speaker}\n")
-				for t in sent.tiers.keys():
-					f.write(f"# {t} = {sent.tiers.get(t)}\n")
-				f.write(sent.conllu_str(clear_mor, clear_gra, clear_misc))
-				# f.write(sent.conllu_str())
-				f.write("\n")
+			if idx < final_idx + len(utterances) and sent.text() in EMPTY:
+				empty.append(sent)
+
+			if isinstance(sent, Sentence) and not sent.text() in EMPTY:
+				print(idx, sent.sent_id)
+				if idx == final_idx + len(utterances):
+					logger.debug(1)
+					if final_empty:
+						while final_empty:
+							s = final_empty.pop()
+							f.write(s)
+				if empty:
+					while empty:
+						logger.debug(2)
+						empty_sent = empty.pop()
+						if not isinstance(empty_sent, Sentence):
+							f.write(empty_sent)
+						else:
+							f.write(f"# empty_speaker = {empty_sent.speaker}\n")
+							f.write(f"# empty_chat_sent = {empty_sent.chat_sent}\n")
+							for t in empty_sent.tiers.keys():
+								if empty_sent.tiers.get(t):
+									f.write(f"# empty_{t} = {empty_sent.tiers.get(t)}\n")
+				if isinstance(sent, Sentence):
+					logger.debug(3)
+					f.write(f"# sent_id = {sent.get_sent_id()}\n")
+					f.write(f"# text = {sent.text()}\n")
+					f.write(f"# chat_sent = {sent.chat_sent}\n")
+					f.write(f"# speaker = {sent.speaker}\n")
+					for t in sent.tiers.keys():
+						f.write(f"# {t} = {sent.tiers.get(t)}\n")
+					f.write(sent.conllu_str(clear_mor, clear_gra, clear_misc))
+					# f.write(sent.conllu_str())
+					f.write("\n")
+
+# def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:List[List[str]], final:List[str], clear_mor=False, clear_gra=False, clear_misc=False):
+#   final_empty = []
+#   final_idx = -1
+#   sent = create_sentence(final_idx, utterances[final_idx])
+#   while sent.text() in EMPTY:
+#       print(f"final sent at index {final_idx}: {sent.chat_sent}")
+#       tiers = [k for k in sent.tiers.keys()]
+#       tiers.reverse()
+#       for t in tiers:
+#           final_empty.append(f"# final_{t} = {sent.tiers.get(t)}\n")
+#       final_empty.append(f"# final_{sent.speaker} = {sent.chat_sent}\n")
+#       coms = [k for k in metas[final_idx]]
+#       coms.reverse()
+#       for c in coms:
+#           final_empty.append(f"# final_comments = {c}\n")
+#       final_idx -= 1
+#       sent = create_sentence(final_idx, utterances[final_idx])
+#   # logger.warning(final_empty)
+#   with open(filename, mode='w', encoding='utf-8') as f:
+#       empty = []
+#       comments = []
+#       for idx, utterance in enumerate(utterances):
+#           try:
+#               sent = create_sentence(idx, utterance)
+#               print(sent.text())
+#           except IndexError as e:
+#               logger.exception(e)
+#               logger.info(f"writing sent {utterance} to {filename}...")
+#               raise
+#           if sent.text() in EMPTY:
+#               print(f"\n==== Sent {idx} : Store Info in lists... ====\n")
+#               print(idx, utterance)
+#               comments.append(metas[idx])
+#           if not sent.text() in EMPTY:
+#               print(f"\n==== Sent {idx} : Dump preiously stored values in comments and write tokens in this sentence... ====\n")
+#               if idx == final_idx + len(utterances):
+#                   while final_empty:
+#                       sent = final_empty.pop()
+#                       f.write(sent)
+#               while empty:
+#                   empty_sent = empty.pop()
+#                   if not isinstance(empty_sent, Sentence):
+#                       f.write(empty_sent)
+#                   else:
+#                       f.write(f"# empty_speaker = {empty_sent.speaker}\n")
+#                       f.write(f"# empty_chat_sent = {empty_sent.chat_sent}\n")
+#                       for t in empty_sent.tiers.keys():
+#                           if empty_sent.tiers.get(t):
+#                               f.write(f"# empty_{t} = {empty_sent.tiers.get(t)}\n")
+#               f.write(f"# sent_id = {sent.get_sent_id()}\n")
+#               f.write(f"# text = {sent.text()}\n")
+#               f.write(f"# chat_sent = {sent.chat_sent}\n")
+#               f.write(f"# speaker = {sent.speaker}\n")
+#               for t in sent.tiers.keys():
+#                   f.write(f"# {t} = {sent.tiers.get(t)}\n")
+#               f.write(sent.conllu_str(clear_mor, clear_gra, clear_misc))
+#               # f.write(sent.conllu_str())
+#               f.write("\n")
+
 
 def chat2conllu(files: List['pathlib.PosixPath'], clear_mor=False, clear_gra=False, clear_misc=False):
 	for f in files:
 		# ----- skip converted files ----
 		# if f.with_suffix(".conllu").is_file():
 		#   continue
-
 		# ---- parse chat ----
 		logger.info(f"parsing {f}...")
 		with open(f, 'r', encoding='utf-8') as fp:
@@ -692,16 +784,17 @@ def chat2conllu(files: List['pathlib.PosixPath'], clear_mor=False, clear_gra=Fal
 
 			fn = f.with_suffix(".conllu")
 			to_conllu(fn, metas, utterances, final, clear_mor, clear_gra, clear_misc)
+			# print(all_feats)
 
 if __name__ == "__main__":
 
 	test = [
 		'beg|beg',
-	 	'+"/.',
-	 	'pro:sub|I',
-	 	'pro:sub|I~v|will',
-	 	'adj|Jamie&dn-POSS'
-	 	]
+		'+"/.',
+		'pro:sub|I',
+		'pro:sub|I~v|will',
+		'adj|Jamie&dn-POSS'
+		]
 
 	for t in test:
 		pos, lemma, feat_str, misc = get_lemma_and_feats(t)
