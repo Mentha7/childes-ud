@@ -23,7 +23,7 @@
     - normalised sentence
     - tokens
     - empty line
-2. to .cha: 
+2. to .cha:
     - `*{participant code}:\t` utterance original form
     - `%{tier}:\t` tiers in order
 
