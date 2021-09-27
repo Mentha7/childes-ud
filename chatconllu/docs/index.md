@@ -10,4 +10,4 @@ Conversion scripts between CHILDES CHAT format and UD CoNLL-U format.
 
 
 ## Commands
- See [README.md](../README.md)
+ See [README.md](https://github.com/Mentha7/childes-ud/blob/main/README.md)
