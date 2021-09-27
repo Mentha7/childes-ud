@@ -248,10 +248,12 @@ def root_token(tokens: List[Token]) -> int:
 def change_head_to_root(tok: Token, tokens: List[Token], is_multi=False, i=-1):
 	"""Store original head in MISC, change head to root."""
 	if is_multi and i >= 0:
-		if not tok.misc[i]:
-			tok.misc[i] = f"head={str(tok.head[i])}"
+		l = list(tok.misc)
+		if l[i]:
+			l[i] = f"head={str(tok.head[i])}"
 		else:
-			tok.misc[i] += f"|head={str(tok.head[i])}"
+			l[i] += f"|head={str(tok.head[i])}"
+		tok.misc = tuple(l)
 		tok.head[i] = root_token(tokens)
 	else:
 		if not tok.misc:
@@ -442,6 +444,35 @@ def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], 
 	else:
 		return parse_mor(mor_segment)
 
+def modify_dashed_tokens(t: Token):
+	t.lemma = t.form
+	miscs = t.misc.split('|')
+	new_miscs = []
+	for m in miscs:
+		if m.startswith('feats='):
+			logger.info(m)
+			feats = re.findall(r'\-\w+', m)
+			# print(feats)
+			for f in feats:
+				if f in t.form:
+					feats.remove(f)
+					if not feats:
+						pass
+					else:
+						new = re.sub(r'\-\w+', '', m)
+						new = re.sub(r'\^', '', new)
+						new = new.replace('feats=', '')
+						if new:
+							new_miscs.append(new)
+		else:
+			new_miscs.append(m)
+	t.misc = '|'.join(new_miscs)
+	# logger.debug(t.form)
+	# logger.debug(t.lemma)
+	# logger.debug(t.misc)
+	return t
+
+
 def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[str], None], mor: Union[List[str], None]) -> List[Token]:
 	"""Extract information from mor and gra tiers when supplied, create Token objects with the information.
 
@@ -579,6 +610,9 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					multi=multi,
 					type=type,
 					surface=surface)
+		# ---- lemma, misc for dashed words ----
+		if '-' in tok.form:
+			tok = modify_dashed_tokens(tok)
 		if tok.index is not None:
 			tokens.append(tok)
 		# logger.info(tok.feats)
@@ -646,7 +680,7 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 	final_idx = -1
 	sent = create_sentence(final_idx, utterances[final_idx])
 	while sent.text() in EMPTY:
-		print(f"final sent at index {final_idx}: {sent.chat_sent}")
+		# print(f"final sent at index {final_idx}: {sent.chat_sent}")
 		tiers = [k for k in sent.tiers.keys()]
 		tiers.reverse()
 		for t in tiers:
@@ -658,7 +692,7 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 			final_empty.append(f"# final_comments = {c}\n")
 		final_idx -= 1
 		sent = create_sentence(final_idx, utterances[final_idx])
-	print(final_empty)
+	# print(final_empty)
 	with open(filename, mode='w', encoding='utf-8') as f:
 		for m in metas[0]:
 			f.write(f"# {m}\n")
@@ -681,16 +715,16 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 				empty.append(sent)
 
 			if isinstance(sent, Sentence) and not sent.text() in EMPTY:
-				print(idx, sent.sent_id)
+				# print(idx, sent.sent_id)
 				if idx == final_idx + len(utterances):
-					logger.debug(1)
+					# logger.debug(1)
 					if final_empty:
 						while final_empty:
 							s = final_empty.pop()
 							f.write(s)
 				if empty:
 					while empty:
-						logger.debug(2)
+						# logger.debug(2)
 						empty_sent = empty.pop()
 						if not isinstance(empty_sent, Sentence):
 							f.write(empty_sent)
@@ -701,7 +735,7 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 								if empty_sent.tiers.get(t):
 									f.write(f"# empty_{t} = {empty_sent.tiers.get(t)}\n")
 				if isinstance(sent, Sentence):
-					logger.debug(3)
+					# logger.debug(3)
 					f.write(f"# sent_id = {sent.get_sent_id()}\n")
 					f.write(f"# text = {sent.text()}\n")
 					f.write(f"# chat_sent = {sent.chat_sent}\n")
@@ -711,65 +745,6 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 					f.write(sent.conllu_str(clear_mor, clear_gra, clear_misc))
 					# f.write(sent.conllu_str())
 					f.write("\n")
-
-# def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:List[List[str]], final:List[str], clear_mor=False, clear_gra=False, clear_misc=False):
-#   final_empty = []
-#   final_idx = -1
-#   sent = create_sentence(final_idx, utterances[final_idx])
-#   while sent.text() in EMPTY:
-#       print(f"final sent at index {final_idx}: {sent.chat_sent}")
-#       tiers = [k for k in sent.tiers.keys()]
-#       tiers.reverse()
-#       for t in tiers:
-#           final_empty.append(f"# final_{t} = {sent.tiers.get(t)}\n")
-#       final_empty.append(f"# final_{sent.speaker} = {sent.chat_sent}\n")
-#       coms = [k for k in metas[final_idx]]
-#       coms.reverse()
-#       for c in coms:
-#           final_empty.append(f"# final_comments = {c}\n")
-#       final_idx -= 1
-#       sent = create_sentence(final_idx, utterances[final_idx])
-#   # logger.warning(final_empty)
-#   with open(filename, mode='w', encoding='utf-8') as f:
-#       empty = []
-#       comments = []
-#       for idx, utterance in enumerate(utterances):
-#           try:
-#               sent = create_sentence(idx, utterance)
-#               print(sent.text())
-#           except IndexError as e:
-#               logger.exception(e)
-#               logger.info(f"writing sent {utterance} to {filename}...")
-#               raise
-#           if sent.text() in EMPTY:
-#               print(f"\n==== Sent {idx} : Store Info in lists... ====\n")
-#               print(idx, utterance)
-#               comments.append(metas[idx])
-#           if not sent.text() in EMPTY:
-#               print(f"\n==== Sent {idx} : Dump preiously stored values in comments and write tokens in this sentence... ====\n")
-#               if idx == final_idx + len(utterances):
-#                   while final_empty:
-#                       sent = final_empty.pop()
-#                       f.write(sent)
-#               while empty:
-#                   empty_sent = empty.pop()
-#                   if not isinstance(empty_sent, Sentence):
-#                       f.write(empty_sent)
-#                   else:
-#                       f.write(f"# empty_speaker = {empty_sent.speaker}\n")
-#                       f.write(f"# empty_chat_sent = {empty_sent.chat_sent}\n")
-#                       for t in empty_sent.tiers.keys():
-#                           if empty_sent.tiers.get(t):
-#                               f.write(f"# empty_{t} = {empty_sent.tiers.get(t)}\n")
-#               f.write(f"# sent_id = {sent.get_sent_id()}\n")
-#               f.write(f"# text = {sent.text()}\n")
-#               f.write(f"# chat_sent = {sent.chat_sent}\n")
-#               f.write(f"# speaker = {sent.speaker}\n")
-#               for t in sent.tiers.keys():
-#                   f.write(f"# {t} = {sent.tiers.get(t)}\n")
-#               f.write(sent.conllu_str(clear_mor, clear_gra, clear_misc))
-#               # f.write(sent.conllu_str())
-#               f.write("\n")
 
 
 def chat2conllu(files: List['pathlib.PosixPath'], clear_mor=False, clear_gra=False, clear_misc=False):
