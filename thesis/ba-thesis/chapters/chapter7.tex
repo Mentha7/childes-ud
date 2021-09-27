@@ -5,9 +5,15 @@
 % motivation?
 Unlike most written text or lab speech data, spontaneous speech is <chaotic> in form. Without drafting or editing, a sentence settle in form as each word is spoken. Errors and markers of disfluency like pauses and repetitions are ubiquitous in spontaneous speech data. Before a consensus is reached in how people transcribe and annotate speech, transcribers had to device their own markings/symbols to faithfully transcribe the utterances/conversational interactions. The disadvantages are clear, inconsistent use of symbols is an obstacle for the sharing of linguistic data, which is indispensable in Natural Language Processing.\\
 
+
+\section{Related Work}
+
 % references
 CHILDES database \cite{Macwhinney2000}\\
 the Brown Corpus <needs bibtex (Brown, 1973)>\\
+UPOS <Petrov et al., 2012>
+UDPipe <Straka et al., >
+UD Project <Nivre et el., 2016>
 
 \section{Mappings Related} % (fold)
 \label{sec:mappings}
@@ -32,9 +38,79 @@ Preverb/verb particles are tagged with \texttt{vpfx}. Although they are particle
 
 \subsection{GR-deprel mappings}
 
+In CHILDES CHAT annotations, syntactic relations are represented using Grammatical Relations (GRs), first devised by \cite{Sagae2004}. Since GRs are dependency relations, they correspond to \texttt{deprel} in CoNLL-U annotations. However, CHILDES and UD uses not only different labels for the dependency relations, but also quite different parsing schemes such that sometimes a conversion from GR to deprel also introduces a change in the structure of the dependency tree.\\
+
+Defining mappings between a GR and a UD deprel thus ranges from direct and one-to-one label translation to linguistic knowledge-based conditional decisions. This section provides explanations to the adaptations made and gives detailed examples for a selected few hard-to-decide cases.\\
+
+Direct mappings are listed in the table below:
+\begin{table}[h!]
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{CHILDES} & \textbf{UD} & \\ \midrule
+SUBJ & nsubj & \\
+CSUBJ & csubj & \\
+OBJ & obj & \\
+OBJ2 & iobj & \\
+APP & appos & \\
+AUX & aux & \\
+CONJ & conj & \\
+COORD & cc & \\
+DET & det & \\
+PUNCT & punct & \\
+ROOT & root & \\\bottomrule
+\end{tabular}
+\end{table}
+
+
+\subsection{PRED}
+\begin{dependency}
+	\begin{deptext}
+	She \& is \& a \& student \& .\\
+	PRON \& AUX \& DET \& NOUN \& PUNCT\\
+	\end{deptext}
+	\depedge{4}{1}{nsubj}
+	\depedge{4}{2}{aux}
+	\depedge{4}{3}{det}
+	\depedge{4}{5}{punct}
+	\deproot{4}{root}
+\end{dependency}
+
+\begin{dependency}
+	\begin{deptext}
+	She \& is \& a \& student \& .\\
+	PRON \& AUX \& DET \& NOUN \& PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{SUBJ}
+	\depedge{2}{4}{PRED}
+	\depedge{4}{3}{DET}
+	\depedge{2}{5}{PUNCT}
+	\deproot{2}{ROOT}
+\end{dependency}
+
+\begin{dependency}
+	\begin{deptext}
+	She \& became \& happier \& .\\
+	PRON \& VERB \& ADJ \& PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{nsubj}
+	\depedge{2}{3}{xcomp}
+	\depedge{2}{5}{punct}
+	\deproot{2}{root}
+\end{dependency}
+
+\begin{dependency}
+	\begin{deptext}
+	She \& became \& happier \& .\\
+	PRON \& VERB \& ADJ \& PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{SUBJ}
+	\depedge{2}{3}{PRED}
+	\depedge{2}{5}{PUNCT}
+	\deproot{2}{ROOT}
+\end{dependency}
+
 \paragraph{\texttt{INCROOT}}
 
 \paragraph{\texttt{PRED}}
-
 
 
