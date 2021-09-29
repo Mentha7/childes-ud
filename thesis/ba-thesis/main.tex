@@ -160,18 +160,11 @@ consistentlayout, % layout of declaration, abstract and acknowledgements pages m
 %\addchaptertocentry{\abstractname}
 % uncomment to add the abstract to the table of contents (not recommended)
 
-For an overview of this document, see \Cref{Chapter1}.
+Both Child Language Data Exchange System (CHILDES) and Universal Dependencies (UD) are projects designed to facilitate linguistic research with computerised tools. Each project is paired with a standardised annotation format, which removes barriers to linguistic data-sharing introduced by diverse annotation/transcription habits.
 
-Provide a Thesis Abstract here (length: less than one page).
+The CHILDES CHAT and UD CoNLL-U formats, although widely accepted and used in their dominant fields, use different structures and tagsets to represent morphosyntax. With the help of a two-way converter, information can be augmented or cross-validated using existing tools developed for these two annotation formalisms.
 
-For a start, you may want to consult the concise instructions for writing the Summary Paragraph in \emph{Nature}: \url{https://www.nature.com/documents/nature-summary-paragraph.pdf}. Moreover, consider Markus Kuhn's advice on differentiating abstract and introduction: \url{https://www.lightbluetouchpaper.org/2007/03/14/how-not-to-write-an-abstract/}.
-
-A boilerplate scheme for an abstract is as follows: devote 25\,\% of the space on the purpose and importance of the research (introduction), 25\,\% of the space on what you did (methods), 35\,\% of the space on what you found (results), and 15\,\% of the space on the implications of the research (cf. \url{https://writingcenter.gmu.edu/guides/writing-an-abstract}).
-
-More concrete advice for writing abstracts can be found on the website of the Writing Center of the University of North Carolina at Chapel Hill (\url{https://writingcenter.unc.edu/tips-and-tools/abstracts/}). Some useful phrases for abstracts can be found at \url{http://dissertation.laerd.com/useful-phrases-when-writing-a-dissertation-abstract.php}
-
-Finally, you may also want to consider the excellent guide by Kent Beck on how to write good abstracts, which focuses on conference papers:
-\url{https://plg.uwaterloo.ca/~migod/research/beckOOPSLA.html}.
+To improve the interoperability between CoNLL-U and CHAT, a deterministic mapping for morphosyntactic information from CHAT codes to UD-style tags is created, and chatconllu is implemented as a command-line-based two-way converter. Within the limits of a Bachelor thesis, chatconllu is tested on several selected CHILDES databases of English, French and Italian and the converted files are validated using CHILDES- and UD-maintained tools.
 
 \end{abstract}
 
