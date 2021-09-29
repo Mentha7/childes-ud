@@ -15,17 +15,52 @@ UPOS <Petrov et al., 2012>
 UDPipe <Straka et al., >
 UD Project <Nivre et el., 2016>
 
-\section{Mappings Related} % (fold)
+\section{Deterministic Mapping for Morphosyntax} % (fold)
 \label{sec:mappings}
+In the previous section, the different ways of how CHAT and CoNLL-U structurally represent morphosyntactic information are explained. This chapter presents a deterministic mapping from CHAT codes to UD-style labels. The mapping is created for English, French and Italian and consists of three major categories: part-of-speech tags, morphological features and dependency relations.
 
-% section section_name (end)
+% design differences
+
 % converting MOR codes to UD Universal POS tags
-\subsection{POS tags mappings}
+\subsection{Part-of-Speech Tags}
+
+According to the CHAT manual, the MOR program, which deals with part-of-speech tagging, has 39 POS tags for English with extensions for other languages, while UD uses a universal POS (UPOS) tagset with 17 tags for all languages in the Universal Dependencies Project (as of version 2.8). UD's UPOS is developed based on Petrov's "A Universal Part-of-Speech Tagset", where the crosslinguistic universality of the tagset stems from its operational definition instead of an intrinsic one (Petrov, 2012). In CHAT, however, POS tags are much less universal across languages. As described by the CHAT Manual (Section 2.4 Part of Speech Codes), typologically different languages may use a very different tagset than that prescribed by the MOR program for English. Additionally, researchers can define their own POS tagsets (MacWhinney), which makes an exhaustive mapping between POS tags used in CHILDES databases and the UPOS tagset impossible, even just for the three languages chosen. Therefore, the mapping I define here concerns only the standard POS tagset given by the MOR lexicon files for English, French and Italian.
+
+The adaptation from MOR POS categories to UD's UPOS can be achieved in the following ways:
+\begin{itemize}
+	\item a direct mapping where the two tags are the same or has a straightforward relationship
+	\item collapsing many MOR POS categories into one UPOS tag
+	\item best-effort decision-making based on the description of the POS cetegories by both formalisms
+	\item MOR POS categories with no UPOS counterparts are translated as \texttt{X}
+\end{itemize}
+
+\begin{table}[h!]
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{MOR POS} & \textbf{UD UPOS} & \textbf{Description}\\ \midrule
+adj, adj:pred & ADJ & adjectives\\
+adv, adv:tem, neg & ADV & \\
+co, fil, wplay, bab, sing & INTJ & \\
+qn, det, quant, art, prepart & DET & \\
+aux, v:aux, cop, mod & AUX & \\
+post, prep, vpfx & ADP & \\
+part, inf & PART & \\
+coord & CCONJ & \\
+conj, comp & SCONJ & \\
+num & NUM & \\
+n, on, onoma & NOUN & \\
+pro & PRON & \\
+n:prop & PROPN & \\
+v, vimp & VERB & \\
+end, beg, cm, bq, eq, bq2, eq2 & PUNCT & punctuation marks\\
+none, dia, test, meta, phon, fam, uni, L2, neo, chi & X & \\\bottomrule
+\end{tabular}
+\end{table}
 
 \paragraph{\texttt{art}}
 Articles are marked as \texttt{DET} in UD Treebanks with feature \texttt{PronType=Art}.\\
 \paragraph{\texttt{preart}}
-\texttt{preart} are contractions of prepositions and articles, for instance the Italian \emph{alla} is the contraction of \emph{a} and \emph{la}. In UD-style annotations, words like \emph{alla} are treated as multi-word tokens and a POS tag is given to each part of the token. However, CHAT consider them to be single words with forms of their own. To keep the alignment with \%mor tier, here \texttt{preart} is mapped to \texttt{DET} because the word functions as a determiner.\\ 
+\texttt{preart} are contractions of prepositions and articles, for instance the Italian \emph{alla} is the contraction of \emph{a} and \emph{la}. In UD-style annotations, words like \emph{alla} are treated as multi-word tokens and a POS tag is given to each part of the token. However, CHAT consider them to be single words with forms of their own. To keep the alignment with \%mor tier, here \texttt{preart} is mapped to \texttt{DET} because the word functions as a determiner.\\
 
 \paragraph{\texttt{vimp}}
 Imperatives are tagged with \texttt{vimp} in \%mor tier. However, in UD, imperatives are tagged with \texttt{VERB}, which is the category for all finite verbforms. Information of gender, person, number, tense, aspect, mood and voice are all specified as features. Therefore \texttt{vimp}, as an example, is mapped to \texttt{VERB} with \texttt{MOOD=Imp}.\\
@@ -35,8 +70,12 @@ Preverb/verb particles are tagged with \texttt{vpfx}. Although they are particle
 
 \paragraph{Tags with no UPOS counterparts}
 
+% feature mappings
+\subsection{Morphological Features}
 
-\subsection{GR-deprel mappings}
+
+% converting GRA codes to UD deprels
+\subsection{Dependency Relations}
 
 In CHILDES CHAT annotations, syntactic relations are represented using Grammatical Relations (GRs), first devised by \cite{Sagae2004}. Since GRs are dependency relations, they correspond to \texttt{deprel} in CoNLL-U annotations. However, CHILDES and UD uses not only different labels for the dependency relations, but also quite different parsing schemes such that sometimes a conversion from GR to deprel also introduces a change in the structure of the dependency tree.\\
 
@@ -64,49 +103,49 @@ ROOT & root & \\\bottomrule
 
 \subsection{PRED}
 \begin{dependency}
-    \begin{deptext}
-    She \& is \& a \& student \& .\\
-    PRON \& AUX \& DET \& NOUN \& PUNCT\\
-    \end{deptext}
-    \depedge{4}{1}{nsubj}
-    \depedge{4}{2}{aux}
-    \depedge{4}{3}{det}
-    \depedge{4}{5}{punct}
-    \deproot{4}{root}
+	\begin{deptext}
+	She \& is \& a \& student \& .\\
+	PRON \& AUX \& DET \& NOUN \& PUNCT\\
+	\end{deptext}
+	\depedge{4}{1}{nsubj}
+	\depedge{4}{2}{aux}
+	\depedge{4}{3}{det}
+	\depedge{4}{5}{punct}
+	\deproot{4}{root}
 \end{dependency}
 
 \begin{dependency}
-    \begin{deptext}
-    She \& is \& a \& student \& .\\
-    PRON \& AUX \& DET \& NOUN \& PUNCT\\
-    \end{deptext}
-    \depedge{2}{1}{SUBJ}
-    \depedge{2}{4}{PRED}
-    \depedge{4}{3}{DET}
-    \depedge{2}{5}{PUNCT}
-    \deproot{2}{ROOT}
+	\begin{deptext}
+	She \& is \& a \& student \& .\\
+	PRON \& AUX \& DET \& NOUN \& PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{SUBJ}
+	\depedge{2}{4}{PRED}
+	\depedge{4}{3}{DET}
+	\depedge{2}{5}{PUNCT}
+	\deproot{2}{ROOT}
 \end{dependency}
 
 \begin{dependency}
-    \begin{deptext}
-    She \& became \& happier \& .\\
-    PRON \& VERB \& ADJ \& PUNCT\\
-    \end{deptext}
-    \depedge{2}{1}{nsubj}
-    \depedge{2}{3}{xcomp}
-    \depedge{2}{5}{punct}
-    \deproot{2}{root}
+	\begin{deptext}
+	She \& became \& happier \& .\\
+	PRON \& VERB \& ADJ \& PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{nsubj}
+	\depedge{2}{3}{xcomp}
+	\depedge{2}{5}{punct}
+	\deproot{2}{root}
 \end{dependency}
 
 \begin{dependency}
-    \begin{deptext}
-    She \& became \& happier \& .\\
-    PRON \& VERB \& ADJ \& PUNCT\\
-    \end{deptext}
-    \depedge{2}{1}{SUBJ}
-    \depedge{2}{3}{PRED}
-    \depedge{2}{5}{PUNCT}
-    \deproot{2}{ROOT}
+	\begin{deptext}
+	She \& became \& happier \& .\\
+	PRON \& VERB \& ADJ \& PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{SUBJ}
+	\depedge{2}{3}{PRED}
+	\depedge{2}{5}{PUNCT}
+	\deproot{2}{ROOT}
 \end{dependency}
 
 \paragraph{\texttt{INCROOT}}
@@ -114,3 +153,26 @@ ROOT & root & \\\bottomrule
 \paragraph{\texttt{PRED}}
 
 
+\begin{table}[h!]
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Universal POS Tags} & \textbf{Description}\\ \midrule
+ADJ & adjective\\
+ADV & adverb\\
+INTJ & interjection\\
+NOUN & noun\\
+PROPN & proper noun\\
+VERB & verb\\\midrule
+ADP & adposition\\
+AUX & auxiliary verb\\
+CCONJ & coordinating conjunction\\
+DET & determiner\\
+NUM & numeral\\
+PART & particle\\
+PRON & pronoun\\
+SCONJ & subordinating conjunction\\\midrule
+PUNCT & punctuation\\
+SYM & symbol\\
+X & other\\\bottomrule
+\end{tabular}
+\end{table}
