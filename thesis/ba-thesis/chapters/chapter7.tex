@@ -11,7 +11,7 @@ In the previous chapter, the different ways of how CHAT and CoNLL-U structurally
 % left-aligned table columns with automated line breaks
 \newcolumntype{L}{>{\RaggedRight\arraybackslash}X}
 \begin{margintable}[1\baselineskip] % move figure down by 1 line
-\begin{tabularx}{\textwidth}{@{}Lr@{}}
+\begin{tabularx}{\textwidth}{@{}Ll@{}}
 \toprule
 \textbf{MOR} & \textbf{UD}\\ \midrule
 adj & ADJ\\
@@ -70,14 +70,42 @@ Preverb/verb particles are tagged with \texttt{vpfx}. Although they are particle
 \paragraph{\texttt{conj}}
 Despite the similarity between the MOR \texttt{conj} and UD \texttt{CCONJ}, they represent different things. UD distinguishes between \texttt{CCONJ} \sidenote{Definition for \texttt{CCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/CCONJ.html}} and \texttt{SCONJ} \sidenote{Definition for \texttt{SCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}, the former is for coordinating conjunctions like \emph{and} and \emph{but}, which are tagged \texttt{coord} by MOR, and the latter marks subordinating conjunctions with complementizers like \emph{that} or \emph{if}, or adverbial clause introducers like \emph{when}, these are tagged \texttt{conj} by MOR. Therefore, the UPOS tag corresponding to \texttt{conj} is \texttt{SCONJ}.
 
-\paragraph{Tags with no UPOS counterparts}
+\paragraph{special form markers}
+It is worth noticing that some MOR codes do not correspond to any grammatical categories. For example, in CHAT, the so-called \emph{special form markers} have unique POS tags independent of the part-of-speech category to which the word belongs. Nevertheless, some of these tags can still be mapped to UPOS, like \texttt{sing} for singing, \texttt{bab} for babbling and \texttt{wplay} for wordplay can all be mapped to \texttt{INTJ}, which stands for \emph{interjection}. The definition of interjection, however, is vague. UD defines interjection descriptively \sidenote{"An interjection is a word that is used most often as an exclamation or part of an exclamation. It typically expresses an emotional reaction, is not syntactically related to other accompanying expressions, and may include a combination of sounds not otherwise found in the language." Excerpt from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}. The core criteria for a word \sidenote{or non-word in this case} to be an interjection include:
+\begin{itemize}
+	\item that it is often used exclamatorily
+	\item that it typically expresses emotions
+	\item that it plays no syntactic role in the utterance
+	\item that it might not be a recognised word in the language
+\end{itemize}
+Since singing, babbling and wordplay satisfy these criteria, along with the MOR code explicitly for interjections \texttt{co}, they are granted the \texttt{INTJ} tag. Other special form markers, on the other hand, has no corresponding UPOS tags whatsoever, for example \texttt{dia} for dialect forms. Unfortunately they have to be assigned to \texttt{X}, for words that does not belong to the other 16 categories.
+
+\begin{margintable}[1\baselineskip] % move figure down by 1 line
+\begin{tabularx}{0.85\textwidth}{@{}ll@{}}
+\toprule
+Punctuations & MOR Code\\\midrule
+„ & end\\
+‡ & beg\\
+, & cm\\
+“ & bq\\
+” & eq\\
+‘ & bq2\\
+’ & eq2\\\bottomrule
+\end{tabularx}
+\caption{\label{tab:martabpunct}MOR punctuation marks and their corresponding MOR codes.}
+\footnotesize
+\end{margintable}
+
+\paragraph{punctuation marks}
+Finally, MOR also defines a set of punctuation marks with string representations, shown in \ref{tab:martabpunct}. Although treated as lexical items in the \%mor tier, they are all given the \texttt{PUNCT} tag.
 
 % feature mappings
-\subsection{Morphological Features}
-
+\section{Morphological Features}
+\label{sec:feats}
 
 % converting GRA codes to UD deprels
-\subsection{Dependency Relations}
+\section{Dependency Relations}
+\label{sec:deprel}
 
 In CHILDES CHAT annotations, syntactic relations are represented using Grammatical Relations (GRs), first devised by \cite{Sagae2004}. Since GRs are dependency relations, they correspond to \texttt{deprel} in CoNLL-U annotations. However, CHILDES and UD uses not only different labels for the dependency relations, but also quite different parsing schemes such that sometimes a conversion from GR to deprel also introduces a change in the structure of the dependency tree.\\
 
@@ -85,20 +113,20 @@ Defining mappings between a GR and a UD deprel thus ranges from direct and one-t
 
 Direct mappings are listed in the table below:
 \begin{table}[h!]
-\begin{tabular}{@{}lllll@{}}
+\begin{tabular}{@{}ll@{}}
 \toprule
-\textbf{CHILDES} & \textbf{UD} & \\ \midrule
-SUBJ & nsubj & \\
-CSUBJ & csubj & \\
-OBJ & obj & \\
-OBJ2 & iobj & \\
-APP & appos & \\
-AUX & aux & \\
-CONJ & conj & \\
-COORD & cc & \\
-DET & det & \\
-PUNCT & punct & \\
-ROOT & root & \\\bottomrule
+\textbf{CHILDES} & \textbf{UD}\\ \midrule
+SUBJ & nsubj\\
+CSUBJ & csubj\\
+OBJ & obj\\
+OBJ2 & iobj\\
+APP & appos\\
+AUX & aux\\
+CONJ & conj\\
+COORD & cc\\
+DET & det\\
+PUNCT & punct\\
+ROOT & root\\\bottomrule
 \end{tabular}
 \end{table}
 
