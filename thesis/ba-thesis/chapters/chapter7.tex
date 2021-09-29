@@ -1,72 +1,74 @@
-\chapter{Ideas} % Main chapter title
-
+\chapter{Deterministic Mapping for Morphosyntax} % Main chapter title
 \label{Chapter7} % For referencing the chapter elsewhere, use \ref{Chapter7}
 
-% motivation?
-Unlike most written text or lab speech data, spontaneous speech is <chaotic> in form. Without drafting or editing, a sentence settle in form as each word is spoken. Errors and markers of disfluency like pauses and repetitions are ubiquitous in spontaneous speech data. Before a consensus is reached in how people transcribe and annotate speech, transcribers had to device their own markings/symbols to faithfully transcribe the utterances/conversational interactions. The disadvantages are clear, inconsistent use of symbols is an obstacle for the sharing of linguistic data, which is indispensable in Natural Language Processing.\\
-
-
-\section{Related Work}
-
-% references
-CHILDES database \cite{Macwhinney2000}\\
-the Brown Corpus <needs bibtex (Brown, 1973)>\\
-UPOS <Petrov et al., 2012>
-UDPipe <Straka et al., >
-UD Project <Nivre et el., 2016>
-
-\section{Deterministic Mapping for Morphosyntax} % (fold)
-\label{sec:mappings}
-In the previous section, the different ways of how CHAT and CoNLL-U structurally represent morphosyntactic information are explained. This chapter presents a deterministic mapping from CHAT codes to UD-style labels. The mapping is created for English, French and Italian and consists of three major categories: part-of-speech tags, morphological features and dependency relations.
+In the previous chapter, the different ways of how CHAT and CoNLL-U structurally represent morphosyntactic information are explained. This chapter presents a deterministic mapping from CHAT codes to UD-style labels. The mapping is created for English, French and Italian and consists of three major categories: part-of-speech tags, morphological features and dependency relations.
 
 % design differences
 
 % converting MOR codes to UD Universal POS tags
-\subsection{Part-of-Speech Tags}
+\section{Part-of-Speech Tags}
+\label{sec:pos}
+% left-aligned table columns with automated line breaks
+\newcolumntype{L}{>{\RaggedRight\arraybackslash}X}
+\begin{margintable}[1\baselineskip] % move figure down by 1 line
+\begin{tabularx}{\textwidth}{@{}Lc@{}}
+\toprule
+\textbf{MOR} & \textbf{UD}\\ \midrule
+adj & ADJ\\
+adv, neg & ADV\\
+co, fil & INTJ\\
+qn, det & DET\\
+aux, cop, mod & AUX\\
+post, prep & ADP\\
+part, inf & PART\\
+coord & CCONJ\\
+comp & SCONJ\\
+num & NUM\\
+n & NOUN\\
+pro & PRON\\
+n:prop & PROPN\\
+v & VERB\\
+end, beg & PUNCT\\
+none, dia & X\\\bottomrule
+\end{tabularx}
+\caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See \ref{tab:posmap1} and \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
+\footnotesize
+% Examples of MOR POS categories that can be directly converted to UPOS tags. See \ref{tab:posmap1} and \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.
+\end{margintable}
 
-According to the CHAT manual, the MOR program, which deals with part-of-speech tagging, has 39 POS tags for English with extensions for other languages, while UD uses a universal POS (UPOS) tagset with 17 tags for all languages in the Universal Dependencies Project (as of version 2.8). UD's UPOS is developed based on Petrov's "A Universal Part-of-Speech Tagset", where the crosslinguistic universality of the tagset stems from its operational definition instead of an intrinsic one (Petrov, 2012). In CHAT, however, POS tags are much less universal across languages. As described by the CHAT Manual (Section 2.4 Part of Speech Codes), typologically different languages may use a very different tagset than that prescribed by the MOR program for English. Additionally, researchers can define their own POS tagsets (MacWhinney), which makes an exhaustive mapping between POS tags used in CHILDES databases and the UPOS tagset impossible, even just for the three languages chosen. Therefore, the mapping I define here concerns only the standard POS tagset given by the MOR lexicon files for English, French and Italian.
+
+According to the CHAT manual, the MOR program, which deals with part-of-speech tagging, has 39 POS tags for English with extensions for other languages, while UD uses a universal POS (UPOS) tagset with 17 tags for all languages in the Universal Dependencies Project (as of version 2.8).
+
+UD's UPOS is developed based on Petrov's \emph{A Universal Part-of-Speech Tagset}, where the crosslinguistic universality of the tagset stems from its operational definition instead of an intrinsic definition of the grammatical categories (\cite{petrov2012}). In CHAT, however, POS tags are much less universal across languages. As described by the CHAT Manual (Section 2.4 Part of Speech Codes), typologically different languages may use quite different tagsets than that prescribed by the MOR program for English. Additionally, researchers can define their own POS tagsets (\cite{Macwhinney2000}), which not only means that in terms of POS tags, CHILDES took an opposite approach from UD, but also makes an exhaustive mapping between POS tags used in CHILDES databases and the UPOS tagset impossible, even just for the three languages chosen. Therefore, the mapping I define here concerns only the standard POS tagset given by the MOR grammar for English, French and Italian.
 
 The adaptation from MOR POS categories to UD's UPOS can be achieved in the following ways:
 \begin{itemize}
 	\item a direct mapping where the two tags are the same or has a straightforward relationship
-	\item collapsing many MOR POS categories into one UPOS tag
+	\item collapsing many MOR POS categories into one UPOS tag when applicable
 	\item best-effort decision-making based on the description of the POS cetegories by both formalisms
 	\item MOR POS categories with no UPOS counterparts are translated as \texttt{X}
 \end{itemize}
 
-\begin{table}[h!]
-\begin{tabular}{@{}lllll@{}}
-\toprule
-\textbf{MOR POS} & \textbf{UD UPOS} & \textbf{Description}\\ \midrule
-adj, adj:pred & ADJ & adjectives\\
-adv, adv:tem, neg & ADV & \\
-co, fil, wplay, bab, sing & INTJ & \\
-qn, det, quant, art, prepart & DET & \\
-aux, v:aux, cop, mod & AUX & \\
-post, prep, vpfx & ADP & \\
-part, inf & PART & \\
-coord & CCONJ & \\
-conj, comp & SCONJ & \\
-num & NUM & \\
-n, on, onoma & NOUN & \\
-pro & PRON & \\
-n:prop & PROPN & \\
-v, vimp & VERB & \\
-end, beg, cm, bq, eq, bq2, eq2 & PUNCT & punctuation marks\\
-none, dia, test, meta, phon, fam, uni, L2, neo, chi & X & \\\bottomrule
-\end{tabular}
-\end{table}
+An example of straightforward mappings between MOR POS codes and UPOS tags is shown in \ref{tab:martabpos}. A total of 16 out of the 17 UPOS tags are used in the tagset mapping, with the exception of \texttt{SYM}, which is reserved for symbols.
+
+Collapsing of POS categories can be illustrated by the example of auxiliary verbs. The MOR code differentiates between auxiliary verbs \texttt{aux} or \texttt{v:aux}, copulas \texttt{cop} and modal verbs \texttt{mod}. However, since UD took an operational approach to define grammatical categories, it does not distinguish copulas or modal verbs from other verbs that function as auxiliaries.  In doing so, UPOS can be applied to typologically distant languages.
+
+The following MOR codes require more thoughts during tagset conversion, partially because they do not exist in all languages. For tags like these, UD usually raises them to a more coarse category and specifies the exact type as morphological features.
 
 \paragraph{\texttt{art}}
-Articles are marked as \texttt{DET} in UD Treebanks with feature \texttt{PronType=Art}.\\
+Articles are ganerally marked as \texttt{DET} in UD Treebanks with feature \texttt{PronType=Art} \sidenote{Definition for \texttt{DET} can be found from \url{https://universaldependencies.org/docs/u/pos/DET.html}}.
+
 \paragraph{\texttt{preart}}
-\texttt{preart} are contractions of prepositions and articles, for instance the Italian \emph{alla} is the contraction of \emph{a} and \emph{la}. In UD-style annotations, words like \emph{alla} are treated as multi-word tokens and a POS tag is given to each part of the token. However, CHAT consider them to be single words with forms of their own. To keep the alignment with \%mor tier, here \texttt{preart} is mapped to \texttt{DET} because the word functions as a determiner.\\
+\texttt{preart} are contractions of prepositions and articles, for instance the Italian \emph{alla} is the contraction of \emph{a} and \emph{la}. In UD-style annotations, words like \emph{alla} are treated as multi-word tokens, and a POS tag is given to each part of the token. However, CHAT considers them to be single words with forms of their own. To keep the alignment with \%mor tier, here \texttt{preart} is mapped to \texttt{DET} because the word functions as a determiner.
 
 \paragraph{\texttt{vimp}}
-Imperatives are tagged with \texttt{vimp} in \%mor tier. However, in UD, imperatives are tagged with \texttt{VERB}, which is the category for all finite verbforms. Information of gender, person, number, tense, aspect, mood and voice are all specified as features. Therefore \texttt{vimp}, as an example, is mapped to \texttt{VERB} with \texttt{MOOD=Imp}.\\
+Imperatives are tagged with \texttt{vimp} in \%mor tier. However, in UD, imperatives are tagged with \texttt{VERB}, which is the category for all finite verbforms \sidenote{Definition for \texttt{VERB} can be found from \url{https://universaldependencies.org/docs/u/pos/VERB.html}} . Information of gender, person, number, tense, aspect, mood and voice are all specified as features. Therefore \texttt{vimp}, as an example, is mapped to \texttt{VERB} with feature \texttt{MOOD=Imp}.
 
 \paragraph{\texttt{vpfx}}
-Preverb/verb particles are tagged with \texttt{vpfx}. Although they are particles, according to UD's definition <insert reference to UD website in sidenote>, they belong to \texttt{ADP}.\\
+Preverb/verb particles are tagged with \texttt{vpfx}. Although they are particles, according to UD's definition \sidenote{Definition for \texttt{ADP} can be found from \url{https://universaldependencies.org/docs/u/pos/ADP.html}}, they belong to \texttt{ADP}.
+
+\paragraph{\texttt{conj}}
+Despite the similarity between the MOR \texttt{conj} and UD \texttt{CCONJ}, they represent different things. UD distinguishes between \texttt{CCONJ} \sidenote{Definition for \texttt{CCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/CCONJ.html}} and \texttt{SCONJ} \sidenote{Definition for \texttt{SCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}, the former is for coordinating conjunctions like \emph{and} and \emph{but}, which are tagged \texttt{coord} by MOR, and the latter marks subordinating conjunctions with complementizers like \emph{that} or \emph{if}, or adverbial clause introducers like \emph{when}, these are tagged \texttt{conj} by MOR. Therefore, the UPOS tag corresponding to \texttt{conj} is \texttt{SCONJ}.
 
 \paragraph{Tags with no UPOS counterparts}
 
@@ -83,7 +85,7 @@ Defining mappings between a GR and a UD deprel thus ranges from direct and one-t
 
 Direct mappings are listed in the table below:
 \begin{table}[h!]
-\begin{tabular}{@{}lllll@{}}
+\begin{tabular}{@{}lr@{}}
 \toprule
 \textbf{CHILDES} & \textbf{UD} & \\ \midrule
 SUBJ & nsubj & \\
