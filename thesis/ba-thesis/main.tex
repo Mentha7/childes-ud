@@ -249,9 +249,9 @@ To improve the interoperability between CoNLL-U and CHAT, a deterministic mappin
 % Therefore the addition before the last chapter is not necessary anymore.
 
 % Call the following chapters "Appendix" inside the table of contents
-% \addtocontents{toc}{\string\def\string\chaptername{Appendix}}
+\addtocontents{toc}{\string\def\string\chaptername{Appendix}}
 
-% \appendix % Cue to tell LaTeX that the following "chapters" are Appendices
+\appendix % Cue to tell LaTeX that the following "chapters" are Appendices
 
 % Ensure proper section numbering in appendix, e.g., A.1, A.2, B.1, …
 \renewcommand{\thesection}{\thechapter.\arabic{section}}
@@ -263,7 +263,7 @@ To improve the interoperability between CoNLL-U and CHAT, a deterministic mappin
 % Include the appendices of the thesis as separate files from the Appendices folder
 % Uncomment the lines as you write the Appendices
 
-% \include{appendices/appendixA}
+\include{appendices/appendixA}
 % \include{appendices/appendixB}
 % \include{appendices/appendixC}
 

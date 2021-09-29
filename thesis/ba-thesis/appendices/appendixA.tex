@@ -1,0 +1,124 @@
+% Appendix A
+ 
+\chapter{Morphosyntactic Mappings}
+\label{appendixa}
+
+\section{Part-of-Speech Mapping}
+
+\begin{table}[h!]
+\caption {Complete Set of Universal POS Tags} \label{tab:uposset}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{Universal POS Tags} & \textbf{Description}\\ \midrule
+ADJ & adjective\\
+ADV & adverb\\
+INTJ & interjection\\
+NOUN & noun\\
+PROPN & proper noun\\
+VERB & verb\\\midrule
+ADP & adposition\\
+AUX & auxiliary verb\\
+CCONJ & coordinating conjunction\\
+DET & determiner\\
+NUM & numeral\\
+PART & particle\\
+PRON & pronoun\\
+SCONJ & subordinating conjunction\\\midrule
+PUNCT & punctuation\\
+SYM & symbol\\
+X & other\\\bottomrule
+\end{tabular}\\
+\vspace{0.5cm}\\
+All UPOS tags except \textt{SYM} are used in chatconllu's POS mappings.\\
+\end{table}
+
+\newpage
+\begin{table}[htp!]
+\caption {chatconllu Part-of-Speech Mapping 1} \label{tab:posmap1}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{MOR POS Code} & \textbf{Description} & \textbf{UPOS}\\ \midrule
+adj & adjective & ADJ\\
+adj:pred & adjective-predicative & ADJ\\\midrule
+adv & adverb & ADV\\
+adv:tem & adverb-temporal & ADV\\
+neg & negative & ADV\\\midrule
+co & communicator & INTJ\\
+fil & filler & INTJ\\
+wplay & wordplay & INTJ\\
+bab & babbling & INTJ\\
+sing & singing & INTJ\\\midrule
+qn & quantifier & DET\\
+det:art & determiner-article & DET\\
+det:dem & determiner-demonstrative & DET\\
+det:int & determiner-interrogative & DET\\
+det:num & determiner-numeral & DET\\
+det:poss & determiner-possessive & DET\\
+quant & quantifier & DET\\
+art & article & DET\\
+prepart & preposition with article & DET\\\midrule
+aux & auxiliary & AUX\\
+v:aux & verb-auxiliary & AUX\\
+cop & verb-copula & AUX\\
+mod & verb-modal & AUX\\\midrule
+post & postmodifier & ADP\\
+prep & preposition & ADP\\
+vpfx & preverb/verbal particles & ADP\\\midrule
+part & particle & PART\\
+inf & infinitive & PART\\\midrule
+coord & coordinator & CCONJ\\\midrule
+conj & conjunction & SCONJ\\
+comp & complementizer & SCONJ\\\midrule
+num & numeral & NUM\\\bottomrule
+\end{tabular}\\
+\vspace{0.5cm}\\
+All MOR part-of-speech categories handled by the current version of chatconllu (part 1).\\
+\end{table}
+\newpage
+\vspace{-2cm}
+\begin{table}[h!]
+\caption {chatconllu Part-of-Speech Mapping 2} \label{tab:posmap2}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{MOR POS Code} & \textbf{Description} & \textbf{UPOS}\\ \midrule
+n & noun & NOUN\\
+n:let & noun-letter & NOUN\\
+n:pt & noun-plurale tantum & NOUN\\
+on & onomatopoeia & NOUN\\
+onoma & onomatopoeia & NOUN\\\midrule
+pro:dem & pronoun-demonstrative & PRON\\
+pro:exist & pronoun-existential & PRON\\
+pro:indef & pronoun-indefinitive & PRON\\
+pro:int & pronoun-interrogative & PRON\\
+pro:obj & pronoun-object & PRON\\
+pro:per & pronoun-personal & PRON\\
+pro:poss & pronoun-possessive & PRON\\
+pro:refl & pronoun-reflexive & PRON\\
+pro:rel & pronoun-relative & PRON\\
+pro:sub & pronoun-subject & PRON\\
+n:prop & proper noun & PROPN\\\midrule
+v & verb & VERB\\
+vimp & verb imperative & VERB\\\midrule
+end & MOR punctuation mark & PUNCT\\
+beg & MOR punctuation mark & PUNCT\\
+cm & MOR punctuation mark & PUNCT\\
+bq & MOR punctuation mark & PUNCT\\
+eq & MOR punctuation mark & PUNCT\\
+bq2 & MOR punctuation mark & PUNCT\\
+eq2 & MOR punctuation mark & PUNCT\\\midrule
+none & none & X\\
+dia & dialect & X\\
+test & test words like "wug" & X\\
+meta & metalinguistic use & X\\
+phon & phonologically consistent form & X\\
+fam & family-specific form & X\\
+uni & Unibet transcription & X\\
+L2 & second-language form & X\\
+neo & neologism & X\\
+chi & child-invented form & X\\\bottomrule
+\end{tabular}\\
+\vspace{0.5cm}
+\\
+All MOR part-of-speech categories handled by the current version of chatconllu (part 2).\\
+\end{table}
+
