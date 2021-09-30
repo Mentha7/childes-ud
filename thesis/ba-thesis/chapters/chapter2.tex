@@ -14,28 +14,59 @@ As MacWhinney pointed out in the CHAT manual, collecting audio data for spontane
 For a CHAT file to be well-formed, there are some basic structural requirements to comply with. The minimum standards are prescribed by \emph{minCHAT} (\cite{Macwhinney2000}).
 
 % describe only relevant minCHAT structure
-First of all, each CHAT file should have 2 major parts:\\
+First of all, each CHAT file should have at least two parts:
 \begin{itemize}
-	\item headers that stores metadata like language and participants
-	\item utterances which are the actual sentences being said
+	\item \emph{headers} preceded by the \texttt{@} symbol that stores metadata like language and participants. Some headers are required, some are optional.\\
+	Despite its name, headers can be added in the middle of a CHAT file to represent information like tape locations. It is likely that \emph{header} is a misnomer, and they should be called \emph{meta} as they preserve in general higher-level information.
+	\item the \emph{main line}---utterances led by the asterisk symbol \texttt{*} which are the actual sentences being said.\\
+	Additional information can be \emph{optionally} added as dependent tiers. Annotations of morphological, syntactical, and phonological information or general remarks of the transcriber's choice all go into separate dependent tiers of the main utterance. Dependent tiers are preceded by the percent symbol \texttt{\%}.
 \end{itemize}
-Each sentence is represented by a single line beginning with an asterisk symbol \texttt{*}, this is also called the \emph{main line}. Additional information can be optionally added as dependent tiers. Annotations of morphological, syntactical, and phonological information or general remarks of the transcriber's
-choice all go into separate dependent tiers of the main utterance. Dependent tiers are preceded by the \texttt{\%} symbol.
+
 % describe mor and gra tiers
-\subsubsection{Dependent Tiers}
-Almost any type of information can be organised into separate dependent tiers and added to each utterance. The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} which can be generated automatically by the use of a series of CLAN programs---\emph{MOR}, \emph{POST}, \emph{POSTMORTEM} and \emph{MEGRASP}.
+\subsection{Dependent Tiers}
+Almost any type of information can be organised into separate dependent tiers and added to each utterance. The CHAT manual defines a standard list of dependent tiers. The tier names are mostly 3-lowercase-letter codes, but with the exceptions of tier names preceded by an \texttt{x}, like \texttt{\%xmor}.
 
-Since information in \texttt{\%mor} and \texttt{\%gra} should be kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if they are present) are associated with the respective token in the utterance.
+A dependent tier can be organised in one of two ways:
+\begin{itemize}
+	\item utterance-level information
+	\item word-level information
+\end{itemize}
 
-\subsubsection{Morphosyntactic Coding with \emph{\%mor} Tier}
-% token links %mor to the main line. one-to-one correspondence between
-normalised utterance and %mor.
-% structure of individual words
-% structure of word groups  -> conllu: multi-word tokens
+\paragraph{utterance-level}
+Utterance-level information usually appear as a descriptive sentence. For example, the action tier that describe actions by the speakers \texttt{\%act}. It can also be in other forms, like the addressee tier which uses three-letter participant codes.
 
-\subsubsection{Syntactic Dependency Analysis with \emph{\%gra} Tier}
+\paragraph{word-level}
+Word-level information are associated with words in the utterance. Pieces of word-based information string are separated by the space character.
+
+\paragraph{common tiers}
+The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} which can be generated automatically by the use of a series of CLAN programs---MOR, POST, POSTMORTEM and GRASP.
+
+The \texttt{\%mor} tier encodes morpgological information including the affixes, stem and part-of-speech tags of words, while the \texttt{\%gra} tier keeps the dependency structure of the utterance and the grammatical relations between head and dependent words.
+
+Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} should be kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance.
+
+% \subsubsection{Morphosyntactic Coding with \emph{\%mor} Tier}
+% % token links %mor to the main line. one-to-one correspondence between
+% % normalised utterance and %mor.
+% % structure of individual words
+% % structure of word groups  -> conllu: multi-word tokens
+
+% \subsubsection{Syntactic Dependency Analysis with \emph{\%gra} Tier}
 
 \section{UD \emph{CoNLL-U} Annotation Scheme}
+
+\subsection{Motivation}
+
+\subsection{File Structure} % (fold)
+\label{sub:File Structure}
+
+\subsection{UD Sentence}
+
+\subsection{UD Token}
+
+\paragraph{multi-word tokens}
+
+% subsection  (end)
 
 \section{Shared Information vs. Exclusive Information}
 % token as the basic unit of CHAT and CoNLL-U annotations.
