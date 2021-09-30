@@ -250,8 +250,8 @@ For instance, the sentence "well, son, that's just life, isn't it ?" will be ana
 	\deproot[edge unit distance=4ex]{5}{root}
 \end{dependency}
 \end{minipage}
+\captionof{figure}{CHILDES vs UD dependency graphs: interjections}
 
-\centering
 \begin{minipage}{\widefigurewidth}
 \begin{dependency}[edge slant=3pt]
 	\begin{deptext}[column sep=0.7cm]
@@ -278,11 +278,13 @@ For instance, the sentence "well, son, that's just life, isn't it ?" will be ana
 	\deproot[edge unit distance=4ex]{5}{root}
 \end{dependency}
 \end{minipage}
+\captionof{figure}{CHILDES vs UD dependency graphs: vocatives}
 
-\centering
-\begin{minipage}{\widefigurewidth}
-\begin{dependency}[edge slant=3pt]\label{fig:taggr}
-	\begin{deptext}[column sep=1.2cm]
+
+% \begin{minipage}{\widefigurewidth}
+\begin{minipage}{\widefigurewidth}\label{fig:taggr}
+\begin{dependency}[edge slant=3pt]
+	\begin{deptext}[column sep=1cm]
 	that \& 's \& life \& „ \& is \& n't \& it \& ?\\
 	% \textlf{1}|\textlf{2}|SUBJ \& \textlf{2}|\textlf{0}|ROOT \& \textlf{3}|\textlf{2}|OBJ \& \textlf{4}|\textlf{5}|ENDP \& \textlf{5}|\textlf{2}|END \& \textlf{6}|\textlf{2}|PUNCT\\
 	\end{deptext}
@@ -295,15 +297,16 @@ For instance, the sentence "well, son, that's just life, isn't it ?" will be ana
 	\depedge[edge unit distance=1.5ex]{2}{8}{PUNCT}
 	\deproot[edge unit distance=4ex]{2}{ROOT}
 \end{dependency}
-\captionof{figure}{CHILDES}
+% \captionof{figure}{CHILDES}
 \end{minipage}
+\captionof{figure}{CHILDES: tag questions}
 
 
-
-\begin{minipage}{\widefigurewidth}\label{fig:tagdeprel}
+% \begin{minipage}{\widefigurewidth}\label{fig:tagdeprel}
+\begin{minipage}{\linewidth}\label{fig:tagdeprel}
 % \begin{dependency}[arc edge, arc angle=70, text only label, label style={above}]
 \begin{dependency}[edge slant=3pt]
-	\begin{deptext}[column sep=1.2cm]
+	\begin{deptext}[column sep=1cm]
 	that \& 's \& life \& , \& is \& n't \& it \& ?\\
 	\end{deptext}
 	\depedge{3}{1}{nsubj}
@@ -315,17 +318,15 @@ For instance, the sentence "well, son, that's just life, isn't it ?" will be ana
 	\depedge[edge unit distance=1.8ex]{3}{8}{punct}
 	\deproot[edge unit distance=3ex]{3}{root}
 \end{dependency}
-\captionof{figure}{UD}
+% \captionof{figure}{UD}
 \end{minipage}
-
+\captionof{figure}{UD: tag questions}
 
 
 \clearpage
-\paragraph{\texttt{PRED}}
 \begin{minipage}[b]{0.5\linewidth}
-% \centering
 \begin{dependency}
-	\begin{deptext}
+	\begin{deptext}[column sep=0.5cm]
 	She \& is \& a \& student \& .\\
 	% PRON \& AUX \& DET \& NOUN \& PUNCT\\
 	\end{deptext}
@@ -336,10 +337,10 @@ For instance, the sentence "well, son, that's just life, isn't it ?" will be ana
 	\deproot{4}{root}
 \end{dependency}
 \end{minipage}
+\hfill
 \begin{minipage}[b]{0.5\linewidth}
-% \centering
 \begin{dependency}
-	\begin{deptext}
+	\begin{deptext}[column sep=0.5cm]
 	She \& is \& a \& student \& .\\
 	% PRON \& AUX \& DET \& NOUN \& PUNCT\\
 	\end{deptext}
@@ -352,9 +353,8 @@ For instance, the sentence "well, son, that's just life, isn't it ?" will be ana
 \end{minipage}
 
 \begin{minipage}[b]{0.5\linewidth}
-% \centering
 \begin{dependency}
-	\begin{deptext}
+	\begin{deptext}[column sep=0.5cm]
 	She \& became \& happier \& .\\
 	% PRON \& VERB \& ADJ \& PUNCT\\
 	\end{deptext}
@@ -366,7 +366,7 @@ For instance, the sentence "well, son, that's just life, isn't it ?" will be ana
 \end{minipage}
 \begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
-	\begin{deptext}
+	\begin{deptext}[column sep=0.5cm]
 	She \& became \& happier \& .\\
 	% PRON \& VERB \& ADJ \& PUNCT\\
 	\end{deptext}
