@@ -103,13 +103,38 @@ Finally, MOR also defines a set of punctuation marks with string representations
 \section{Morphological Features}
 \label{sec:feats}
 
+Morphological features like \emph{tense} and \emph{mood} are encoded in the string representation of the word. MOR uses a morpheme-based approach to analyse individual words. As discussed in the previous chapter, a word is separated into prefix, part-of-speech, stem, affixes or morphemes indicating specific morphological features. Unlike MOR's dissecting analysis of the word, UD treats words as the basic unit, and features are considered properties of the word. It does not presuppose the existence of morphemes.
+
+These two fundamentally different views of words mean that morphological information is stored in different ways. CoNLL-U format keeps all relevant features of a word in the token's "feats" field. And although each language in UD has its subset of morphological features, the feature types and values are by convention the same. Compared with UD, CHILDES's way of handling features is less direct. Not all features are explicit as UD's feature-value pairs. Instead, they have to be inferred from the affix codes or POS tags.
+
+Listing of all possible MOR codes for grammatical morphemes is, again, unlikely. Therefore, I chose the easier path of collecting these codes from the CHILDES databases that I decided to work with. Table 1 lists the corpora of my choice. Of all morpheme codes found in these corpora, not all of them correspond to UD features. Since morphological features are not mandatory, I only created mappings for codes with a corresponding UD-style feature-value pair. An example mapping is given in the table on the right-hand side. The features that can be obtained from such codes are limited to 9 types: Number, Person, Gender, Mood, Degree, Tense, Verbform, Voice, and Poss. All possible UD features and values allowed for Engish, French, and Italian can be found in the Appendix.
+
+\begin{margintable}[1\baselineskip]
+\begin{tabularx}{1\textwidth}{@{}ll@{}}
+\toprule
+\textbf{Morpheme Codes} & \textbf{UD feats}\\ \midrule
+	3s & Number=Sing|Person=3\\
+	cp & Degree=Cmp\\
+	f & Gender=Fem\\
+	inf & VerbForm=Inf\\
+	imp & Mood=Imp\\
+	impf & Tense=Imp\\
+	pass & Voice=Pass\\
+	pastp & Tense=Past|VerbForm=Part\\
+	poss & Poss=Yes\\\bottomrule
+\end{tabularx}
+\caption{\label{tab:martabfeats}MOR grammatical morpheme codes and their corresponding UD featue-value pairs.}
+\footnotesize
+\end{margintable}
+
+
 % converting GRA codes to UD deprels
 \section{Dependency Relations}
 \label{sec:deprel}
 
-In CHILDES CHAT annotations, syntactic relations are represented using Grammatical Relations (GRs), first devised by \cite{Sagae2004}. Since GRs are dependency relations, they correspond to \texttt{deprel} in CoNLL-U annotations. However, CHILDES and UD uses not only different labels for the dependency relations, but also quite different parsing schemes such that sometimes a conversion from GR to deprel also introduces a change in the structure of the dependency tree.\\
+In CHAT annotations, syntactic relations are represented by Grammatical Relations (GRs), first devised by Kenji Sagae (\cite{sagae-etal-2004-adding}) for the English language. After later revisions in 2007, CHAT now has 37 dependency relations (\cite{sagae2007}). They correspond to \emph{deprels} (dependency relations) in CoNLL-U annotations. However, CHILDES and UD use different labels for these dependency relations and quite different parsing schemes. Sometimes, a conversion from GR to deprel also introduces a change in the structure of the dependency tree.
 
-Defining mappings between a GR and a UD deprel thus ranges from direct and one-to-one label translation to linguistic knowledge-based conditional decisions. This section provides explanations to the adaptations made and gives detailed examples for a selected few hard-to-decide cases.\\
+Defining mappings between a GR and a UD deprel thus ranges from direct label translation to linguistic knowledge-based conditional decisions. This section provides explanations of the adaptations made and gives detailed examples for a selected few hard-to-decide cases.
 
 Direct mappings are listed in the table below:
 \begin{table}[h!]
@@ -130,12 +155,13 @@ ROOT & root\\\bottomrule
 \end{tabular}
 \end{table}
 
-
+\begin{minipage}[b]{0.5\linewidth}
+% \centering
 \subsection{PRED}
 \begin{dependency}
 	\begin{deptext}
 	She \& is \& a \& student \& .\\
-	PRON \& AUX \& DET \& NOUN \& PUNCT\\
+	% PRON \& AUX \& DET \& NOUN \& PUNCT\\
 	\end{deptext}
 	\depedge{4}{1}{nsubj}
 	\depedge{4}{2}{aux}
@@ -143,11 +169,13 @@ ROOT & root\\\bottomrule
 	\depedge{4}{5}{punct}
 	\deproot{4}{root}
 \end{dependency}
-
+\end{minipage}
+\begin{minipage}[b]{0.5\linewidth}
+% \centering
 \begin{dependency}
 	\begin{deptext}
 	She \& is \& a \& student \& .\\
-	PRON \& AUX \& DET \& NOUN \& PUNCT\\
+	% PRON \& AUX \& DET \& NOUN \& PUNCT\\
 	\end{deptext}
 	\depedge{2}{1}{SUBJ}
 	\depedge{2}{4}{PRED}
@@ -155,7 +183,11 @@ ROOT & root\\\bottomrule
 	\depedge{2}{5}{PUNCT}
 	\deproot{2}{ROOT}
 \end{dependency}
+\end{minipage}
 
+\begin{minipage}[b]{0.5\linewidth}
+% \centering
+\subsection{PRED}
 \begin{dependency}
 	\begin{deptext}
 	She \& became \& happier \& .\\
@@ -166,7 +198,8 @@ ROOT & root\\\bottomrule
 	\depedge{2}{5}{punct}
 	\deproot{2}{root}
 \end{dependency}
-
+\end{minipage}
+\begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
 	\begin{deptext}
 	She \& became \& happier \& .\\
@@ -177,6 +210,7 @@ ROOT & root\\\bottomrule
 	\depedge{2}{5}{PUNCT}
 	\deproot{2}{ROOT}
 \end{dependency}
+\end{minipage}
 
 \paragraph{\texttt{INCROOT}}
 
