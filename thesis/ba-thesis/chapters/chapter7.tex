@@ -31,7 +31,7 @@ v & VERB\\
 end, beg & PUNCT\\
 none, dia & X\\\bottomrule
 \end{tabularx}
-\caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See \ref{tab:posmap1} and \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
+\caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See table \ref{tab:posmap1} and table \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
 \footnotesize
 % Examples of MOR POS categories that can be directly converted to UPOS tags. See \ref{tab:posmap1} and \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.
 \end{margintable}
@@ -49,7 +49,7 @@ The adaptation from MOR POS categories to UD's UPOS can be achieved in the follo
 	\item MOR POS categories with no UPOS counterparts are translated as \texttt{X}
 \end{itemize}
 
-An example of straightforward mappings between MOR POS codes and UPOS tags is shown in \ref{tab:martabpos}. A total of 16 out of the 17 UPOS tags are used in the tagset mapping, with the exception of \texttt{SYM}, which is reserved for symbols.
+An example of straightforward mappings between MOR POS codes and UPOS tags is shown in table \ref{tab:martabpos}. A total of 16 out of the 17 UPOS tags are used in the tagset mapping, with the exception of \texttt{SYM}, which is reserved for symbols.
 
 Collapsing of POS categories can be illustrated by the example of auxiliary verbs. The MOR code differentiates between auxiliary verbs \texttt{aux} or \texttt{v:aux}, copulas \texttt{cop} and modal verbs \texttt{mod}. However, since UD took an operational approach to define grammatical categories, it does not distinguish copulas or modal verbs from other verbs that function as auxiliaries.  In doing so, UPOS can be applied to typologically distant languages.
 
@@ -97,7 +97,7 @@ Punctuations & MOR Code\\\midrule
 \end{margintable}
 
 \paragraph{punctuation marks}
-Finally, MOR also defines a set of punctuation marks with string representations, shown in \ref{tab:martabpunct}. Although treated as lexical items in the \%mor tier, they are all given the \texttt{PUNCT} tag.
+Finally, MOR also defines a set of punctuation marks with string representations, shown in table \ref{tab:martabpunct}. Although treated as lexical items in the \%mor tier, they are all given the \texttt{PUNCT} tag.
 
 % feature mappings
 \section{Morphological Features}
@@ -105,14 +105,32 @@ Finally, MOR also defines a set of punctuation marks with string representations
 
 Morphological features like \emph{tense} and \emph{mood} are encoded in the string representation of the word. MOR uses a morpheme-based approach to analyse individual words. As discussed in the previous chapter, a word is separated into prefix, part-of-speech, stem, affixes or morphemes indicating specific morphological features. Unlike MOR's dissecting analysis of the word, UD treats words as the basic unit, and features are considered properties of the word. It does not presuppose the existence of morphemes.
 
-These two fundamentally different views of words mean that morphological information is stored in different ways. CoNLL-U format keeps all relevant features of a word in the token's "feats" field. And although each language in UD has its subset of morphological features, the feature types and values are by convention the same. Compared with UD, CHILDES's way of handling features is less direct. Not all features are explicit as UD's feature-value pairs. Instead, they have to be inferred from the affix codes or POS tags.
+\begin{margintable}[1\baselineskip]
+\begin{tabularx}{1\textwidth}{@{}ll@{}}
+\toprule
+\textbf{CHILDES Database} & \textbf{Language}\\ \midrule
+	Brown & eng\\
+	English-MiamiBiling & eng\\
+	Belfast & eng\\
+	Wells & eng\\
+	MTLN & fra\\
+	Leveille & fra\\
+	vioncolas & fra\\
+	Geneva & fra\\
+	Tonelli & ita\\\bottomrule
+\end{tabularx}
+\caption{\label{tab:martabdb}CHILDES databases chosen for this project.}
+\footnotesize
+\end{margintable}
 
-Listing of all possible MOR codes for grammatical morphemes is, again, unlikely. Therefore, I chose the easier path of collecting these codes from the CHILDES databases that I decided to work with. Table 1 lists the corpora of my choice. Of all morpheme codes found in these corpora, not all of them correspond to UD features. Since morphological features are not mandatory, I only created mappings for codes with a corresponding UD-style feature-value pair. An example mapping is given in the table on the right-hand side. The features that can be obtained from such codes are limited to 9 types: Number, Person, Gender, Mood, Degree, Tense, Verbform, Voice, and Poss. All possible UD features and values allowed for Engish, French, and Italian can be found in the Appendix.
+These two fundamentally different views of words mean that morphological information is stored in different ways. CoNLL-U format keeps all relevant features of a word in the token's \texttt{feats} field. And although each language in UD has its subset of morphological features, the feature types and values are by convention the same. Compared with UD, CHILDES's way of handling features is less direct. Not all features are explicit as UD's feature-value pairs. Instead, they have to be inferred from the morpheme codes or POS tags.
+
+Listing of all possible MOR codes for grammatical morphemes is, again, unlikely. Therefore, I chose the easier path of collecting these codes from the CHILDES databases that I decided to work with. Table \ref{tab:martabdb} lists the corpora of my choice. Of all morpheme codes found in these corpora, not all of them correspond to UD features. Since morphological features are not mandatory, I only created mappings for codes with a corresponding UD-style feature-value pair. An example mapping is given in table \ref{tab:martabfeats} on the right-hand side. The features that can be obtained from such codes are limited to 9 types: \texttt{Number}, \texttt{Person}, \texttt{Gender}, \texttt{Mood}, \texttt{Degree}, \texttt{Tense}, \texttt{Verbform}, \texttt{Voice}, and \texttt{Poss}. All possible UD features and values allowed for Engish, French, and Italian can be found in table \ref{tab:featsmap} in \Cref{appendixa}. Notice that since the codes are sometimes capitalised and sometimes not, they are all converted to lowercase for easy comparison. The original morpheme codes are kept in the \texttt{MISC} field, which keeps all token-level information that does not fit into the previous nine fields.
 
 \begin{margintable}[1\baselineskip]
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
-\textbf{Morpheme Codes} & \textbf{UD feats}\\ \midrule
+\textbf{MOR Codes} & \textbf{UD feats}\\ \midrule
 	3s & Number=Sing|Person=3\\
 	cp & Degree=Cmp\\
 	f & Gender=Fem\\
@@ -123,7 +141,7 @@ Listing of all possible MOR codes for grammatical morphemes is, again, unlikely.
 	pastp & Tense=Past|VerbForm=Part\\
 	poss & Poss=Yes\\\bottomrule
 \end{tabularx}
-\caption{\label{tab:martabfeats}MOR grammatical morpheme codes and their corresponding UD featue-value pairs.}
+\caption{\label{tab:martabfeats}Example MOR grammatical morpheme codes and their corresponding UD featue-value pairs.}
 \footnotesize
 \end{margintable}
 
