@@ -31,7 +31,7 @@ v & VERB\\
 end, beg & PUNCT\\
 none, dia & X\\\bottomrule
 \end{tabularx}
-\caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See table \ref{tab:posmap1} and table \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
+\caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See Table \ref{tab:posmap1} and Table \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
 \footnotesize
 % Examples of MOR POS categories that can be directly converted to UPOS tags. See \ref{tab:posmap1} and \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.
 \end{margintable}
@@ -49,7 +49,7 @@ The adaptation from MOR POS categories to UD's UPOS can be achieved in the follo
 	\item MOR POS categories with no UPOS counterparts are translated as \texttt{X}
 \end{itemize}
 
-An example of straightforward mappings between MOR POS codes and UPOS tags is shown in table \ref{tab:martabpos}. A total of 16 out of the 17 UPOS tags are used in the tagset mapping, with the exception of \texttt{SYM}, which is reserved for symbols.
+An example of straightforward mappings between MOR POS codes and UPOS tags is shown in Table \ref{tab:martabpos}. A total of 16 out of the 17 UPOS tags are used in the tagset mapping, with the exception of \texttt{SYM}, which is reserved for symbols.
 
 Collapsing of POS categories can be illustrated by the example of auxiliary verbs. The MOR code differentiates between auxiliary verbs \texttt{aux} or \texttt{v:aux}, copulas \texttt{cop} and modal verbs \texttt{mod}. However, since UD took an operational approach to define grammatical categories, it does not distinguish copulas or modal verbs from other verbs that function as auxiliaries.  In doing so, UPOS can be applied to typologically distant languages.
 
@@ -97,7 +97,7 @@ Punctuations & MOR Code\\\midrule
 \end{margintable}
 
 \paragraph{punctuation marks}
-Finally, MOR also defines a set of punctuation marks with string representations, shown in table \ref{tab:martabpunct}. Although treated as lexical items in the \%mor tier, they are all given the \texttt{PUNCT} tag.
+Finally, MOR also defines a set of punctuation marks with string representations, shown in Table \ref{tab:martabpunct}. Although treated as lexical items in the \%mor tier, they are all given the \texttt{PUNCT} tag.
 
 % feature mappings
 \section{Morphological Features}
@@ -125,12 +125,12 @@ Morphological features like \emph{tense} and \emph{mood} are encoded in the stri
 
 These two fundamentally different views of words mean that morphological information is stored in different ways. CoNLL-U format keeps all relevant features of a word in the token's \texttt{feats} field. And although each language in UD has its subset of morphological features, the feature types and values are by convention the same. Compared with UD, CHILDES's way of handling features is less direct. Not all features are explicit as UD's feature-value pairs. Instead, they have to be inferred from the morpheme codes or POS tags.
 
-Listing of all possible MOR codes for grammatical morphemes is, again, unlikely. Therefore, I chose the easier path of collecting these codes from the CHILDES databases that I decided to work with. Table \ref{tab:martabdb} lists the corpora of my choice. Of all morpheme codes found in these corpora, not all of them correspond to UD features. Since morphological features are not mandatory, I only created mappings for codes with a corresponding UD-style feature-value pair. An example mapping is given in table \ref{tab:martabfeats} on the right-hand side. The features that can be obtained from such codes are limited to 9 types: \texttt{Number}, \texttt{Person}, \texttt{Gender}, \texttt{Mood}, \texttt{Degree}, \texttt{Tense}, \texttt{Verbform}, \texttt{Voice}, and \texttt{Poss}. All possible UD features and values allowed for Engish, French, and Italian can be found in table \ref{tab:featsmap} in \Cref{appendixa}. Notice that since the codes are sometimes capitalised and sometimes not, they are all converted to lowercase for easy comparison. The original morpheme codes are kept in the \texttt{MISC} field, which keeps all token-level information that does not fit into the previous nine fields.
+Listing of all possible MOR codes for grammatical morphemes is, again, unlikely. Therefore, I chose the easier path of collecting these codes from the CHILDES databases that I decided to work with. Table \ref{tab:martabdb} lists the corpora of my choice. Of all morpheme codes found in these corpora, not all of them correspond to UD features. Since morphological features are not mandatory, I only created mappings for codes with a corresponding UD-style feature-value pair. An example mapping is given in Table \ref{tab:martabfeats} on the right-hand side. The features that can be obtained from such codes are limited to 9 types: \texttt{Number}, \texttt{Person}, \texttt{Gender}, \texttt{Mood}, \texttt{Degree}, \texttt{Tense}, \texttt{Verbform}, \texttt{Voice}, and \texttt{Poss}. All possible UD features and values allowed for Engish, French, and Italian can be found in Table \ref{tab:featsmap} in \Cref{appendixa}. Notice that since the codes are sometimes capitalised and sometimes not, they are all converted to lowercase for easy comparison. The original morpheme codes are kept in the \texttt{MISC} field, which keeps all token-level information that does not fit into the previous nine fields.
 
 \begin{margintable}[1\baselineskip]
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
-\textbf{MOR Codes} & \textbf{UD feats}\\ \midrule
+\textbf{morpheme} & \textbf{feats}\\ \midrule
 	3s & Number=Sing|Person=3\\
 	cp & Degree=Cmp\\
 	f & Gender=Fem\\
@@ -152,13 +152,12 @@ Listing of all possible MOR codes for grammatical morphemes is, again, unlikely.
 
 In CHAT annotations, syntactic relations are represented by Grammatical Relations (GRs), first devised by Kenji Sagae (\cite{sagae-etal-2004-adding}) for the English language. After later revisions in 2007, CHAT now has 37 dependency relations (\cite{sagae2007}). They correspond to \emph{deprels} (dependency relations) in CoNLL-U annotations. However, CHILDES and UD use different labels for these dependency relations and quite different parsing schemes. Sometimes, a conversion from GR to deprel also introduces a change in the structure of the dependency tree.
 
-Defining mappings between a GR and a UD deprel thus ranges from direct label translation to linguistic knowledge-based conditional decisions. This section provides explanations of the adaptations made and gives detailed examples for a selected few hard-to-decide cases.
+Defining mappings between a GR and a UD deprel thus ranges from direct label translation to linguistic knowledge-based conditional decisions. Direct mappings are listed in Table \ref{tab:martabgr}. Explanations of the adaptations made will be elaborated below and with detailed examples for a selected few hard-to-decide cases.
 
-Direct mappings are listed in the table below:
-\begin{table}[h!]
-\begin{tabular}{@{}ll@{}}
+\begin{margintable}[1\baselineskip]
+\begin{tabularx}{1\textwidth}{@{}Ll@{}}
 \toprule
-\textbf{CHILDES} & \textbf{UD}\\ \midrule
+\textbf{GR} & \textbf{deprel}\\ \midrule
 SUBJ & nsubj\\
 CSUBJ & csubj\\
 OBJ & obj\\
@@ -170,8 +169,10 @@ COORD & cc\\
 DET & det\\
 PUNCT & punct\\
 ROOT & root\\\bottomrule
-\end{tabular}
-\end{table}
+\end{tabularx}
+\caption{\label{tab:martabgr}Example CHILDES grammatical relations and their corresponding UD dependency relations.}
+\footnotesize
+\end{margintable}
 
 \begin{minipage}[b]{0.5\linewidth}
 % \centering
@@ -209,7 +210,7 @@ ROOT & root\\\bottomrule
 \begin{dependency}
 	\begin{deptext}
 	She \& became \& happier \& .\\
-	PRON \& VERB \& ADJ \& PUNCT\\
+	% PRON \& VERB \& ADJ \& PUNCT\\
 	\end{deptext}
 	\depedge{2}{1}{nsubj}
 	\depedge{2}{3}{xcomp}
@@ -221,7 +222,7 @@ ROOT & root\\\bottomrule
 \begin{dependency}
 	\begin{deptext}
 	She \& became \& happier \& .\\
-	PRON \& VERB \& ADJ \& PUNCT\\
+	% PRON \& VERB \& ADJ \& PUNCT\\
 	\end{deptext}
 	\depedge{2}{1}{SUBJ}
 	\depedge{2}{3}{PRED}
