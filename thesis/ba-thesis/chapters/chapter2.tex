@@ -6,26 +6,27 @@ This chapter introduces the two annotation schemes in detail and gives the
 reader an idea of what information is shared by both of the two annotations and
 what information is exclusively relevant to only one of them. This will shed
 light on the design and implementation of \emph{chatconllu} which will be
-discussed in the following chapters.
+discussed in \Cref{Chapter3}.
 
-\section{CHILDES \emph{CHAT} Transcription System}
-\subsection{Motivation for \emph{CHAT} System}
+\section{CHILDES CHAT Transcription System}
+\subsection{Motivation for CHAT System}
 The \emph{CHAT} (\textbf{C}odes for \textbf{H}uman \textbf{A}nalysis of
-\textbf{T}ranscripts) transcription system \cite{Macwhinney2000} is a
-standardised format devised for the TalkBank database. \emph{CHAT} transcripts
+\textbf{T}ranscripts) transcription system (\cite{Macwhinney2000}) is a
+standardised format devised for the TalkBank database. CHAT transcripts
 can be analysed by computer programs like \emph{CLAN} (\textbf{C}omputerized
 \textbf{L}anguage \textbf{AN}alysis) to facilitate the transcription, sharing
 and analysis of human interactions.
 
 \subsection{File Structure}
-For a \emph{CHAT} file to be well-formed, there are some basic structural
+For a CHAT file to be well-formed, there are some basic structural
 requirements to comply with. The minimum standards are prescribed by
-\emph{minCHAT}.\\
+\emph{minCHAT}.
+
 % describe only relevant minCHAT structure
-First of all, each \emph{CHAT} file should have 2 major parts: headers (that
+First of all, each CHAT file should have 2 major parts: headers (that
 stores metadata like language and participants) and utterances which are the
 actual sentences being said. Each sentence is represented by a single line
-beginning with an asterisk symbol \textbf{*}, this is called the main line.
+beginning with an asterisk symbol \emph{*}, this is called the main line.
 Additional information can be optionally added. Annotations of morphological,
 grammatical, phonological information or general remarks of the transcriber's
 choice go into the dependent tiers of the main utterance.
@@ -52,4 +53,4 @@ normalised utterance and %mor.
 \section{Shared Information vs. Exclusive Information}
 % token as the basic unit of CHAT and CoNLL-U annotations.
 % token also links %mor and %gra to the main line. one-to-one correspondence
-between normalised utterance and %mor.
+% between normalised utterance and %mor.

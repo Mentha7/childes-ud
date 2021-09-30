@@ -70,8 +70,8 @@
 %]{Crimson-Roman.otf}
 
 \setmainfont{Cochineal}[
-  Numbers={Proportional,OldStyle},
-  Style=Swash % for nice swashed Q letter, see https://golatex.de/spezeielle-opentype-features-in-fontspec-aktivieren-t19831.html
+	Numbers={Proportional,OldStyle},
+	Style=Swash % for nice swashed Q letter, see https://golatex.de/spezeielle-opentype-features-in-fontspec-aktivieren-t19831.html
 ]
 %\setmainlanguage{english}
 \DeclareSymbolFont{operators}{\encodingdefault}{\familydefault}{m}{n} %  render numbers in cochineal, cf. https://tex.stackexchange.com/questions/398895/using-two-different-math-fonts-with-lualatex
@@ -85,31 +85,29 @@
 
 % Exception: tables should use "lining figures" (all digits having same width)
 \AtBeginEnvironment{tabular}{%
-  \tlfstyle
+	\tlfstyle
 }
 \AtBeginEnvironment{tabularx}{%
-  \tlfstyle
+	\tlfstyle
 }
 
 
 % monospace font, will be used in verbatim and listing environments
 \setmonofont[
-  Path           = fonts/,
-    BoldFont       = {iosevka-ss04-bold.ttf},
-    ItalicFont       = {iosevka-ss04-italic.ttf},
-    BoldItalicFont       = {iosevka-ss04-bolditalic.ttf},
-    Scale = 0.83 % manually determined value;
-]{iosevka-ss04-regular.ttf}
+	Path           = fonts/,
+		BoldFont       = {Fira-Code-Bold-Nerd-Font-Complete-Mono.otf},
+		Scale = 0.83 % manually determined value;
+]{Fira-Code-Regular-Nerd-Font-Complete-Mono.otf}
 
 
 % sans-serif font, will be used in the margins
 \setsansfont[
-  Path            = fonts/,
-  BoldFont    = Roboto-Bold.otf,
-  ItalicFont    = Roboto-Italic.otf,
-  BoldItalicFont  = Roboto-BoldItalic.otf,
-  Scale = 0.83 % manually determined value;
-]{Roboto-Regular.otf}
+	Path            = fonts/,
+	BoldFont    = Fira-Code-Bold-Nerd-Font-Complete-Mono.otf,
+	% ItalicFont    = Roboto-Italic.otf,
+	% BoldItalicFont  = Roboto-BoldItalic.otf,
+	Scale = 0.83 % manually determined value;
+]{Fira-Code-Regular-Nerd-Font-Complete.otf}
 
 \renewcommand{\familydefault}{\rmdefault}
 \defaultfontfeatures{Ligatures=TeX}
@@ -170,37 +168,37 @@
 
 
 \etocsetstyle{chapter}
-   {}
-   {}
-   {\etocifnumbered
-     {\makebox[0pt][r]
-       % we use \etocthenumber instead of \etocnumber to avoid the href, which is part of \etocthenumber, messing with MakeTextLowercase
-       {\textsc{\MakeTextLowercase\chaptername\ \MakeTextLowercase\etocthenumber}\hspace{\tocsep}}%
-       \textbf{\etocname\kern1em\relax\etocpage}%
-    }%
-    {\textbf{\etocname\kern1em\relax\etocpage}}%
-    \par\vspace{3ex}%
-   }%
-   {}
+	 {}
+	 {}
+	 {\etocifnumbered
+		 {\makebox[0pt][r]
+			 % we use \etocthenumber instead of \etocnumber to avoid the href, which is part of \etocthenumber, messing with MakeTextLowercase
+			 {\textsc{\MakeTextLowercase\chaptername\ \MakeTextLowercase\etocthenumber}\hspace{\tocsep}}%
+			 \textbf{\etocname\kern1em\relax\etocpage}%
+		}%
+		{\textbf{\etocname\kern1em\relax\etocpage}}%
+		\par\vspace{3ex}%
+	 }%
+	 {}
 
 \etocsetstyle{section}
-   {\vspace{-2ex}} % Muss von den 3ex aus Chapter abgezogen werden
-   {}
-   % see the comment regarding etocthenumber in the chapter style definition
-   {\makebox[0pt][r]{\textsc{\MakeTextLowercase\etocthenumber}\hspace{\tocsep}}%
-    \etocname\kern1em\etocpage\par%
-   }%
-   {\addvspace{3ex}} % 3ex falls danach Chapter kommt
+	 {\vspace{-2ex}} % Muss von den 3ex aus Chapter abgezogen werden
+	 {}
+	 % see the comment regarding etocthenumber in the chapter style definition
+	 {\makebox[0pt][r]{\textsc{\MakeTextLowercase\etocthenumber}\hspace{\tocsep}}%
+		\etocname\kern1em\etocpage\par%
+	 }%
+	 {\addvspace{3ex}} % 3ex falls danach Chapter kommt
 
 \etocsetstyle{subsection}
-   {\vspace{0ex}}
-   {}
-   {\makebox[3em][l]{\etocnumber}\etocname\kern1em\etocpage\par}
-   {\addvspace{2ex}} % 2ex falls danach Section kommt
+	 {\vspace{0ex}}
+	 {}
+	 {\makebox[3em][l]{\etocnumber}\etocname\kern1em\etocpage\par}
+	 {\addvspace{2ex}} % 2ex falls danach Section kommt
 
 \etocsettocstyle{\chapter*{\contentsname}
-                \thispagestyle{plain}%
-                \leftskip\tocleft\parindent0pt}{}
+								\thispagestyle{plain}%
+								\leftskip\tocleft\parindent0pt}{}
 
 
 %----------------------------------------------------------------------------------------
@@ -208,7 +206,9 @@
 %----------------------------------------------------------------------------------------
 \usepackage{tikz-dependency}  % for dependency trees
 \usepackage{tabularx} % for more flexible tables
-
+% \usepackage{linguex}  % for linguistic examples, brackets and glosses
+% \usepackage{gb4e}  % for linguistic examples, brackets and glosses
+\usepackage{expex}  % for linguistic examples, brackets and glosses
 \usepackage{marginnote} % Enable Notes on the Page Margin
 \usepackage{marginfix} % Enables floating for margin figures
 \usepackage{ragged2e} % provides better hyphenation, use with camel case: \RaggedRight
@@ -230,9 +230,9 @@
 \usepackage{xparse}
 \let\oldmarginpar\marginpar
 \RenewDocumentCommand{\marginpar}{om}{%
-  \IfNoValueTF{#1}
-    {\oldmarginpar{\mymparsetup #2}}
-    {\oldmarginpar[\mymparsetup #1]{\mymparsetup #2}}}
+	\IfNoValueTF{#1}
+		{\oldmarginpar{\mymparsetup #2}}
+		{\oldmarginpar[\mymparsetup #1]{\mymparsetup #2}}}
 \newcommand{\mymparsetup}{\scriptsize\sffamily}
 
 
@@ -252,34 +252,34 @@
 % biblatex setup
 % inspired by https://anneurai.net/2017/10/18/thesis-formatting-in-latex/
 \usepackage[
-  backend=biber,
-  style=authoryear-comp,
-  maxcitenames=2,
-  maxbibnames=4, % when does the citation change to et al?
-  uniquelist=false,
-  uniquename=false,
-  firstinits=true, % author initials in list
-  terseinits=true, % no points between initials
-  giveninits=true, % always print only initials for given names
-  doi=false, % these fields are commonly omitted
-  isbn=false, % these fields are commonly omitted
-  url=false, 
-  dashed=false,
-  terseinits=false, % true if no points between initials
-  sortcites=true,
-  sorting=ynt,
-  language=english,
-  backref=true, % show on what pages a ref has been cited
+	backend=biber,
+	style=authoryear-comp,
+	maxcitenames=2,
+	maxbibnames=4, % when does the citation change to et al?
+	uniquelist=false,
+	uniquename=false,
+	firstinits=true, % author initials in list
+	terseinits=true, % no points between initials
+	giveninits=true, % always print only initials for given names
+	doi=false, % these fields are commonly omitted
+	isbn=false, % these fields are commonly omitted
+	url=false,
+	dashed=false,
+	terseinits=false, % true if no points between initials
+	sortcites=true,
+	sorting=ynt,
+	language=english,
+	backref=true, % show on what pages a ref has been cited
 ]{biblatex} % Use biber backend with alphabetic reference style
 \AtEveryBibitem{%
-  \clearlist{language} % don't show "en."
-  \clearlist{extra} % clears extra fields such as ISBN nrs
+	\clearlist{language} % don't show "en."
+	\clearlist{extra} % clears extra fields such as ISBN nrs
 }
 
 % shorten the strings used in back references
 \DefineBibliographyStrings{english}{%
-  backrefpage = {page},
-  backrefpages = {pages},
+	backrefpage = {page},
+	backrefpages = {pages},
 }
 
 %-- no "quotes" around titles of chapters/article titles
@@ -299,9 +299,9 @@
 \usepackage[autostyle=true]{csquotes} % Required to generate language-dependent quotes in the bibliography
 
 \usepackage[
-  obeyFinal,
-  textsize=scriptsize,
-  backgroundcolor=ubyellow25,linecolor=ubyellow,bordercolor=ubyellow,
+	obeyFinal,
+	textsize=scriptsize,
+	backgroundcolor=ubyellow25,linecolor=ubyellow,bordercolor=ubyellow,
 ]{todonotes}
 
 % change font of todo notes to sans-serif
@@ -317,12 +317,12 @@
 % https://tex.stackexchange.com/questions/3033/forcing-linebreaks-in-url
 \PassOptionsToPackage{hyphens}{url}
 \expandafter\def\expandafter\UrlBreaks\expandafter{\UrlBreaks% save the current one
-  \do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j%
-  \do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t%
-  \do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D%
-  \do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N%
-  \do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X%
-  \do\Y\do\Z\do\*\do\-\do\~\do\'\do\"\do\-}%
+	\do\a\do\b\do\c\do\d\do\e\do\f\do\g\do\h\do\i\do\j%
+	\do\k\do\l\do\m\do\n\do\o\do\p\do\q\do\r\do\s\do\t%
+	\do\u\do\v\do\w\do\x\do\y\do\z\do\A\do\B\do\C\do\D%
+	\do\E\do\F\do\G\do\H\do\I\do\J\do\K\do\L\do\M\do\N%
+	\do\O\do\P\do\Q\do\R\do\S\do\T\do\U\do\V\do\W\do\X%
+	\do\Y\do\Z\do\*\do\-\do\~\do\'\do\"\do\-}%
 
 % TODO consider using package xurl, which is supposed to handle url breaking
 
@@ -331,7 +331,7 @@
 \makeatletter
 \g@addto@macro\UrlSpecials
 {%
-    \do\/{\mbox{\UrlFont/}\hskip 0pt plus 0.1em minus 0.1em}%
+		\do\/{\mbox{\UrlFont/}\hskip 0pt plus 0.1em minus 0.1em}%
 }
 \Urlmuskip=0mu plus 1mu\relax
 \makeatother
@@ -340,10 +340,10 @@
 % hyperlink layout
 \usepackage{hyperref}
  \hypersetup{colorlinks,breaklinks,unicode,
-             citecolor=triadicblue,
-             linkcolor=triadicblue,
-             urlcolor=triadicblue,
-             filecolor=triadicblue,}
+						 citecolor=triadicblue,
+						 linkcolor=triadicblue,
+						 urlcolor=triadicblue,
+						 filecolor=triadicblue,}
 
 % cleverref allows you to use \Cref{sec:foo} to get the text "Section 1.2".
 % This also works with figures and tables.
@@ -354,7 +354,7 @@
 % rendering the current date as Month/JJJJ
 % see: https://tex.stackexchange.com/questions/212263/month-year-format-in-latex
 \newdateformat{monthyeardate}{%
-  \monthname[\THEMONTH] \THEYEAR}
+	\monthname[\THEMONTH] \THEYEAR}
 
 
 \raggedbottom % do NOT force all pages to have the same height (which would be done by increasing the space between paragraphs, which can create noisy layouts)
@@ -366,9 +366,9 @@
 \newlength{\bibparskip}\setlength{\bibparskip}{0pt}
 \let\oldthebibliography\thebibliography
 \renewcommand\thebibliography[1]{%
-  \oldthebibliography{#1}%
-  \setlength{\parskip}{\bibitemsep}%
-  \setlength{\itemsep}{\bibparskip}%
+	\oldthebibliography{#1}%
+	\setlength{\parskip}{\bibitemsep}%
+	\setlength{\itemsep}{\bibparskip}%
 }
 
 % allow much more liberal line breaks in URLs
@@ -380,18 +380,18 @@
 
 % configures indentation of bibentries
 \defbibenvironment{bibliography}
-  {\list
-     {\hspace{0.5\labelalphawidth}\bfseries\printtext[labelalphawidth]{%
-        \printfield{prefixnumber}%
-        \printfield{labelalpha}%
-        \printfield{extraalpha}}}
-     {\setlength{\labelsep}{\biblabelsep}%
-      \setlength{\leftmargin}{0.5\labelalphawidth}%
-      \setlength{\itemsep}{1.5\bibitemsep}%
-      \setlength{\parsep}{\bibparsep}}%
-      \renewcommand*{\makelabel}[1]{##1\hss}}
-  {\endlist}
-  {\item}
+	{\list
+		 {\hspace{0.5\labelalphawidth}\bfseries\printtext[labelalphawidth]{%
+				\printfield{prefixnumber}%
+				\printfield{labelalpha}%
+				\printfield{extraalpha}}}
+		 {\setlength{\labelsep}{\biblabelsep}%
+			\setlength{\leftmargin}{0.5\labelalphawidth}%
+			\setlength{\itemsep}{1.5\bibitemsep}%
+			\setlength{\parsep}{\bibparsep}}%
+			\renewcommand*{\makelabel}[1]{##1\hss}}
+	{\endlist}
+	{\item}
 
 
 %----------------------------------------------------------------------------------------
@@ -400,19 +400,19 @@
 
 % Using the layout from kaobook
 \geometry{
-    paper=a4paper,
-    head=13.6pt,
-    top=27.4mm,
-    bottom=27.4mm,
-    inner=24.8mm,
-    %outer=24.8mm,
-    %right=2.183cm,
-    textwidth=107mm,
-    marginparsep=8.2mm,
-    marginparwidth=49.4mm,
-    %textheight=49\baselineskip,
-    includemp,
-    % showframe
+		paper=a4paper,
+		head=13.6pt,
+		top=27.4mm,
+		bottom=27.4mm,
+		inner=24.8mm,
+		%outer=24.8mm,
+		%right=2.183cm,
+		textwidth=107mm,
+		marginparsep=8.2mm,
+		marginparwidth=49.4mm,
+		%textheight=49\baselineskip,
+		includemp,
+		% showframe
 }
 
 % Wide figures span text and margin.
@@ -440,22 +440,22 @@
 
 % new header/footer, from kaobook; we could probably remove the original definitions from the cls
 \renewpagestyle{thesis}{
-  {\hspace{-\marginparwidth}\hspace{-\marginparsep}\makebox[\overflowingheadlen][l]{\textup{\thepage}\quad\rule[-\dp\strutbox]{1pt}{\baselineskip}\quad{}\textup{\textsc{\MakeLowercase \leftmark}}}}%
-  {\makebox[\overflowingheadlen][r]{\textup{\textsc{\MakeLowercase \rightmark}}\quad\rule[-\dp\strutbox]{1pt}{\baselineskip}\quad\textup{\thepage}}}%
-  {}
+	{\hspace{-\marginparwidth}\hspace{-\marginparsep}\makebox[\overflowingheadlen][l]{\textup{\thepage}\quad\rule[-\dp\strutbox]{1pt}{\baselineskip}\quad{}\textup{\textsc{\MakeLowercase \leftmark}}}}%
+	{\makebox[\overflowingheadlen][r]{\textup{\textsc{\MakeLowercase \rightmark}}\quad\rule[-\dp\strutbox]{1pt}{\baselineskip}\quad\textup{\thepage}}}%
+	{}
 }{
-  {}%
-  {}%
-  {}
+	{}%
+	{}%
+	{}
 }
 \renewpagestyle{plain.thesis}{
-  {}%
-  {}%
-  {}
+	{}%
+	{}%
+	{}
 }{
-  {\hspace{-\marginparwidth}\hspace{-\marginparsep}\makebox[\overflowingheadlen][l]{\textup{\textsc{\thepage}}\quad\rule[-\dp\strutbox]{1pt}{\baselineskip}}}%
-  {\makebox[\overflowingheadlen][r]{\rule[-\dp\strutbox]{1pt}{\baselineskip}\quad\textup{\textsc{\thepage}}}}%
-  {}
+	{\hspace{-\marginparwidth}\hspace{-\marginparsep}\makebox[\overflowingheadlen][l]{\textup{\textsc{\thepage}}\quad\rule[-\dp\strutbox]{1pt}{\baselineskip}}}%
+	{\makebox[\overflowingheadlen][r]{\rule[-\dp\strutbox]{1pt}{\baselineskip}\quad\textup{\textsc{\thepage}}}}%
+	{}
 }
 
 %----------------------------------------------------------------------------------------
@@ -467,56 +467,56 @@
 \definecolor{darkgray}{rgb}{.4,.4,.4}
 
 \lstdefinelanguage{JavaScript}{
-  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
-  ndkeywords={class, export, boolean, throw, implements, import, this},
-  sensitive=false,
-  comment=[l]{//},
-  morecomment=[s]{/*}{*/},
-  morestring=[b]',
-  morestring=[b]"
+	keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+	ndkeywords={class, export, boolean, throw, implements, import, this},
+	sensitive=false,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	morestring=[b]',
+	morestring=[b]"
 }
 
 \lstset{
-    aboveskip={1\baselineskip},
-    abovecaptionskip=-1\baselineskip,
-    belowcaptionskip=2ex,
-    basicstyle=\footnotesize\ttfamily\linespread{4},
-    breaklines=true,
-    columns=flexible,
-    commentstyle=\color{gray50}\ttfamily\itshape,
-    escapechar=@,
-    extendedchars=true,
-    frame=l,
-    framerule=.5pt,
-    identifierstyle=\color{black},
-    inputencoding=latin1,
-    keywordstyle=\color{utred60}\bfseries,
-    ndkeywordstyle=\color{utred60}\bfseries,
-    numbers=left,
-    numbersep=1.25em,
-    numberstyle=\scriptsize\ttfamily,
-    prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
-    stringstyle=\color{utred60}\ttfamily,
-    upquote=true,
-    showstringspaces=false,
+		aboveskip={1\baselineskip},
+		abovecaptionskip=-1\baselineskip,
+		belowcaptionskip=2ex,
+		basicstyle=\footnotesize\ttfamily\linespread{4},
+		breaklines=true,
+		columns=flexible,
+		commentstyle=\color{gray50}\ttfamily\itshape,
+		escapechar=@,
+		extendedchars=true,
+		frame=l,
+		framerule=.5pt,
+		identifierstyle=\color{black},
+		inputencoding=latin1,
+		keywordstyle=\color{utred60}\bfseries,
+		ndkeywordstyle=\color{utred60}\bfseries,
+		numbers=left,
+		numbersep=1.25em,
+		numberstyle=\scriptsize\ttfamily,
+		prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+		stringstyle=\color{utred60}\ttfamily,
+		upquote=true,
+		showstringspaces=false,
 }
 
 \lstset{literate=%
-   *{0}{{{\color{darkgray}0}}}1
-    {1}{{{\color{darkgray}1}}}1
-    {2}{{{\color{darkgray}2}}}1
-    {3}{{{\color{darkgray}3}}}1
-    {4}{{{\color{darkgray}4}}}1
-    {5}{{{\color{darkgray}5}}}1
-    {6}{{{\color{darkgray}6}}}1
-    {7}{{{\color{darkgray}7}}}1
-    {8}{{{\color{darkgray}8}}}1
-    {9}{{{\color{darkgray}9}}}1
+	 *{0}{{{\color{darkgray}0}}}1
+		{1}{{{\color{darkgray}1}}}1
+		{2}{{{\color{darkgray}2}}}1
+		{3}{{{\color{darkgray}3}}}1
+		{4}{{{\color{darkgray}4}}}1
+		{5}{{{\color{darkgray}5}}}1
+		{6}{{{\color{darkgray}6}}}1
+		{7}{{{\color{darkgray}7}}}1
+		{8}{{{\color{darkgray}8}}}1
+		{9}{{{\color{darkgray}9}}}1
 }
 
 \lstnewenvironment{latex}
-    {\lstset{language=[LaTeX]TeX}}
-    {}
+		{\lstset{language=[LaTeX]TeX}}
+		{}
 
 %----------------------------------------------------------------------------------------
 % MARGINAL CAPTIONS
@@ -530,12 +530,12 @@
 \ExplSyntaxOn
 \RenewDocumentCommand \sidenotetext { o o +m }
 {
-  \IfNoValueOrEmptyTF{#1}
-    {
-      \@sidenotes@placemarginal{#2}{\thesidenote{}:~#3}
-  \refstepcounter{sidenote}
+	\IfNoValueOrEmptyTF{#1}
+		{
+			\@sidenotes@placemarginal{#2}{\thesidenote{}:~#3}
+	\refstepcounter{sidenote}
 }
-    {\@sidenotes@placemarginal{#2}{#1{}:~#3}}
+		{\@sidenotes@placemarginal{#2}{#1{}:~#3}}
 }
 \ExplSyntaxOff
 \makeatother
@@ -563,8 +563,8 @@
 
 \let\oldchapter\chapter
 \def\chapter{%
-  \setcounter{sidenote}{1}%
-  \oldchapter
+	\setcounter{sidenote}{1}%
+	\oldchapter
 }
 
 

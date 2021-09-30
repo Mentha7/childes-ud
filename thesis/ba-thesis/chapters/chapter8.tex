@@ -8,8 +8,6 @@ Both annotation formalisms support the storage of morphosyntactic information, a
 
 \subsection{Extracting Information from Dependent Tiers}
 
-
-
 \paragraph{lemma} After looking at the syntax of the \%mor tier, one should realise that getting the lemma out of a MOR string is not an easy task. There are several pitfalls to avoid:\\
 \begin{itemize}
 	\item The semantics of the symbols may be ambiguous. Take the dash symbol as an example, for dashed words (words with dash symbols) like \texttt{tic-tac-toe}, it is merely a connector between parts of the word, but it could also appear as an indicator for suffixes, as in the example of \texttt{part|get-PRESP} for the word \emph{getting}.
@@ -19,7 +17,7 @@ Both annotation formalisms support the storage of morphosyntactic information, a
 
 \texttt{prefix\#pos|stem\&fusionalsuffix-suffix=translation}
 
-\texttt{compound_pos|+component_pos|component_stem+component_pos|component_stem}
+% \texttt{compound_pos|+component_pos|component_stem+component_pos|component_stem}
 
 \texttt{prefix\#pos|stem\&fusionalsuffix-suffix=translation}
 
@@ -31,9 +29,11 @@ Both annotation formalisms support the storage of morphosyntactic information, a
 
 \paragraph{pyconll} % (fold)
 \label{par:pyconll}
+\emph{pyconll} (\cite{pyconll}) is a low-level API for processing CoNLL-U formatted files. In this thesis, I used pyconll for parsing the converted conllu files and especially for reading the values of individual fields.
 
-\paragraph{CHAT2CONLLU Program} % (fold)
+\paragraph{CHAT2CONLLU and CONLL2CHAT} % (fold)
 \label{par:chat2conllu}
+\emph{CHAT2CONLL} and \emph{CONLL2CHAT} are officially part of the CLAN program that transforms CHAT files to CoNLL formats.
 
 \paragraph{Zoey Liu's Project} % (fold)
 \label{par:zoey}
