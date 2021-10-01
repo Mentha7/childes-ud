@@ -1,4 +1,4 @@
-\chapter{Design} % Main chapter title
+\chapter{Implementation of chatconllu} % Main chapter title
 
 \label{Chapter3} % For referencing the chapter elsewhere, use \ref{Chapter3}
 
@@ -8,3 +8,24 @@ To make the tool manageable within the frame of a bachelor's thesis, chatconllu 
 %\section{\emph{CHAT} to \emph{CoNLL-U}}
 %\section{\emph{CoNLL-U} to \emph{CHAT}}
 %\section{Organization of Outputs}
+
+
+%\section{Processing \emph{CHAT} Files}
+%\subsubsection{Normalising Utterances}
+%
+%\subsubsection{Extracting Information}
+%\subsubsection{MOR}
+%\subsubsection{GRA}
+
+\section{Normalising Utterances}
+\subsection{Challenge: Nested Angel Brackets}
+
+The original algorithm was successful in processing flat structure with CHAT codes, but not nested structures.
+
+Nested structures occurs with scoped symbols. Scoped symbols refer to a segment of speech instead of a single word. The tokens/words in the segment are enclosed in angle brackets, while the markers which describe the segment are enclosed in square brackets that follows the angle brackets. There can be more than one square-bracket-enclosed descriptors following one speech segment, but no other materials should be allowed between the scope enclosed in angle brackets and the symbols enclosed in square brackets.\\
+The challenge of nested angle brackets can be illustrated using the following examples.\\
+% example from Brown/Sarah/21024, sentence 733
+
+\texttt{<<yeah yeah> [/] yeah> [?] .}
+
+Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the clean version of the utterance. On the one hand, the word-based information on \texttt{MOR} and \texttt{GRA} tiers are only associated with the clean tokens, so to use the morphosyntactic information, one has to remove unannotated words (or nonwords). On the other hand, removing the speech errors make spontaneous speech less speech-like. Worse, it could make the sentence structure less obvious, at least for the dependency parsers. As (\cite{odijk2018anncor}) observed in cleaning the CHAT utterances, blindly removing unintelligible words results in a decrease in dependency parser performance. For example, although \texttt{xxx} is a nonword, it still functions as a placeholder \sidenote{Think of it as 0 in digits or as a masked token.} and the Alpino parser seems to depend on that. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable and affected the performance of the dependency parser. Therefore when it comes to preprocessing data like CHILDES corpora, it depends on the actual intended use case.
