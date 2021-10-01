@@ -175,13 +175,13 @@ As discussed above, both CHAT and CoNLL-U can store meta-information as well as 
 \multicolumn{1}{l}{\multirow{2}{*}{}}&\multicolumn{1}{c}{\multirow{2}{*}{}}& other headers  & middle of the file & sentence comments\\\addlinespace
 \cmidrule[0.1pt](lr{.75em}){1-3}
 \addlinespace
-\multicolumn{1}{l}{\multirow{4}{*}{\textbf{Sentence}}}&\multicolumn{1}{c}{\multirow{4}{*}{Meta}}& codes for speech & utterance & sentence comments\\
+\multicolumn{1}{l}{\multirow{4}{*}{\textbf{Sentence}}}&\multicolumn{1}{c}{\multirow{4}{*}{Meta}}& CHAT codes for speech & main line & sentence comments\\
 \multicolumn{1}{l}{\multirow{4}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& speaker          & main line & sentence comments\\
 \multicolumn{1}{l}{\multirow{4}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& dependent tiers  & dependent tiers & sentence comments\\
-\multicolumn{1}{l}{\multirow{4}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& linkage to media  & utterance & sentence comments\\\addlinespace
+\multicolumn{1}{l}{\multirow{4}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& linkage to media  & main line & sentence comments\\\addlinespace
 \cmidrule[0.1pt](lr{.75em}){1-3}
 \addlinespace
-\multicolumn{1}{l}{\multirow{11}{*}{\textbf{Token}}}  &\multicolumn{1}{c}{\multirow{4}{*}{Morphological}}& word form         & utterance & \texttt{FORM}\\
+\multicolumn{1}{l}{\multirow{11}{*}{\textbf{Token}}}  &\multicolumn{1}{c}{\multirow{4}{*}{Morphological}}& word form         & main line & \texttt{FORM}\\
 \multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& lemma           & \texttt{MOR} stem& \texttt{LEMMA}\\
 \multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& part-of-speech  & \texttt{MOR} pos& \texttt{UPOS} and \texttt{XPOS}\\
 \multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& features        & \texttt{MOR} affixes& \texttt{FEATS}\\\addlinespace
@@ -190,8 +190,8 @@ As discussed above, both CHAT and CoNLL-U can store meta-information as well as 
 \multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{3}{*}{}}& syntactic relation  & \texttt{GRA} GR label& \texttt{DEPREL}\\\addlinespace
 \multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{Additional}}& clitic type      & \texttt{MOR} & \texttt{MISC}\\
 \multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& compound components  & \texttt{MOR} & \texttt{MISC}\\
-\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& special forms     & utterance & \texttt{MISC}\\
-\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& ...              & ... & \texttt{MISC}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& special forms     & main line & \texttt{MISC}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& ...              & ... & \texttt{MISC}\\\addlinespace
 \bottomrule
 \end{tabularx}
 \end{table}
