@@ -6,71 +6,54 @@
 \section{Part-of-Speech Mapping}
 
 \begin{table}[h!]
-\caption {Complete Set of Universal POS Tags} \label{tab:uposset}
-\begin{tabular}{@{}lllll@{}}
+\caption {Complete Set of Universal POS Tags \sidenote{All UPOS tags except \texttt{SYM} are used in chatconllu's POS mappings.}} \label{tab:uposset}
+\begin{tabularx}{\linewidth}{@{}llX@{}}
 \toprule
-\textbf{Universal POS Tags} & \textbf{Description}\\ \midrule
-ADJ & adjective\\
-ADV & adverb\\
-INTJ & interjection\\
-NOUN & noun\\
-PROPN & proper noun\\
-VERB & verb\\\midrule
-ADP & adposition\\
-AUX & auxiliary verb\\
-CCONJ & coordinating conjunction\\
-DET & determiner\\
-NUM & numeral\\
-PART & particle\\
-PRON & pronoun\\
-SCONJ & subordinating conjunction\\\midrule
-PUNCT & punctuation\\
-SYM & symbol\\
-X & other\\\bottomrule
-\end{tabular}\\
-\vspace{0.5cm}\\
-All UPOS tags except \texttt{SYM} are used in chatconllu's POS mappings.\\
+ & \textbf{Universal POS Tag} & \textbf{Description}\\ \midrule
+\textbf{Open class} & ADJ & adjective\\
+\textbf{words} & ADV & adverb\\
+ & INTJ & interjection\\
+ & NOUN & noun\\
+ & PROPN & proper noun\\
+ & VERB & verb\\\addlinespace
+\textbf{Closed class} & ADP & adposition\\
+\textbf{words} & AUX & auxiliary verb\\
+ & CCONJ & coordinating conjunction\\
+ & DET & determiner\\
+ & NUM & numeral\\
+ & PART & particle\\
+ & PRON & pronoun\\
+ & SCONJ & subordinating conjunction\\\addlinespace
+\textbf{Other} & PUNCT & punctuation\\
+ & SYM & symbol\\
+ & X & other\\\bottomrule
+\end{tabularx}
 \end{table}
 
 \newpage
 \begin{table}[htp!]
-\caption {chatconllu Part-of-Speech Mapping 1} \label{tab:posmap1}
+\caption {chatconllu Part-of-Speech Mapping 1---open-class words} \label{tab:posmap1}
 \centering
-\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\begin{tabularx}{\linewidth}{@{}llX@{}}
 \toprule
-\textbf{MOR POS Code} & \textbf{Description} & \textbf{UPOS}\\ \midrule
-adj & adjective & ADJ\\
-adj:pred & adjective-predicative & ADJ\\\midrule
-adv & adverb & ADV\\
-adv:tem & adverb-temporal & ADV\\
-neg & negative & ADV\\\midrule
-co & communicator & INTJ\\
-fil & filler & INTJ\\
-wplay & wordplay & INTJ\\
-bab & babbling & INTJ\\
-sing & singing & INTJ\\\midrule
-qn & quantifier & DET\\
-det:art & determiner-article & DET\\
-det:dem & determiner-demonstrative & DET\\
-det:int & determiner-interrogative & DET\\
-det:num & determiner-numeral & DET\\
-det:poss & determiner-possessive & DET\\
-quant & quantifier & DET\\
-art & article & DET\\
-prepart & preposition with article & DET\\\midrule
-aux & auxiliary & AUX\\
-v:aux & verb-auxiliary & AUX\\
-cop & verb-copula & AUX\\
-mod & verb-modal & AUX\\\midrule
-post & postmodifier & ADP\\
-prep & preposition & ADP\\
-vpfx & preverb/verbal particles & ADP\\\midrule
-part & particle & PART\\
-inf & infinitive & PART\\\midrule
-coord & coordinator & CCONJ\\\midrule
-conj & conjunction & SCONJ\\
-comp & complementizer & SCONJ\\\midrule
-num & numeral & NUM\\\bottomrule
+\textbf{Universal POS tag} & \textbf{MOR POS tag} & \textbf{Description}\\ \midrule
+ADJ & adj & adjective\\
+ & adj:pred & adjective-predicative\\\addlinespace
+ADV & adv & adverb\\
+ & adv:tem & adverb-temporal\\\addlinespace
+INTJ & bab & babbling\\
+ & co & communicator\\
+ & fil & filler\\
+ & sing & singing\\
+ & wplay & wordplay\\\addlinespace
+NOUN & n & noun\\
+ & n:let & noun-letter\\
+ & n:pt & noun-plurale tantum\\
+ & on & onomatopoeia\\
+ & onoma & onomatopoeia\\\addlinespace
+PROPN & n:prop & proper noun\\\addlinespace
+VERB & v & verb\\
+ & vimp & verb imperative\\\bottomrule
 \end{tabularx}\\
 \vspace{0.5cm}
 All MOR part-of-speech categories handled by the current version of chatconllu (part 1).\\
@@ -79,51 +62,78 @@ All MOR part-of-speech categories handled by the current version of chatconllu (
 \newpage
 \vspace{-2cm}
 \begin{table}
-\caption {chatconllu Part-of-Speech Mapping 2} \label{tab:posmap2}
+\caption {chatconllu Part-of-Speech Mapping 2---closed-class words} \label{tab:posmap2}
 \centering
-\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\begin{tabularx}{\linewidth}{@{}llX@{}}
 \toprule
-\textbf{MOR POS Code} & \textbf{Description} & \textbf{UPOS}\\ \midrule
-n & noun & NOUN\\
-n:let & noun-letter & NOUN\\
-n:pt & noun-plurale tantum & NOUN\\
-on & onomatopoeia & NOUN\\
-onoma & onomatopoeia & NOUN\\\midrule
-pro:dem & pronoun-demonstrative & PRON\\
-pro:exist & pronoun-existential & PRON\\
-pro:indef & pronoun-indefinitive & PRON\\
-pro:int & pronoun-interrogative & PRON\\
-pro:obj & pronoun-object & PRON\\
-pro:per & pronoun-personal & PRON\\
-pro:poss & pronoun-possessive & PRON\\
-pro:refl & pronoun-reflexive & PRON\\
-pro:rel & pronoun-relative & PRON\\
-pro:sub & pronoun-subject & PRON\\\midrule
-n:prop & proper noun & PROPN\\\midrule
-v & verb & VERB\\
-vimp & verb imperative & VERB\\\midrule
-end & MOR punctuation mark & PUNCT\\
-beg & MOR punctuation mark & PUNCT\\
-cm & MOR punctuation mark & PUNCT\\
-bq & MOR punctuation mark & PUNCT\\
-eq & MOR punctuation mark & PUNCT\\
-bq2 & MOR punctuation mark & PUNCT\\
-eq2 & MOR punctuation mark & PUNCT\\\midrule
-none & none & X\\
-dia & dialect & X\\
-test & test words like "wug" & X\\
-meta & metalinguistic use & X\\
-phon & phonologically consistent form & X\\
-fam & family-specific form & X\\
-uni & Unibet transcription & X\\
-L2 & second-language form & X\\
-neo & neologism & X\\
-chi & child-invented form & X\\\bottomrule
+\textbf{Universal POS tag} & \textbf{MOR POS tag} & \textbf{Description}\\ \midrule
+ADP & post & postmodifier\\
+ & prep & preposition\\
+ & vpfx & preverb/verbal particles\\\addlinespace
+AUX & aux & auxiliary\\
+ & cop & verb-copula\\
+ & mod & verb-modal\\
+ & v:aux & verb-auxiliary\\\addlinespace
+CCONJ & coord & coordinator\\\addlinespace
+DET & art & article\\
+ & det:art & determiner-article\\
+ & det:dem & determiner-demonstrative\\
+ & det:int & determiner-interrogative\\
+ & det:num & determiner-numeral\\
+ & det:poss & determiner-possessive\\
+ & prepart & preposition with article\\
+ & qn & quantifier\\
+ & quant & quantifier\\\addlinespace
+NUM & num & numeral\\\addlinespace
+PART & inf & infinitive\\
+ & neg & negative\\
+ & part & particle\\\addlinespace
+PRON & pro:dem & pronoun-demonstrative\\
+ & pro:exist & pronoun-existential\\
+ & pro:indef & pronoun-indefinitive\\
+ & pro:int & pronoun-interrogative\\
+ & pro:obj & pronoun-object\\
+ & pro:per & pronoun-personal\\
+ & pro:poss & pronoun-possessive\\
+ & pro:refl & pronoun-reflexive\\
+ & pro:rel & pronoun-relative\\
+ & pro:sub & pronoun-subject\\\addlinespace
+SCONJ & comp & complementizer\\
+ & conj & conjunction\\\bottomrule
 \end{tabularx}\\
 \vspace{0.5cm}
 All MOR part-of-speech categories handled by the current version of chatconllu (part 2).\\
 \end{table}
 \clearpage
+
+\begin{table}[htp!]
+\caption {chatconllu Part-of-Speech Mapping 3---other} \label{tab:posmap3}
+\centering
+\begin{tabularx}{\linewidth}{@{}llX@{}}
+\toprule
+\textbf{Universal POS tag} & \textbf{MOR POS tag} & \textbf{Description}\\ \midrule
+PUNCT & beg & MOR punctuation mark \texttt{‡}\\
+ & cm & MOR punctuation mark \texttt{,}\\
+ & end & MOR punctuation mark \texttt{„}\\
+ & bq & MOR punctuation mark \texttt{“}\\
+ & eq & MOR punctuation mark \texttt{”}\\
+ & bq2 & MOR punctuation mark \texttt{‘}\\
+ & eq2 & MOR punctuation mark \texttt{’}\\\addlinespace
+X & chi & child-invented form\\
+ & dia & dialect\\
+ & fam & family-specific form\\
+ & meta & metalinguistic use\\
+ & neo & neologism\\
+ & none & none\\
+ & phon & phonologically consistent form\\
+ & test & test words like "wug"\\
+ & uni & Unibet transcription\\
+ & L2 & second-language form\\
+\bottomrule
+\end{tabularx}\\
+\vspace{0.5cm}
+All MOR part-of-speech categories handled by the current version of chatconllu (part 3).\\
+\end{table}
 
 \newpage
 \section{Morphological Features Mapping}
@@ -135,40 +145,39 @@ All MOR part-of-speech categories handled by the current version of chatconllu (
 % \caption {chatconllu Morpheme-Feature Mapping} \label{tab:featsmap}
 % \begin{tabular}{@{}lll@{}}
 % \toprule
-\textbf{Morpheme Codes} & \textbf{UD feats}\\ \midrule
-    12s & Number=Sing|Person=2\\
-    13s & Number=Sing|Person=3\\
-    1p & Number=Plur|Person=1\\
-    1s & Number=Sing|Person=1\\
-    23s & Number=Sing|Person=3\\
-    2p & Number=Plur|Person=2\\
-    2s & Number=Sing|Person=2\\
-    3p & Number=Plur|Person=3\\
-    3s & Number=Sing|Person=3\\
-    3sp & Number=Plur|Person=3\\
-    cond & Mood=Cnd\\
-    cp & Degree=Cmp\\
-    f & Gender=Fem\\
-    fem & Gender=Fem\\
-    fut & Tense=Fut\\
-    inf & VerbForm=Inf\\
-    imp & Mood=Imp\\
-    impf & Tense=Imp\\
-    m & Gender=Masc\\
-    pass & Voice=Pass\\
-    past & Tense=Past\\
-    pastp & Tense=Past|VerbForm=Part\\
-    pl & Number=Plur\\
-    poss & Poss=Yes\\
-    pp & Tense=Past|VerbForm=Part\\
-    ppre & Tense=Pres|VerbForm=Part\\
-    pres & Tense=Pres\\
-    presp & Tense=Pres|VerbForm=Part\\
-    pret & Tense=Past\\
-    sg & Number=Sing\\
-    sp & Degree=Sup\\
-    sub & Mood=Sub\\
-    subj & Mood=Sub\\\bottomrule
+\textbf{Morpheme Code} & \textbf{UD feats}\\ \midrule
+	cp & Degree=Cmp\\
+	sp & Degree=Sup\\\addlinespace
+	m & Gender=Masc\\
+	f & Gender=Fem\\\addlinespace
+	cond & Mood=Cnd\\
+	imp & Mood=Imp\\
+	sub & Mood=Sub\\
+	subj & Mood=Sub\\\addlinespace
+	pl & Number=Plur\\
+	1p & Number=Plur|Person=1\\
+	2p & Number=Plur|Person=2\\
+	3p & Number=Plur|Person=3\\
+	3sp & Number=Plur|Person=3\\
+	sg & Number=Sing\\
+	1s & Number=Sing|Person=1\\
+	2s & Number=Sing|Person=2\\
+	12s & Number=Sing|Person=2\\
+	3s & Number=Sing|Person=3\\
+	13s & Number=Sing|Person=3\\
+	23s & Number=Sing|Person=3\\\addlinespace
+	poss & Poss=Yes\\\addlinespace
+	impf & Tense=Imp\\
+	fut & Tense=Fut\\
+	past & Tense=Past\\
+	pret & Tense=Past\\
+	pastp & Tense=Past|VerbForm=Part\\
+	pp & Tense=Past|VerbForm=Part\\
+	pres & Tense=Pres\\
+	ppre & Tense=Pres|VerbForm=Part\\
+	presp & Tense=Pres|VerbForm=Part\\
+	inf & VerbForm=Inf\\\addlinespace
+	pass & Voice=Pass\\\bottomrule
 \end{tabularx}\\
 \vspace{0.5cm}
 All MOR grammatical morpheme codes handled by the current version of chatconllu.\\
@@ -182,40 +191,40 @@ All MOR grammatical morpheme codes handled by the current version of chatconllu.
 \centering
 \begin{tabularx}{\linewidth}{@{}lXl@{}}
 \toprule
-\textbf{Morpheme Codes} & \textbf{UD feats}\\ \midrule
-    12s & Number=Sing|Person=2\\
-    13s & Number=Sing|Person=3\\
-    1p & Number=Plur|Person=1\\
-    1s & Number=Sing|Person=1\\
-    23s & Number=Sing|Person=3\\
-    2p & Number=Plur|Person=2\\
-    2s & Number=Sing|Person=2\\
-    3p & Number=Plur|Person=3\\
-    3s & Number=Sing|Person=3\\
-    3sp & Number=Plur|Person=3\\
-    cond & Mood=Cnd\\
-    cp & Degree=Cmp\\
-    f & Gender=Fem\\
-    fem & Gender=Fem\\
-    fut & Tense=Fut\\
-    inf & VerbForm=Inf\\
-    imp & Mood=Imp\\
-    impf & Tense=Imp\\
-    m & Gender=Masc\\
-    pass & Voice=Pass\\
-    past & Tense=Past\\
-    pastp & Tense=Past|VerbForm=Part\\
-    pl & Number=Plur\\
-    poss & Poss=Yes\\
-    pp & Tense=Past|VerbForm=Part\\
-    ppre & Tense=Pres|VerbForm=Part\\
-    pres & Tense=Pres\\
-    presp & Tense=Pres|VerbForm=Part\\
-    pret & Tense=Past\\
-    sg & Number=Sing\\
-    sp & Degree=Sup\\
-    sub & Mood=Sub\\
-    subj & Mood=Sub\\\bottomrule
+\textbf{GRA Grammatical Relation} & \textbf{UD deprel}\\ \midrule
+	12s & Number=Sing|Person=2\\
+	13s & Number=Sing|Person=3\\
+	1p & Number=Plur|Person=1\\
+	1s & Number=Sing|Person=1\\
+	23s & Number=Sing|Person=3\\
+	2p & Number=Plur|Person=2\\
+	2s & Number=Sing|Person=2\\
+	3p & Number=Plur|Person=3\\
+	3s & Number=Sing|Person=3\\
+	3sp & Number=Plur|Person=3\\
+	cond & Mood=Cnd\\
+	cp & Degree=Cmp\\
+	f & Gender=Fem\\
+	fem & Gender=Fem\\
+	fut & Tense=Fut\\
+	inf & VerbForm=Inf\\
+	imp & Mood=Imp\\
+	impf & Tense=Imp\\
+	m & Gender=Masc\\
+	pass & Voice=Pass\\
+	past & Tense=Past\\
+	pastp & Tense=Past|VerbForm=Part\\
+	pl & Number=Plur\\
+	poss & Poss=Yes\\
+	pp & Tense=Past|VerbForm=Part\\
+	ppre & Tense=Pres|VerbForm=Part\\
+	pres & Tense=Pres\\
+	presp & Tense=Pres|VerbForm=Part\\
+	pret & Tense=Past\\
+	sg & Number=Sing\\
+	sp & Degree=Sup\\
+	sub & Mood=Sub\\
+	subj & Mood=Sub\\\bottomrule
 \end{tabularx}\\
 \vspace{0.5cm}
 All GRASP GRs handled by the current version of chatconllu.\\
