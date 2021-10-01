@@ -43,10 +43,10 @@ UD's UPOS is developed based on Petrov's \emph{A Universal Part-of-Speech Tagset
 
 The adaptation from MOR POS categories to UD's UPOS can be achieved in the following ways:
 \begin{itemize}
-    \item a direct mapping where the two tags are the same or has a straightforward relationship
-    \item collapsing many MOR POS categories into one UPOS tag when applicable
-    \item best-effort decision-making based on the description of the POS cetegories by both formalisms
-    \item MOR POS categories with no UPOS counterparts are translated as \texttt{X}
+	\item a direct mapping where the two tags are the same or has a straightforward relationship
+	\item collapsing many MOR POS categories into one UPOS tag when applicable
+	\item best-effort decision-making based on the description of the POS cetegories by both formalisms
+	\item MOR POS categories with no UPOS counterparts are translated as \texttt{X}
 \end{itemize}
 
 An example of straightforward mappings between MOR POS codes and UPOS tags is shown in Table \ref{tab:martabpos}. A total of 16 out of the 17 UPOS tags are used in the tagset mapping, with the exception of \texttt{SYM}, which is reserved for symbols.
@@ -73,10 +73,10 @@ Despite the similarity between the MOR \texttt{conj} and UD \texttt{CCONJ}, they
 \paragraph{special form markers}
 It is worth noticing that some MOR codes do not correspond to any grammatical categories. For example, in CHAT, the so-called \emph{special form markers} have unique POS tags independent of the part-of-speech category to which the word belongs. Nevertheless, some of these tags can still be mapped to UPOS, like \texttt{sing} for singing, \texttt{bab} for babbling and \texttt{wplay} for wordplay can all be mapped to \texttt{INTJ}, which stands for \emph{interjection}. The definition of interjection, however, is vague. UD defines interjection descriptively \sidenote{"An interjection is a word that is used most often as an exclamation or part of an exclamation. It typically expresses an emotional reaction, is not syntactically related to other accompanying expressions, and may include a combination of sounds not otherwise found in the language." Excerpt from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}. The core criteria for a word \sidenote{or non-word in this case} to be an interjection include:
 \begin{itemize}
-    \item that it is often used exclamatorily
-    \item that it typically expresses emotions
-    \item that it plays no syntactic role in the utterance
-    \item that it might not be a recognised word in the language
+	\item that it is often used exclamatorily
+	\item that it typically expresses emotions
+	\item that it plays no syntactic role in the utterance
+	\item that it might not be a recognised word in the language
 \end{itemize}
 Since singing, babbling and wordplay satisfy these criteria, along with the MOR code explicitly for interjections \texttt{co}, they are granted the \texttt{INTJ} tag. Other special form markers, on the other hand, has no corresponding UPOS tags whatsoever, for example \texttt{dia} for dialect forms. Unfortunately they have to be assigned to \texttt{X}, for words that does not belong to the other 16 categories.
 
@@ -109,15 +109,15 @@ Morphological features like \emph{tense} and \emph{mood} are encoded in the stri
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
 \textbf{CHILDES Database} & \textbf{Language}\\ \midrule
-    Brown & eng\\
-    English-MiamiBiling & eng\\
-    Belfast & eng\\
-    Wells & eng\\
-    MTLN & fra\\
-    Leveille & fra\\
-    vioncolas & fra\\
-    Geneva & fra\\
-    Tonelli & ita\\\bottomrule
+	Brown & eng\\
+	English-MiamiBiling & eng\\
+	Belfast & eng\\
+	Wells & eng\\
+	MTLN & fra\\
+	Leveille & fra\\
+	vioncolas & fra\\
+	Geneva & fra\\
+	Tonelli & ita\\\bottomrule
 \end{tabularx}
 \caption{\label{tab:martabdb}CHILDES databases chosen for this project.}
 \footnotesize
@@ -131,15 +131,15 @@ Listing of all possible MOR codes for grammatical morphemes is, again, unlikely.
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
 \textbf{MOR} & \textbf{feats}\\ \midrule
-    3s & Number=Sing|Person=3\\
-    cp & Degree=Cmp\\
-    f & Gender=Fem\\
-    inf & VerbForm=Inf\\
-    imp & Mood=Imp\\
-    impf & Tense=Imp\\
-    pass & Voice=Pass\\
-    pastp & Tense=Past|VerbForm=Part\\
-    poss & Poss=Yes\\\bottomrule
+	3s & Number=Sing|Person=3\\
+	cp & Degree=Cmp\\
+	f & Gender=Fem\\
+	inf & VerbForm=Inf\\
+	imp & Mood=Imp\\
+	impf & Tense=Imp\\
+	pass & Voice=Pass\\
+	pastp & Tense=Past|VerbForm=Part\\
+	poss & Poss=Yes\\\bottomrule
 \end{tabularx}
 \caption{\label{tab:martabfeats}Example MOR grammatical morpheme codes and their corresponding UD featue-value pairs.}
 \footnotesize
@@ -180,56 +180,56 @@ Since CHAT transcripts authentically reflect conversational speech, the utteranc
 
 \begin{minipage}{\widefigurewidth}
 \begin{dependency}[edge slant=3pt]
-    \begin{deptext}[column sep=0.7cm]
-    well \& ‡ \& that \& 's \& life \& .\\
-    % \textlf{1}|\textlf{0}|BEG \& \textlf{2}|\textlf{1}|BEGP \& \textlf{3}|\textlf{4}|SUBJ \& \textlf{4}|\textlf{0}|ROOT \& \textlf{5}|\textlf{4}|OBJ \& \textlf{6}|\textlf{4}|PUNCT\\
-    \end{deptext}
-    \depedge{1}{2}{BEGP}
-    \depedge{4}{3}{SUBJ}
-    \depedge{4}{5}{OBJ}
-    \depedge{4}{6}{PUNCT}
-    \deproot{1}{BEG}
-    \deproot{4}{ROOT}
+	\begin{deptext}[column sep=0.7cm]
+	well \& ‡ \& that \& 's \& life \& .\\
+	% \textlf{1}|\textlf{0}|BEG \& \textlf{2}|\textlf{1}|BEGP \& \textlf{3}|\textlf{4}|SUBJ \& \textlf{4}|\textlf{0}|ROOT \& \textlf{5}|\textlf{4}|OBJ \& \textlf{6}|\textlf{4}|PUNCT\\
+	\end{deptext}
+	\depedge{1}{2}{BEGP}
+	\depedge{4}{3}{SUBJ}
+	\depedge{4}{5}{OBJ}
+	\depedge{4}{6}{PUNCT}
+	\deproot{1}{BEG}
+	\deproot{4}{ROOT}
 \end{dependency}
 \hfill
 \begin{dependency}[edge slant=3pt]
-    \begin{deptext}[column sep=0.7cm]
-    well \& , \& that \& 's \& life \& .\\
-    \end{deptext}
-    \depedge{5}{1}{discourse}
-    \depedge{5}{2}{punct}
-    \depedge{5}{3}{nsubj}
-    \depedge{5}{4}{cop}
-    \depedge{5}{6}{punct}
-    \deproot[edge unit distance=4ex]{5}{root}
+	\begin{deptext}[column sep=0.7cm]
+	well \& , \& that \& 's \& life \& .\\
+	\end{deptext}
+	\depedge{5}{1}{discourse}
+	\depedge{5}{2}{punct}
+	\depedge{5}{3}{nsubj}
+	\depedge{5}{4}{cop}
+	\depedge{5}{6}{punct}
+	\deproot[edge unit distance=4ex]{5}{root}
 \end{dependency}
 \end{minipage}
 \captionof{figure}{CHILDES vs UD dependency graphs: interjections}\label{fig:intj}
 
 \begin{minipage}{\widefigurewidth}
 \begin{dependency}[edge slant=3pt]
-    \begin{deptext}[column sep=0.7cm]
-    son \& ‡ \& that \& 's \& life \& .\\
-    % \textlf{1}|\textlf{0}|BEG \& \textlf{2}|\textlf{1}|BEGP \& \textlf{3}|\textlf{4}|SUBJ \& \textlf{4}|\textlf{0}|ROOT \& \textlf{5}|\textlf{4}|OBJ \& \textlf{6}|\textlf{4}|PUNCT\\
-    \end{deptext}
-    \depedge{1}{2}{BEGP}
-    \depedge{4}{3}{SUBJ}
-    \depedge{4}{5}{OBJ}
-    \depedge{4}{6}{PUNCT}
-    \deproot{1}{BEG}
-    \deproot{4}{ROOT}
+	\begin{deptext}[column sep=0.7cm]
+	son \& ‡ \& that \& 's \& life \& .\\
+	% \textlf{1}|\textlf{0}|BEG \& \textlf{2}|\textlf{1}|BEGP \& \textlf{3}|\textlf{4}|SUBJ \& \textlf{4}|\textlf{0}|ROOT \& \textlf{5}|\textlf{4}|OBJ \& \textlf{6}|\textlf{4}|PUNCT\\
+	\end{deptext}
+	\depedge{1}{2}{BEGP}
+	\depedge{4}{3}{SUBJ}
+	\depedge{4}{5}{OBJ}
+	\depedge{4}{6}{PUNCT}
+	\deproot{1}{BEG}
+	\deproot{4}{ROOT}
 \end{dependency}
 \hfill
 \begin{dependency}[edge slant=3pt]
-    \begin{deptext}[column sep=0.7cm]
-    son \& , \& that \& 's \& life \& .\\
-    \end{deptext}
-    \depedge{5}{1}{vocative}
-    \depedge{5}{2}{punct}
-    \depedge{5}{3}{nsubj}
-    \depedge{5}{4}{cop}
-    \depedge{5}{6}{punct}
-    \deproot[edge unit distance=4ex]{5}{root}
+	\begin{deptext}[column sep=0.7cm]
+	son \& , \& that \& 's \& life \& .\\
+	\end{deptext}
+	\depedge{5}{1}{vocative}
+	\depedge{5}{2}{punct}
+	\depedge{5}{3}{nsubj}
+	\depedge{5}{4}{cop}
+	\depedge{5}{6}{punct}
+	\deproot[edge unit distance=4ex]{5}{root}
 \end{dependency}
 \end{minipage}
 \captionof{figure}{CHILDES vs UD dependency graphs: vocatives}\label{fig:voc}
@@ -260,28 +260,29 @@ It is clear from the dependency graphs that the CHILDES trees are broken. Theref
 After the change-head operation is applied, the current token with GR \texttt{BEG} should be connected to \texttt{ROOT}. Now the two examples in \Cref{fig:intj} and \Cref{fig:voc} share the same dependency structures, but the dependency relation labels should be different for vocatives and interjections. chatconllu needs to know the POS tags of the token with \texttt{BEG} as GR to be able to make the final decision. The decision process is outlined below:\\
 
 \begin{itemize}
-    \item If the token has a POS tag and it is not \texttt{INTJ}, \texttt{PROPN}, or \texttt{NOUN}, the corresponding \texttt{deprel} \sidenote{Definition for \texttt{parataxis} can be found from \url{https://universaldependencies.org/u/dep/parataxis.html}} label should be \texttt{parataxis} for a loose side-by-side placement between the elements.
-    \item If the POS tag is \texttt{INTJ}, the corresponding \texttt{deprel} label should be \texttt{discourse} \sidenote{Definition for \texttt{discourse} can be found from \url{https://universaldependencies.org/u/dep/discourse.html}}.
-    \item If the POS tag is \texttt{PROPN} or \texttt{NOUN}, the corresponding \texttt{deprel} label should be \texttt{vocative} \sidenote{Definition for \texttt{vocative} can be found from \url{https://universaldependencies.org/u/dep/vocative.html}}.
+	\item If the token has a POS tag and it is not \texttt{INTJ}, \texttt{PROPN}, or \texttt{NOUN}, the corresponding \texttt{deprel} \sidenote{Definition for \texttt{parataxis} can be found from \url{https://universaldependencies.org/u/dep/parataxis.html}} label should be \texttt{parataxis} for a loose side-by-side placement between the elements.
+	\item If the POS tag is \texttt{INTJ}, the corresponding \texttt{deprel} label should be \texttt{discourse} \sidenote{Definition for \texttt{discourse} can be found from \url{https://universaldependencies.org/u/dep/discourse.html}}.
+	\item If the POS tag is \texttt{PROPN} or \texttt{NOUN}, the corresponding \texttt{deprel} label should be \texttt{vocative} \sidenote{Definition for \texttt{vocative} can be found from \url{https://universaldependencies.org/u/dep/vocative.html}}.
 \end{itemize}
 
-For instance, the sentence "well, son, that's just life, isn't it ?" will be analysed by GRASP as this:
+% For instance, the sentence "well, son, that's just life, isn't it ?" will be analysed by GRASP as this:
+\subsection{Inconsistent Dependency Parses}
 
 % \begin{minipage}{\widefigurewidth}
 \begin{minipage}{\widefigurewidth}
 \begin{dependency}[edge slant=3pt]
-    \begin{deptext}[column sep=1cm]
-    that \& 's \& life \& „ \& is \& n't \& it \& ?\\
-    % \textlf{1}|\textlf{2}|SUBJ \& \textlf{2}|\textlf{0}|ROOT \& \textlf{3}|\textlf{2}|OBJ \& \textlf{4}|\textlf{5}|ENDP \& \textlf{5}|\textlf{2}|END \& \textlf{6}|\textlf{2}|PUNCT\\
-    \end{deptext}
-    \depedge{2}{1}{SUBJ}
-    \depedge{2}{3}{PRED}
-    \depedge{5}{4}{ENDP}
-    \depedge[edge unit distance=1.8ex]{2}{5}{END}
-    \depedge{5}{6}{NEG}
-    \depedge[edge unit distance=2.5ex]{5}{7}{PRED}
-    \depedge[edge unit distance=1.5ex]{2}{8}{PUNCT}
-    \deproot[edge unit distance=4ex]{2}{ROOT}
+	\begin{deptext}[column sep=1cm]
+	that \& 's \& life \& „ \& is \& n't \& it \& ?\\
+	% \textlf{1}|\textlf{2}|SUBJ \& \textlf{2}|\textlf{0}|ROOT \& \textlf{3}|\textlf{2}|OBJ \& \textlf{4}|\textlf{5}|ENDP \& \textlf{5}|\textlf{2}|END \& \textlf{6}|\textlf{2}|PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{SUBJ}
+	\depedge{2}{3}{PRED}
+	\depedge{5}{4}{ENDP}
+	\depedge[edge unit distance=1.8ex]{2}{5}{END}
+	\depedge{5}{6}{NEG}
+	\depedge[edge unit distance=2.5ex]{5}{7}{PRED}
+	\depedge[edge unit distance=1.5ex]{2}{8}{PUNCT}
+	\deproot[edge unit distance=4ex]{2}{ROOT}
 \end{dependency}
 % \captionof{figure}{CHILDES}
 \end{minipage}
@@ -292,17 +293,17 @@ For instance, the sentence "well, son, that's just life, isn't it ?" will be ana
 \begin{minipage}{\linewidth}
 % \begin{dependency}[arc edge, arc angle=70, text only label, label style={above}]
 \begin{dependency}[edge slant=3pt]
-    \begin{deptext}[column sep=1cm]
-    that \& 's \& life \& , \& is \& n't \& it \& ?\\
-    \end{deptext}
-    \depedge{3}{1}{nsubj}
-    \depedge{3}{2}{cop}
-    \depedge{3}{4}{punct}
-    \depedge{3}{5}{parataxis}
-    \depedge{5}{6}{advmod}
-    \depedge{5}{7}{nsubj}
-    \depedge[edge unit distance=1.8ex]{3}{8}{punct}
-    \deproot[edge unit distance=3ex]{3}{root}
+	\begin{deptext}[column sep=1cm]
+	that \& 's \& life \& , \& is \& n't \& it \& ?\\
+	\end{deptext}
+	\depedge{3}{1}{nsubj}
+	\depedge{3}{2}{cop}
+	\depedge{3}{4}{punct}
+	\depedge{3}{5}{parataxis}
+	\depedge{5}{6}{advmod}
+	\depedge{5}{7}{nsubj}
+	\depedge[edge unit distance=1.8ex]{3}{8}{punct}
+	\deproot[edge unit distance=3ex]{3}{root}
 \end{dependency}
 % \captionof{figure}{UD}
 \end{minipage}
@@ -312,53 +313,53 @@ For instance, the sentence "well, son, that's just life, isn't it ?" will be ana
 \clearpage
 \begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
-    \begin{deptext}[column sep=0.5cm]
-    She \& is \& a \& student \& .\\
-    % PRON \& AUX \& DET \& NOUN \& PUNCT\\
-    \end{deptext}
-    \depedge{4}{1}{nsubj}
-    \depedge{4}{2}{aux}
-    \depedge{4}{3}{det}
-    \depedge{4}{5}{punct}
-    \deproot{4}{root}
+	\begin{deptext}[column sep=0.5cm]
+	She \& is \& a \& student \& .\\
+	% PRON \& AUX \& DET \& NOUN \& PUNCT\\
+	\end{deptext}
+	\depedge{4}{1}{nsubj}
+	\depedge{4}{2}{aux}
+	\depedge{4}{3}{det}
+	\depedge{4}{5}{punct}
+	\deproot{4}{root}
 \end{dependency}
 \end{minipage}
 \hfill
 \begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
-    \begin{deptext}[column sep=0.5cm]
-    She \& is \& a \& student \& .\\
-    % PRON \& AUX \& DET \& NOUN \& PUNCT\\
-    \end{deptext}
-    \depedge{2}{1}{SUBJ}
-    \depedge{2}{4}{PRED}
-    \depedge{4}{3}{DET}
-    \depedge{2}{5}{PUNCT}
-    \deproot{2}{ROOT}
+	\begin{deptext}[column sep=0.5cm]
+	She \& is \& a \& student \& .\\
+	% PRON \& AUX \& DET \& NOUN \& PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{SUBJ}
+	\depedge{2}{4}{PRED}
+	\depedge{4}{3}{DET}
+	\depedge{2}{5}{PUNCT}
+	\deproot{2}{ROOT}
 \end{dependency}
 \end{minipage}
 
 \begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
-    \begin{deptext}[column sep=0.5cm]
-    She \& became \& happier \& .\\
-    % PRON \& VERB \& ADJ \& PUNCT\\
-    \end{deptext}
-    \depedge{2}{1}{nsubj}
-    \depedge{2}{3}{xcomp}
-    \depedge{2}{5}{punct}
-    \deproot{2}{root}
+	\begin{deptext}[column sep=0.5cm]
+	She \& became \& happier \& .\\
+	% PRON \& VERB \& ADJ \& PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{nsubj}
+	\depedge{2}{3}{xcomp}
+	\depedge{2}{5}{punct}
+	\deproot{2}{root}
 \end{dependency}
 \end{minipage}
 \begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
-    \begin{deptext}[column sep=0.5cm]
-    She \& became \& happier \& .\\
-    % PRON \& VERB \& ADJ \& PUNCT\\
-    \end{deptext}
-    \depedge{2}{1}{SUBJ}
-    \depedge{2}{3}{PRED}
-    \depedge{2}{5}{PUNCT}
-    \deproot{2}{ROOT}
+	\begin{deptext}[column sep=0.5cm]
+	She \& became \& happier \& .\\
+	% PRON \& VERB \& ADJ \& PUNCT\\
+	\end{deptext}
+	\depedge{2}{1}{SUBJ}
+	\depedge{2}{3}{PRED}
+	\depedge{2}{5}{PUNCT}
+	\deproot{2}{ROOT}
 \end{dependency}
 \end{minipage}
