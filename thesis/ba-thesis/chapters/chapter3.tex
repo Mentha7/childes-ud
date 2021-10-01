@@ -3,10 +3,11 @@
 \label{Chapter3} % For referencing the chapter elsewhere, use \ref{Chapter3}
 
 To make the tool manageable within the frame of a bachelor's thesis, chatconllu is designed based on several selected corpora from the CHILDES database.
+\section{}
+\subsection{\emph{CHAT} to \emph{CoNLL-U}}
+\subsection{\emph{CoNLL-U} to \emph{CHAT}}
+% \section{General Structure of the Program}
 
-\section{General Structure of the Program}
-\section{\emph{CHAT} to \emph{CoNLL-U}}
-\section{\emph{CoNLL-U} to \emph{CHAT}}
 %\section{Organization of Outputs}
 
 
@@ -34,8 +35,8 @@ Although chatconllu can clean the CHAT annotation codes relatively well, it rema
 
 \paragraph{lemma} After looking at the syntax of the \%mor tier, one should realise that getting the lemma out of a MOR string is not an easy task. There are several pitfalls to avoid:\\
 \begin{itemize}
-    \item The semantics of the symbols may be ambiguous. Take the dash symbol as an example, for dashed words (words with dash symbols) like \texttt{tic-tac-toe}, it is merely a connector between parts of the word, but it could also appear as an indicator for suffixes, as in the example of \texttt{part|get-PRESP} for the word \emph{getting}.
-    \item One should also notice that the stem is not the lemma, just that for English, these two share the same form in most cases. For instance, for \emph{untied}, we have the MOR segment \texttt{un\#v|tie-PASTP}, which means in plain English that the word has a stem \emph{tie} with prefix \emph{un}, its part-of-speech is verb and this word form is the past participle of the verb. On the other hand, in CoNLL-U, the lemma field is reserved for lemma, not word stem, therefore the prefix should be put back in place to produce the real lemma.
+	\item The semantics of the symbols may be ambiguous. Take the dash symbol as an example, for dashed words (words with dash symbols) like \texttt{tic-tac-toe}, it is merely a connector between parts of the word, but it could also appear as an indicator for suffixes, as in the example of \texttt{part|get-PRESP} for the word \emph{getting}.
+	\item One should also notice that the stem is not the lemma, just that for English, these two share the same form in most cases. For instance, for \emph{untied}, we have the MOR segment \texttt{un\#v|tie-PASTP}, which means in plain English that the word has a stem \emph{tie} with prefix \emph{un}, its part-of-speech is verb and this word form is the past participle of the verb. On the other hand, in CoNLL-U, the lemma field is reserved for lemma, not word stem, therefore the prefix should be put back in place to produce the real lemma.
 \end{itemize}
 
 
