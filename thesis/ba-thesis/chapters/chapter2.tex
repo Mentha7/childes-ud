@@ -156,3 +156,8 @@ Fields other than \texttt{ID}, \texttt{FORM} and \texttt{LEMMA} are omitted for 
 % token as the basic unit of CHAT and CoNLL-U annotations.
 % token also links %mor and %gra to the main line. one-to-one correspondence
 % between normalised utterance and %mor.
+Understanding how the same type of information is organised and represented in these two formats is the starting point for format conversion.
+
+As discussed above, both CHAT and CoNLL-U can store meta-information as well as utterances. Therefore, to reproduce CHAT from a converted file in CoNLL-U format, metadata, although meaningless for CoNLL-U, must be stored in a way that it can be put back to the right place.
+
+As for morphosyntactic information, while CHAT uses dependent tiers parallel to the main line, UD takes a token-based approach. Nevertheless, both formalisms use words as the basic unit for keeping relevant morphosyntactic information. Thus, although placed in separate tiers, morphological information in the \texttt{MOR} tier and syntactic relations between words in the \texttt{GRA} tier are encoded in strings and can be assigned to tokens in the utterance. Similarly, by combining information separated in different fields of the CoNLL-U token line, and with the help of tagset mappings, one can group and reorganise the fields to produce string representations similar to that assigned by MOR and GRASP.
