@@ -6,35 +6,4 @@
 
 Both annotation formalisms support the storage of morphosyntactic information, although in different ways. In this chapter, I show the general structure of these formats using minimal examples, compare their ways of organising information and point out issues that I found worth discussing during the implementation process of chatconllu.
 
-\subsection{Extracting Information from Dependent Tiers}
 
-\paragraph{lemma} After looking at the syntax of the \%mor tier, one should realise that getting the lemma out of a MOR string is not an easy task. There are several pitfalls to avoid:\\
-\begin{itemize}
-	\item The semantics of the symbols may be ambiguous. Take the dash symbol as an example, for dashed words (words with dash symbols) like \texttt{tic-tac-toe}, it is merely a connector between parts of the word, but it could also appear as an indicator for suffixes, as in the example of \texttt{part|get-PRESP} for the word \emph{getting}.
-	\item One should also notice that the stem is not the lemma, just that for English, these two share the same form in most cases. For instance, for \emph{untied}, we have the MOR segment \texttt{un\#v|tie-PASTP}, which means in plain English that the word has a stem \emph{tie} with prefix \emph{un}, its part-of-speech is verb and this word form is the past participle of the verb. On the other hand, in CoNLL-U, the lemma field is reserved for lemma, not word stem, therefore the prefix should be put back in place to produce the real lemma.
-\end{itemize}
-
-
-\texttt{prefix\#pos|stem\&fusionalsuffix-suffix=translation}
-
-% \texttt{compound_pos|+component_pos|component_stem+component_pos|component_stem}
-
-\texttt{prefix\#pos|stem\&fusionalsuffix-suffix=translation}
-
-
-\section{Related Work}
-
-\paragraph{pyconll} % (fold)
-\label{par:pyconll}
-\emph{pyconll} (\cite{pyconll}) is a low-level API for processing CoNLL-U formatted files. In this thesis, I used pyconll for parsing the converted conllu files and especially for reading the values of individual fields.
-
-% \paragraph{CHAT2CONLLU and CONLL2CHAT} % (fold)
-% \label{par:chat2conllu}
-% \emph{CHAT2CONLL} and \emph{CONLL2CHAT} are officially part of the CLAN program that transforms CHAT files to CoNLL formats.
-
-\paragraph{Dependency Parsing for Low-resource Spontaneous Speech} % (fold)
-\label{par:zoey}
-(\cite{liu2021}) used a low-resource setting, focusing on one child from the Brown Corpus (\cite{brown1973}) and tested the performance of dependency parsers on parent-child conversations. The out-domain parser was trained on written text and performed well on adult speech but not so well on child speech, while the parser trained on a limited amount of in-domain spoken data improved the parsing result of child speech to be comparable with adult speech. As part of their study, they created a semi-automatic adaptation of annotation formats from CHILDES to UD.
-
-\paragraph{The AnnCor CHILDES Treebank}
-(\cite{odijk2018anncor}) preprocessed the Dutch CHILDES corpora, augmented them with syntactic annotations using the Alpino parser, and performed partial manual verification. While creating this treebank, they noticed the many disadvantages of annotation discrepancies and argued that annotation guidelines should be explicit and should be strictly followed to produce consistency. They suggest combining human annotations with automatic checks by computer programs. They also pointed out that although the grammar used in child speech is limited since the child is still acquiring the language, assigning adult syntactic structures to their utterances is still valid.

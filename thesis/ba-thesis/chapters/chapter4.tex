@@ -16,20 +16,20 @@ In the previous chapter, the different ways of how CHAT and CoNLL-U structurally
 \textbf{MOR} & \textbf{UD}\\ \midrule
 adj & ADJ\\
 adv & ADV\\
-co, fil & INTJ\\
-qn, det & DET\\
-aux, cop, mod & AUX\\
-post, prep & ADP\\
-part, inf, neg & PART\\
 coord & CCONJ\\
-comp & SCONJ\\
-num & NUM\\
 n & NOUN\\
+num & NUM\\
 pro & PRON\\
 n:prop & PROPN\\
+comp & SCONJ\\
 v & VERB\\
-end, beg & PUNCT\\
-none, dia & X\\\bottomrule
+det, qn & DET\\
+co, fil & INTJ\\
+dia, none & X\\
+post, prep & ADP\\
+aux, cop, mod & AUX\\
+beg, end & PUNCT\\
+inf, neg, part & PART\\\bottomrule
 \end{tabularx}
 \caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See Table \ref{tab:posmap1} and Table \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
 \footnotesize
@@ -81,12 +81,12 @@ It is worth noticing that some MOR codes do not correspond to any grammatical ca
 Since singing, babbling and wordplay satisfy these criteria, along with the MOR code explicitly for interjections \texttt{co}, they are granted the \texttt{INTJ} tag. Other special form markers, on the other hand, has no corresponding UPOS tags whatsoever, for example \texttt{dia} for dialect forms. Unfortunately they have to be assigned to \texttt{X}, for words that does not belong to the other 16 categories.
 
 \begin{margintable}[1\baselineskip] % move figure down by 1 line
-\begin{tabularx}{0.85\textwidth}{@{}cl@{}}
+\begin{tabularx}{\textwidth}{@{}cl@{}}
 \toprule
-Punctuations & MOR Code\\\midrule
-„ & end\\
+\textbf{Punctuations} & \textbf{MOR code}\\\midrule
 ‡ & beg\\
 , & cm\\
+„ & end\\
 “ & bq\\
 ” & eq\\
 ‘ & bq2\\
@@ -108,15 +108,15 @@ Morphological features like \emph{tense} and \emph{mood} are encoded in the stri
 \begin{margintable}[1\baselineskip]
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
-\textbf{CHILDES Database} & \textbf{Language}\\ \midrule
+\textbf{CHILDES database} & \textbf{Language}\\ \midrule
+	Belfast & eng\\
 	Brown & eng\\
 	English-MiamiBiling & eng\\
-	Belfast & eng\\
 	Wells & eng\\
-	MTLN & fra\\
-	Leveille & fra\\
-	vioncolas & fra\\
 	Geneva & fra\\
+	Leveille & fra\\
+	MTLN & fra\\
+	vioncolas & fra\\
 	Tonelli & ita\\\bottomrule
 \end{tabularx}
 \caption{\label{tab:martabdb}CHILDES databases chosen for this project.}
@@ -130,7 +130,7 @@ Listing of all possible MOR codes for grammatical morphemes is, again, unlikely.
 \begin{margintable}[1\baselineskip]
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
-\textbf{MOR} & \textbf{feats}\\ \midrule
+\textbf{MOR code} & \textbf{UD feats}\\ \midrule
 	3s & Number=Sing|Person=3\\
 	cp & Degree=Cmp\\
 	f & Gender=Fem\\
@@ -157,16 +157,16 @@ Defining mappings between a GR and a UD deprel thus ranges from direct label tra
 \begin{margintable}[1\baselineskip]
 \begin{tabularx}{1\textwidth}{@{}Ll@{}}
 \toprule
-\textbf{GR} & \textbf{deprel}\\ \midrule
+\textbf{GRA code} & \textbf{UD deprel}\\ \midrule
 SUBJ & nsubj\\
 CSUBJ & csubj\\
 OBJ & obj\\
 OBJ2 & iobj\\
+DET & det\\
 APP & appos\\
 AUX & aux\\
 CONJ & conj\\
 COORD & cc\\
-DET & det\\
 PUNCT & punct\\
 ROOT & root\\\bottomrule
 \end{tabularx}

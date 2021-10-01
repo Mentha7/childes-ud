@@ -29,66 +29,59 @@ Then, additional information can be \emph{optionally} added as dependent tiers. 
 \subsection{Dependent Tiers}
 The inclusiveness and extensibility of the CHAT format is demonstrated by the use of dependent tiers, since almost any type of information can be organised into separate dependent tiers and added to the relevant utterances. The CHAT manual defines a standard list of dependent tiers. The tier names are mostly 3-lowercase-letter codes, but with the exceptions of tier names preceded by an \texttt{x}, like \texttt{\%xmor}. With the active use of dependent tiers, researchers can adjust the level of details to meet their individual needs in the CHAT files. At the same time, they do not interfere with the other obligatory parts of the file.
 
-A dependent tier can contain one of the two types of information:
+A dependent tier can contain one of two types of information:
 \begin{itemize}
 	\item utterance-level information
 	\item word-level information
 \end{itemize}
 
 \paragraph{utterance-level information}
-Utterance-level information usually appear as a descriptive sentence. For example, the action tier that describe actions by the speakers \texttt{\%act}. It can also be in other forms, like the addressee tier which uses three-letter participant codes.\\
+Utterance-level information usually appear as a descriptive remark. For example, the action tier that describe actions by the speakers \texttt{\%act}, shown in the below example \sidenote{Excerpt from Adam/040217.cha of the Brown Corpus (\cite{brown1973})}. It can also be in other forms, like the addressee tier which uses three-letter participant codes.\\
 
 \lstset{
 numbers = none,
 frame = single,
 }
 
-\begin{lstlisting}[caption={Excerpt from Adam/040217.cha of the Brown Corpus (\cite{brown1973})}, label={lst:chatsent1}]
+\begin{lstlisting}[caption={Example of a dependent tier with utterance-level information.}, label={lst:chatsent1}]
 *PAU:	0 .
 %act:	hits Adam
 \end{lstlisting}
 
-Listing \ref{lst:chatsent1} is an example of an utterance with dependent tiers.\\
-
 
 \paragraph{word-level information}
-Word-level information are associated with words in the utterance. Pieces of word-based information string are separated by the space character.\\
+Word-level information are associated with words in the utterance. Pieces of word-based information string are separated by the space character. The below example \sidenote{from the same file in the Brown Corpus as Listing\ref{lst:chatsent1}} shows two dependent tiers ith word-level information.\\
 
 \lstset{
 numbers = none,
 frame = single,
 }
 
-\begin{lstlisting}[caption={Excerpt from Adam/040217.cha of the Brown Corpus (\cite{brown1973})}, label={lst:chatsent2}]
+\begin{lstlisting}[caption={Example of dependent tiers ith word-level information}, label={lst:chatsent2}]
 *MOT:	what happened ?
 %mor:	pro:int|what v|happen-PAST ?
 %gra:	1|2|SUBJ 2|0|ROOT 3|2|PUNCT
 \end{lstlisting}
 
-Listing \ref{lst:chatsent2} is an example of an utterance with dependent tiers.\\
-
 \paragraph{common tiers}
-The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} which can be generated automatically by the use of a series of CLAN programs---MOR, POST, POSTMORTEM and GRASP.
+The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} \sidenote{As shown in Listing \ref{lst:chatsent2}.}, which can be generated automatically by the use of a series of CLAN programs \sidenote{MOR, POST, POSTMORTEM and GRASP}.
 
-The \texttt{\%mor} tier encodes morpgological information including the affixes, stem and part-of-speech tags of words, while the \texttt{\%gra} tier keeps the dependency structure of the utterance and the grammatical relations between head and dependent words.
+The \texttt{\%mor} tier encodes morpgological information including the affixes, stem and part-of-speech tags of words, while the \texttt{\%gra} tier keeps the dependency structure of the utterance and the grammatical relations between head and dependent words.\\
 
-Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} should be kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance.\\
+\lstset{
+numbers = none,
+frame = single,
+}
 
-\begin{lstlisting}[caption={Excerpt from Adam/040217.cha of the Brown Corpus (\cite{brown1973})}, label={lst:chatsent3}]
+\begin{lstlisting}[caption={Example to show the different number of strings in \texttt{\%mor} and \texttt{\&gra} tiers due to contracted form \emph{that's}.}, label={lst:chatsent3}]
 *CHI:	dat's [: that's] hard .
 %mor:	pro:dem|that~cop|be&3S adv|hard .
 %gra:	1|2|SUBJ 2|0|ROOT 3|2|JCT 4|2|PUNCT
 \end{lstlisting}
 
-Listing \ref{lst:chatsent3} is an example of an utterance with dependent tiers.\\
 
-% \subsubsection{Morphosyntactic Coding with \emph{\%mor} Tier}
-% % token links %mor to the main line. one-to-one correspondence between
-% % normalised utterance and %mor.
-% % structure of individual words
-% % structure of word groups  -> conllu: multi-word tokens
+Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} should be kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing \ref{lst:chatsent3} \sidenote{from the same file in the Brown Corpus as Listing\ref{lst:chatsent1}}. Clitics, like the English contracted forms with auxiliary verbs \emph{I've}, the English possessive \emph{Mercury's}, and contractions, like the English negation particle \emph{don't} or the French \emph{articles composés} like \emph{du} \sidenote{"du" is the contraction of "de" and "le"}, are treated by \texttt{MOR} as one word group and assigned a single string, while \texttt{GRA} gives a separate string for each of its part. A more detailed analysis will be presented in \Cref{Chapter3}, where I explain how chatconllu associate these information together with the right word.
 
-% \subsubsection{Syntactic Dependency Analysis with \emph{\%gra} Tier}
 \newcommand{\conllu}[1]{&\footnotesize\texttt{#1}}
 \newcommand{\tab}{&\hspace{0.1em}}
 \setlength{\abovedisplayskip}{3pt}
@@ -107,7 +100,7 @@ Each CoNLL-U sentence can be divided into two parts:
 	\conllu{\# sent\_id = 1}&\\
 	\conllu{\# text = why ?}&
 	\end{flalign*}
-	\item token lines where each line represent a token in the sentence.
+	\item token lines where each line represent one token or punctuation in the sentence.
 \end{itemize}
 \paragraph{token representation} \sidenote{For more information visit: \url{https://universaldependencies.org/format.html}}
 Each token in the text should possess one line, and each line is single-tab-separated into 10 fields:
@@ -127,13 +120,37 @@ Each token in the text should possess one line, and each line is single-tab-sepa
 The tokens in the previous minimal example can be represented as follows, the top line in bold is added to indicate the field type:
 \begin{align*}
 \conllu{\textbf{ID}}\tab\conllu{\textbf{FORM}}\tab\conllu{\textbf{LEMMA}}\tab\conllu{\textbf{UPOS}}\tab\conllu{\textbf{XPOS}}\tab\conllu{\textbf{FEATS}}\tab\conllu{\textbf{HEAD}}\tab\conllu{\textbf{DEPREL}}\tab\conllu{\textbf{DEPS}}\tab\conllu{\textbf{MISC}}\\
-\conllu{1}\tab\conllu{why}\tab\conllu{why}\tab\conllu{ADV}\tab\conllu{WRB}\tab\conllu{PronType=Int}\tab\conllu{0}\tab\conllu{root}\tab\conllu{\_}\tab\conllu{\_}\\
-\conllu{2}\tab\conllu{?}\tab\conllu{?}\tab\conllu{PUNCT}\tab\conllu{.}\tab\conllu{\_}\tab\conllu{1}\tab\conllu{punct}\tab\conllu{\_}\tab\conllu{\_}
+\conllu{1}\tab\conllu{why}\tab\conllu{why}\tab\conllu{ADV}\tab\conllu{\_}\tab\conllu{PronType=Int}\tab\conllu{0}\tab\conllu{root}\tab\conllu{\_}\tab\conllu{\_}\\
+\conllu{2}\tab\conllu{?}\tab\conllu{?}\tab\conllu{PUNCT}\tab\conllu{\_}\tab\conllu{\_}\tab\conllu{1}\tab\conllu{punct}\tab\conllu{\_}\tab\conllu{\_}
 \end{align*}
 
 \paragraph{multi-word tokens}
+Multi-word tokens are treated as a word group which spans multiple lines. A clear example is given on the UD website \sidenote{Example taken from \url{https://universaldependencies.org/format.html}} and is reproduced on the side to illustrate the point, as this information will be relevant to the discussion of the treatment of contracted forms.
+\marginnote{
+\begin{flalign*}
+\conllu{\textbf{ID}}\tab\conllu{\textbf{FORM}}\tab\conllu{\textbf{LEMMA}}\\
+\conllu{1-2}\tab\conllu{v\'{a}monos}\tab\conllu{\_}\\
+\conllu{1}\tab\conllu{vamos}\tab\conllu{ir}\\
+\conllu{2}\tab\conllu{nos}\tab\conllu{nosotros}\\
+\conllu{3-4}\tab\conllu{al}\tab\conllu{\_}\\
+\conllu{3}\tab\conllu{a}\tab\conllu{a}\\
+\conllu{4}\tab\conllu{el}\tab\conllu{el}\\
+\conllu{4}\tab\conllu{mar}\tab\conllu{mar}
+\end{flalign*}
+Fields other than \texttt{ID}, \texttt{FORM} and \texttt{LEMMA} are omitted for simplicity.
+}
+
 
 % subsection  (end)
+
+
+% \subsubsection{Morphosyntactic Coding with \emph{\%mor} Tier}
+% % token links %mor to the main line. one-to-one correspondence between
+% % normalised utterance and %mor.
+% % structure of individual words
+% % structure of word groups  -> conllu: multi-word tokens
+
+% \subsubsection{Syntactic Dependency Analysis with \emph{\%gra} Tier}
 
 \section{Shared Information vs. Exclusive Information}
 % token as the basic unit of CHAT and CoNLL-U annotations.
