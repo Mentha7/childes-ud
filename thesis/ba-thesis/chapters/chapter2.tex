@@ -159,5 +159,41 @@ Fields other than \texttt{ID}, \texttt{FORM} and \texttt{LEMMA} are omitted for 
 Understanding how the same type of information is organised and represented in these two formats is the starting point for format conversion.
 
 As discussed above, both CHAT and CoNLL-U can store meta-information as well as utterances. Therefore, to reproduce CHAT from a converted file in CoNLL-U format, metadata, although meaningless for CoNLL-U, must be stored in a way that it can be put back to the right place.
+\clearpage
+
+\begin{table}[h!]
+\caption {Information organisation in CHAT and CoNLL-U files} \label{tab:grmap}
+\centering
+% \begin{tabularx}{\linewidth}{@{}llXl@{}}
+\begin{tabularx}{\widefigurewidth}{@{}lcXll@{}}
+\toprule
+\multicolumn{4}{c}{\textbf{CHAT}}& \multicolumn{1}{c}{\multirow{2}{*}{\textbf{CoNLL-U}}}\\
+\cmidrule(lr){1-4}
+\textbf{Level}& \textbf{Data type} & \textbf{Information} & \textbf{Storage} &\multicolumn{1}{l}{}\\
+\midrule\addlinespace
+\multicolumn{1}{l}{\multirow{2}{*}{\textbf{File}}}&\multicolumn{1}{c}{\multirow{2}{*}{Meta}}& obligatory headers    & file begin and end & sentence comments\\
+\multicolumn{1}{l}{\multirow{2}{*}{}}&\multicolumn{1}{c}{\multirow{2}{*}{}}& other headers  & middle of the file & sentence comments\\\addlinespace
+\cmidrule[0.1pt](lr{.75em}){1-3}
+\addlinespace
+\multicolumn{1}{l}{\multirow{4}{*}{\textbf{Sentence}}}&\multicolumn{1}{c}{\multirow{4}{*}{Meta}}& codes for speech & utterance & sentence comments\\
+\multicolumn{1}{l}{\multirow{4}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& speaker          & main line & sentence comments\\
+\multicolumn{1}{l}{\multirow{4}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& dependent tiers  & dependent tiers & sentence comments\\
+\multicolumn{1}{l}{\multirow{4}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& linkage to media  & utterance & sentence comments\\\addlinespace
+\cmidrule[0.1pt](lr{.75em}){1-3}
+\addlinespace
+\multicolumn{1}{l}{\multirow{11}{*}{\textbf{Token}}}  &\multicolumn{1}{c}{\multirow{4}{*}{Morphological}}& word form         & utterance & \texttt{FORM}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& lemma           & \texttt{MOR} stem& \texttt{LEMMA}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& part-of-speech  & \texttt{MOR} pos& \texttt{UPOS} and \texttt{XPOS}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& features        & \texttt{MOR} affixes& \texttt{FEATS}\\\addlinespace
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{3}{*}{Syntactic}}& word index      & \texttt{GRA} index& \texttt{ID}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{3}{*}{}}& head            & \texttt{GRA} head& \texttt{HEAD}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{3}{*}{}}& syntactic relation  & \texttt{GRA} GR label& \texttt{DEPREL}\\\addlinespace
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{Additional}}& clitic type      & \texttt{MOR} & \texttt{MISC}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& compound components  & \texttt{MOR} & \texttt{MISC}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& special forms     & utterance & \texttt{MISC}\\
+\multicolumn{1}{l}{\multirow{11}{*}{}}&\multicolumn{1}{c}{\multirow{4}{*}{}}& ...              & ... & \texttt{MISC}\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
 As for morphosyntactic information, while CHAT uses dependent tiers parallel to the main line, UD takes a token-based approach. Nevertheless, both formalisms use words as the basic unit for keeping relevant morphosyntactic information. Thus, although placed in separate tiers, morphological information in the \texttt{MOR} tier and syntactic relations between words in the \texttt{GRA} tier are encoded in strings and can be assigned to tokens in the utterance. Similarly, by combining information separated in different fields of the CoNLL-U token line, and with the help of tagset mappings, one can group and reorganise the fields to produce string representations similar to that assigned by MOR and GRASP.

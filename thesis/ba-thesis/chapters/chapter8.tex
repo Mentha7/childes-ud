@@ -7,3 +7,30 @@
 Both annotation formalisms support the storage of morphosyntactic information, although in different ways. In this chapter, I show the general structure of these formats using minimal examples, compare their ways of organising information and point out issues that I found worth discussing during the implementation process of chatconllu.
 
 
+\begin{table}[h!]
+\caption {Information organisation in CHAT and CoNLL-U files} \label{tab:grmap}
+\centering
+% \begin{tabularx}{\linewidth}{@{}llXl@{}}
+\begin{tabularx}{\widefigurewidth}{@{}lcXX@{}}
+\toprule
+\textbf{Info level}          & \textbf{Data type} & \textbf{CHAT} & \textbf{CoNLL-U}\\ \midrule
+\textbf{File}           & meta          & file-initial and file-final headers & sentence comments\\
+                        &               & other headers & sentence comments\\\addlinespace\addlinespace
+\textbf{Sentence}       & meta          & codes for speech errors, etc.& sentence comments\\
+                        &               & speaker & sentence comments\\
+                        &               & arbitrarily many dependent tiers & sentence comments\\
+                        &               & linkage to media & sentence comments\\\addlinespace\addlinespace
+\textbf{Token}          & morphological & word form (in utterance)& \texttt{FORM}\\
+                        &               & lemma (part of \texttt{MOR} code)& \texttt{LEMMA}\\
+                        &               & part-of-speech (part of \texttt{MOR} code)& \texttt{UPOS} and \texttt{XPOS}\\
+                        &               & morphological features (part of \texttt{MOR} code)& \texttt{FEATS}\\\addlinespace
+                        & syntactic     & word index (part of \texttt{GRA} code)& \texttt{ID}\\
+                        &               & head (part of \texttt{GRA} code)& \texttt{HEAD}\\
+                        &               & syntactic relation (part of \texttt{GRA} code)& \texttt{DEPREL}\\\addlinespace
+                        & additional    & clitic type (part of \texttt{MOR} code)& \texttt{MISC}\\
+                        &               & compound components (part of \texttt{MOR} code)& \texttt{MISC}\\
+                        &               & special word forms (in utterance)& \texttt{MISC}\\
+                        &               & ... & \texttt{MISC}\\\bottomrule
+\end{tabularx}
+\end{table}
+
