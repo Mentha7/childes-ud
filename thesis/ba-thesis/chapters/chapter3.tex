@@ -94,6 +94,20 @@ Listing \ref{lst:chatsent3} is an example of an utterance with dependent tiers.\
 
 \subsection{Extracting Information from the GRA tier}
 
+\lstset{
+numbers = none,
+frame = single,
+}
+
+\begin{lstlisting}[caption={Example to show the different number of strings in \texttt{\%mor} and \texttt{\&gra} tiers due to contracted form \emph{that's}.}, label={lst:chatsent3}]
+*CHI:   dat's [: that's] hard .
+%mor:   pro:dem|that~cop|be&3S adv|hard .
+%gra:   1|2|SUBJ 2|0|ROOT 3|2|JCT 4|2|PUNCT
+\end{lstlisting}
+
+
+Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing \ref{lst:chatsent3} \sidenote{from the same file in the Brown Corpus as Listing\ref{lst:chatsent1}}. Clitics, like the English contracted forms with auxiliary verbs \emph{I've}, the English possessive \emph{Mercury's}, and contractions, like the English negation particle \emph{don't} or the French \emph{articles composés}--\emph{du} \sidenote{"du" is the contraction of "de" and "le"}, are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.
+
 \subsection{Sentence-level Information}
 Sentence-level info can also be stored in the comments in CoNLL-U. Meta-information given in the headers of CHAT files are saved as file-initial comments before the first sentence because they are file-specific.
 However, one has to admit that storing information like this reduces readability. Another thing is that information stored in this way are susceptible to changes accidentally made which cannot be detected by format validators. One possible solution is to validate the respective format before and after conversion is performed.
