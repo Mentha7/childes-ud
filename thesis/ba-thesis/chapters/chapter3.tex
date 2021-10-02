@@ -16,9 +16,9 @@ Each \texttt{Sentence} object is comprised of a list of \texttt{Token} objects a
 
 The attributes of the \texttt{Token} object include the \textlf{10} fields of a normal CoNLL-U token, with the addition of three attributes:
 \begin{itemize}
-	\item \texttt{multi}---to store the end index of a multi-word token.
-	\item \texttt{type}---to store the clitics type
-	\item \texttt{surface}---to store the special form of a word (\textcolor{orange}{note-to-self: probably obsolete})
+    \item \texttt{multi}---to store the end index of a multi-word token.
+    \item \texttt{type}---to store the clitics type
+    \item \texttt{surface}---to store the special form of a word (\textcolor{orange}{note-to-self: probably obsolete})
 \end{itemize}
 
 Since \texttt{Token} is organised parallel to the UD-style token, it can be directly converted to a token line \sidenote{Or lines for multi-word tokens}.
@@ -31,11 +31,11 @@ The behaviour of chatconllu can be described in plain English: For all files or 
 
 The conversion from CHAT to CoNLL-U is outlined as follows:
 \begin{enumerate}
-	\item parse the CHAT file to obtain utterances grouped with dependent tiers
-	\item clean the utterance by removing CHAT transcription codes
-	\item extract token information from the utterance-tiers group to construct \texttt{Token} objects
-	\item construct \texttt{Sentence} object with the created \texttt{Token} objects and other utterance-level information
-	\item write the sentences in CoNLL-U format to an output file
+    \item parse the CHAT file to obtain utterances grouped with dependent tiers
+    \item clean the utterance by removing CHAT transcription codes
+    \item extract token information from the utterance-tiers group to construct \texttt{Token} objects
+    \item construct \texttt{Sentence} object with the created \texttt{Token} objects and other utterance-level information
+    \item write the sentences in CoNLL-U format to an output file
 \end{enumerate}
 
 \subsection{Normalising Utterances}
@@ -51,9 +51,9 @@ In CHAT, nested structures occur with \emph{scoped symbols}. Scoped symbols refe
 The challenge of nested angle brackets can be illustrated using the following examples:
 % example from Brown/Sarah/21024, sentence 733
 
-\texttt{<<yeah yeah> [/] yeah> [?] .}
+\texttt{<<yeah yeah> [/] yeah> [?] .}\todo{add example and pseudo code for parsing nested brackets, cite answer on stackoverflow}
 
-\paragraph{to normalise or not} Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the \emph{clean} version of the utterance. On the one hand, word-based information in \texttt{\%mor} and \texttt{\%gra} tiers is only associated with tokens in the cleaned utterance. Therefore, to use the information provided in these tiers, one has to remove unannotated words (or nonwords). On the other hand, removing things like speech errors makes spontaneous conversational data less speech-like. Or worse, it could make the real sentence structure of the sometimes already ungrammatical utterance even less obvious, at least for dependency parsers. In his study of creating a dependency treebank using Dutch CHILDES corpora, during the process of cleaning the encoded utterances, (\cite{odijk2018anncor}) observed that blindly removing unintelligible words results in a decrease in the performance of the dependency parser they used. For example, although \texttt{xxx} is a nonword, it still functions as a placeholder \sidenote{Think of it as 0 in digits or as a masked token.} in the sentence \todo{add example sentence}(\textcolor{orange}{example sentence}). The Alpino parser (\textcolor{orange}{citation needed})\todo{add citation for Alpino parser} they used seems to depend on the positional information, despite the word is unknown. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable in dependency parsing and affected the performance of the dependency parser. Therefore when it comes to preprocessing spoken data like the CHILDES corpora. The degree of normalisation depends on the intended use case.
+\paragraph{to normalise or not} Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the \emph{clean} version of the utterance. On the one hand, word-based information in \texttt{\%mor} and \texttt{\%gra} tiers is only associated with tokens in the cleaned utterance. Therefore, to use the information provided in these tiers, one has to remove unannotated words (or nonwords). On the other hand, removing things like speech errors makes spontaneous conversational data less speech-like. Or worse, it could make the real sentence structure of the sometimes already ungrammatical utterance even less obvious, at least for dependency parsers. In his study of creating a dependency treebank using Dutch CHILDES corpora, during the process of cleaning the encoded utterances, (\cite{odijk2018anncor}) observed that blindly removing unintelligible words results in a decrease in the performance of the dependency parser they used. For example, although \texttt{xxx} is a nonword, it still functions as a placeholder \sidenote{Think of it as 0 in digits or as a masked token.} in the sentence \todo{add example sentence}(\textcolor{orange}{example sentence}). The Alpino parser (\textcolor{orange}{citation needed}) \todo{add citation for Alpino parser} they used seems to depend on the positional information, despite the word is unknown. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable in dependency parsing and affected the performance of the dependency parser. Therefore when it comes to preprocessing spoken data like the CHILDES corpora. The degree of normalisation depends on the intended use case.
 
 \subsection{Extracting Information from the MOR tier}
 
@@ -69,7 +69,7 @@ frame = single,
 \end{lstlisting}
 
 
-Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing \ref{lst:chatsent3} \sidenote{from the same file in the Brown Corpus as Listing\ref{lst:chatsent1}}. Clitics, like the English contracted forms with auxiliary verbs \emph{I've}, the English possessive \emph{Mercury's}, and contractions, like the English negation particle \emph{don't} or the French \emph{articles composés}--\emph{du} \sidenote{"du" is the contraction of "de" and "le"}, are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.
+Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing \ref{lst:chatsent3} \sidenote{from the same file in the Brown Corpus as Listing\ref{lst:chatsent1}}. Clitics, like the English contracted forms with auxiliary verbs \emph{I've}, the English possessive \emph{Mercury's}, and contractions, like the English negation particle \emph{don't} or the French \emph{articles composés}--\emph{du} \sidenote{"du" is the contraction of "de" and "le"}, are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.\\
 
 
 \paragraph{MOR syntax} \todo{describe MOR syntax}
@@ -81,9 +81,9 @@ Example:\\
 
 \paragraph{lemma} After looking at the syntax of the \%mor tier, one should realise that getting the lemma out of a MOR string is not as straightforward as it seems. There are several pitfalls to avoid:\\
 \begin{itemize}
-	\item The semantics of the symbols may be ambiguous. Take the dash symbol \texttt{-} as an example, for words like \texttt{tic-tac-toe}, the \texttt{-} merely connect parts of the word, but in the example of \texttt{part|get-PRESP} for the word \emph{getting}, \texttt{-} could be an indicator for the present participle suffix \texttt{-ing}.
-	\item One should also notice that the stem is not always the lemma, just that for English, these two share the same form in most cases. For instance, for \emph{untied}, we have the MOR segment \texttt{un\#v|tie-PASTP}, which means in plain English that the word has a stem \emph{tie} with prefix \emph{un}, its part-of-speech is verb and this word form is the past participle of the verb. Since in CoNLL-U, the \texttt{LEMMA} field is reserved for lemma and not word stem, the prefix should be put back in place to produce the real lemma.
-	\item Compound strings are structured differently and cannot be parsed in the same way. For word like \texttt{n|+n|peanut+n|butter}, instead of parsing this string using a different method, chatconllu simply use the word form as lemma. In this example, the word form and the lemma should both be \texttt{peanutbutter}.
+    \item The semantics of the symbols may be ambiguous. Take the dash symbol \texttt{-} as an example, for words like \texttt{tic-tac-toe}, the \texttt{-} merely connect parts of the word, but in the example of \texttt{part|get-PRESP} for the word \emph{getting}, \texttt{-} could be an indicator for the present participle suffix \texttt{-ing}.
+    \item One should also notice that the stem is not always the lemma, just that for English, these two share the same form in most cases. For instance, for \emph{untied}, we have the MOR segment \texttt{un\#v|tie-PASTP}, which means in plain English that the word has a stem \emph{tie} with prefix \emph{un}, its part-of-speech is verb and this word form is the past participle of the verb. Since in CoNLL-U, the \texttt{LEMMA} field is reserved for lemma and not word stem, the prefix should be put back in place to produce the real lemma.
+    \item Compound strings are structured differently and cannot be parsed in the same way. For word like \texttt{n|+n|peanut+n|butter}, instead of parsing this string using a different method, chatconllu simply use the word form as lemma. In this example, the word form and the lemma should both be \texttt{peanutbutter}.
 \end{itemize}
 
 \paragraph{misc}
@@ -108,11 +108,11 @@ However, one has to admit that storing information like this reduces readability
 
 The conversion from CoNLL-U back to CHAT is described in the following steps:
 \begin{enumerate}
-	\item load the CoNLL-U file with pyconll to obtain sentences
-	\item clean the utterance by removing CHAT speech codes
-	\item extract token information from the groups to construct \texttt{Token} objects
-	\item construct \texttt{Sentence} object with the created tokens
-	\item write sentence in CoNLL-U format to output file
+    \item load the CoNLL-U file with pyconll to obtain sentences
+    \item clean the utterance by removing CHAT speech codes
+    \item extract token information from the groups to construct \texttt{Token} objects
+    \item construct \texttt{Sentence} object with the created tokens
+    \item write sentence in CoNLL-U format to output file
 \end{enumerate}
 
 \subsection{Reconstruct Dependent Tiers}
