@@ -20,7 +20,7 @@ First of all, each CHAT file should have at least two parts:
 \begin{itemize}
 	\item \emph{headers} preceded by the \texttt{@} symbol that stores metadata like language and participants. Some headers are obligatory \sidenote{Obligatory headers include: the file-initial header @Begin, @Languages, @Participants, @ID and the file-final header @End.}, some are optional.\\
 	Despite its name, headers can be added in the middle of a CHAT file to represent information like tape locations. It is likely that \emph{header} is a misnomer, and they should be called \emph{meta} as they gernally preserve higher-level information and are not confined to file-inital positions.
-	\item the \emph{main line}---utterances led by the asterisk symbol \texttt{*}, which are the actual sentences being said.\\
+	\item the \emph{main line}---utterances led by the asterisk symbol \texttt{*}, which are the actual sentences being said.
 \end{itemize}
 
 Then, additional information can be \emph{optionally} added as dependent tiers. Annotations of morphological, syntactical, and phonological information or general remarks of the transcriber's choice all go into separate dependent tiers of the main utterance. Dependent tiers are preceded by the percent symbol \texttt{\%}.
@@ -50,7 +50,9 @@ frame = single,
 
 
 \paragraph{word-level information}
-Word-level information is associated with words in the utterance. Word-based strings encoded with information are separated by the space character. The below example \sidenote{from the same file in the Brown Corpus as Listing \ref{lst:chatsent1}} shows two dependent tiers with word-level information.\\
+Word-level information is associated with words in the utterance. Word-based strings encoded with information are separated by the space character. The below example \sidenote{from the same file in the Brown Corpus as Listing \ref{lst:chatsent1}} shows two dependent tiers with word-level information.
+
+\clearpage
 
 \lstset{
 numbers = none,
@@ -64,34 +66,16 @@ frame = single,
 \end{lstlisting}
 
 \paragraph{common tiers}
-The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} tiers \sidenote{As shown in Listing \ref{lst:chatsent2}.}, which can be generated automatically by the use of a series of CLAN programs \sidenote{MOR, POST, POSTMORTEM and GRASP}.
-
-The \texttt{\%mor} tier encodes morpgological information including affixes, the stem and part-of-speech category of a word, while the \texttt{\%gra} tier keeps the dependency structure of the utterance and the grammatical relations between head and dependent words.\\
-
-% \lstset{
-% numbers = none,
-% frame = single,
-% }
-
-% \begin{lstlisting}[caption={Example to show the different number of strings in \texttt{\%mor} and \texttt{\&gra} tiers due to contracted form \emph{that's}.}, label={lst:chatsent3}]
-% *CHI:   dat's [: that's] hard .
-% %mor:   pro:dem|that~cop|be&3S adv|hard .
-% %gra:   1|2|SUBJ 2|0|ROOT 3|2|JCT 4|2|PUNCT
-% \end{lstlisting}
-
-
-% Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing \ref{lst:chatsent3} \sidenote{from the same file in the Brown Corpus as Listing\ref{lst:chatsent1}}. Clitics, like the English contracted forms with auxiliary verbs \emph{I've}, the English possessive \emph{Mercury's}, and contractions, like the English negation particle \emph{don't} or the French \emph{articles composés}--\emph{du} \sidenote{"du" is the contraction of "de" and "le"}, are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.
+The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} tiers \sidenote{As shown in Listing \ref{lst:chatsent2}.}, which can be generated automatically by the use of a series of CLAN programs\todo{table: program functions} \sidenote{MOR, POST, POSTMORTEM and GRASP}. The \texttt{\%mor} tier encodes morpgological information including affixes, the stem and part-of-speech category of a word, while the \texttt{\%gra} tier keeps the dependency structure of the utterance and the grammatical relations between head and dependent words.
 
 \newcommand{\conllu}[1]{&\footnotesize\texttt{#1}}
 \newcommand{\tab}{&\hspace{0.1em}}
 \setlength{\abovedisplayskip}{3pt}
 \setlength{\belowdisplayskip}{3pt}
-
+\vspace{-1em}
 \section{UD \emph{CoNLL-U} Annotation Scheme}
 
-The CoNLL-U format (\textcolor{orange}{cite Zeman? here}) is modified from the CoNLL-X format introduced by (\cite{buchholz-marsi-2006-conll}).
-
-A file in the CoNLL-U format can be seen as a collection of sentences, where each sentence is followed by an empty line. The empty lines serve as sentence boundaries.
+The CoNLL-U format (\textcolor{orange}{cite Zeman? here}) is modified from the CoNLL-X format introduced by (\cite{buchholz-marsi-2006-conll}). A file in the CoNLL-U format can be seen as a collection of sentences, where each sentence is followed by an empty line. The empty lines serve as sentence boundaries.
 
 Each CoNLL-U sentence can be divided into two parts:
 \begin{itemize}
@@ -116,7 +100,8 @@ Each token \sidenote{with the exceptions of multi-word tokens} in the text shoul
 	\item \texttt{DEPS:} head-deprel pair in the form of \texttt{head:deprel}.
 	\item \texttt{MISC:} any other information related to the current token.
 \end{enumerate}
-\paragraph{additional constraints} The fields cannot be empty, if any information \sidenote{with the exception of word index} is not specified for a field, an underscore placeholder \texttt{\_} is used in place.
+\paragraph{additional constraints} The fields cannot be empty, if any information \sidenote{with the exception of word index} is not specified for a field, an underscore \texttt{\_} is used in place as a placeholder.
+
 The tokens in the previous minimal example can be represented as follows. The top line in bold is added to indicate the field type:
 \begin{align*}
 \conllu{\textbf{ID}}\tab\conllu{\textbf{FORM}}\tab\conllu{\textbf{LEMMA}}\tab\conllu{\textbf{UPOS}}\tab\conllu{\textbf{XPOS}}\tab\conllu{\textbf{FEATS}}\tab\conllu{\textbf{HEAD}}\tab\conllu{\textbf{DEPREL}}\tab\conllu{\textbf{DEPS}}\tab\conllu{\textbf{MISC}}\\
@@ -125,7 +110,7 @@ The tokens in the previous minimal example can be represented as follows. The to
 \end{align*}
 
 \paragraph{multi-word tokens}
-Multi-word tokens are treated as word groups which span multiple lines. A clear example is given on the UD website and is reproduced on the side to illustrate the point, as this information will be relevant to the later discussion of the treatment of contracted forms.
+Multi-word tokens are treated as word groups which span multiple lines. A clear example is given on the UD website and is reproduced on the side to illustrate the point.
 \marginnote{
 \begin{flalign*}
 \conllu{\textbf{ID}}\tab\conllu{\textbf{FORM}}\tab\conllu{\textbf{LEMMA}}\\
@@ -159,6 +144,10 @@ Example taken from \url{https://universaldependencies.org/format.html}. Fields o
 Understanding how the same type of information is organised and represented in these two formats is crucial to format conversion.
 
 As discussed above, both CHAT and CoNLL-U store meta-information as well as morphosyntactic information of tokens in the utterance. However, upon reading the manuals of both formalisms, it seems that CHAT encompasses a broader range of information types otherwise not present in CoNLL-U formats, like the required headers of a CHAT file. Therefore, although meta data in CHAT is meaningless for CoNLL-U, to reproduce CHAT from a converted file in CoNLL-U format, it must be stored in such a way that it can be put back to the right place.
+
+Since CHAT is more encompassing than CoNLL-U and CoNLL-U files have no exclusive information that require previously non-exist tiers or headers, data contained in CoNLL-U files can be seen as a subset of that of the CHAT files.
+
+The general information types contained in CHAT files are summarised in \Cref{tab:info}. It is clear from the table that file- and sentence-level meta data distributed in diverse places of a CHAT file are all stored as sentence comments in CoNLL-U.
 \clearpage
 
 \begin{table}[h!]
@@ -197,7 +186,5 @@ As discussed above, both CHAT and CoNLL-U store meta-information as well as morp
 \bottomrule
 \end{tabularx}
 \end{table}
-
-Since CHAT is more encompassing than CoNLL-U and CoNLL-U files have no exclusive information that require previously non-exist tiers or headers, data contained in CoNLL-U files can be seen as a subset of that of the CHAT files. The general information types contained in CHAT files are summarised in \Cref{tab:info}. It is clear from the table that file- and sentence-level meta data distributed in diverse places of a CHAT file are all stored as sentence comments in CoNLL-U.
 
 As for the shared morphosyntactic information, while CHAT uses dependent tiers parallel to the main line, UD takes a token-based approach. Nevertheless, both formalisms use word as the basic unit for morphosyntactic analyses. Thus, although placed in separate tiers, morphological information in the \texttt{\%mor} tier and syntactic relations between words in the \texttt{\%gra} tier can be associated with tokens in the utterance. Similarly, by combining information separated in different fields of the CoNLL-U token line, one can group and reorganise the fields to produce string representations similar to those assigned by MOR and GRASP.
