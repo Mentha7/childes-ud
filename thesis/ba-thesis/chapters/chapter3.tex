@@ -4,43 +4,43 @@
 
 % To make the tool manageable within the frame of a bachelor's thesis, chatconllu is designed based on several selected corpora from the CHILDES database.
 \section{Data Structures}
-From \Cref{Chapter2} we know that CoNLL-U files are collections of sentences as dependency trees, where each sentence has comment lines and token lines. With \Cref{tab:info} I also showed that to keep as much information from CHAT files as possible, information exclusively relevant to CHAT had to be stored in sentence comments.
+From \Cref{Chapter2} we know that CoNLL-U files are collections of sentences, where each sentence has comment lines and token lines. With \Cref{tab:info}, I also showed that to keep as much information from CHAT files as possible, information exclusively relevant to CHAT had to be stored in sentence comments.
 
-chatconllu took the idea from the CoNLL-U sentence and propose to use two object classes---\texttt{Sentence} and \texttt{Token}---to organise the diverse types of information in CHAT files. The benefit of using these two uncomplicated structures is that they correspond well to the CoNLL-U way of information organisation and thus writing to CoNLL-U strings is straightforward.
+chatconllu took the idea from the CoNLL-U sentence and propose to use two object classes---\texttt{Sentence} and \texttt{Token}---to organise the diverse types of information in CHAT files. The benefit of using these two uncomplicated structures is that they correspond well to the CoNLL-U way of information organisation, making writing to CoNLL-U strings straightforward.
 
 \paragraph{\texttt{Sentence}}
 
-Each \texttt{Sentence} object is comprised of a list of \texttt{Token} objects and additional attributes to store the sentence-level information like dependent tiers as well as file-level meta data like headers preceding this utterance. The list of \texttt{Token} objects corresponds to a word in the normalised utterance. A normalised utterance is an utterance with CHAT speech code removed. When a \texttt{MOR} tier is present, the tokens should have a one-to-one correspondence with the strings in the \texttt{MOR} tier.
+Each \texttt{Sentence} object is comprised of a list of \texttt{Token} objects and several additional attributes to store sentence-level information like dependent tiers and file-level meta data like headers preceding the current utterance. The list of \texttt{Token} objects corresponds to the words in the normalised utterance. A normalised utterance is an utterance with the CHAT transcription codes removed. When a \texttt{MOR} tier is present, the tokens should have a one-to-one correspondence with the strings in the \texttt{MOR} tier.
 
 \paragraph{\texttt{Token}}
 
-The attributes of the \texttt{Token} object include the \textlf{10} fields of a normal CoNLL-U token representation with the addition of \textlf{3} attributes:
+The attributes of the \texttt{Token} object include the \textlf{10} fields of a normal CoNLL-U token, with the addition of three attributes:
 \begin{itemize}
-	\item \texttt{multi} to store the end index of a multi-word token.
-	\item \texttt{type} to store the clitics type
-	\item \texttt{surface} to store the special forms of the word (note-to-self: probably obsolete)
+	\item \texttt{multi}---to store the end index of a multi-word token.
+	\item \texttt{type}---to store the clitics type
+	\item \texttt{surface}---to store the special form of a word (\textcolor{orange}{note-to-self: probably obsolete})
 \end{itemize}
 
-Since \texttt{Token} is organised parallel to UD-style token, it can be directly converted to a token line \sidenote{Or lines for multi-word tokens}.
+Since \texttt{Token} is organised parallel to the UD-style token, it can be directly converted to a token line \sidenote{Or lines for multi-word tokens}.
 
 \section{Overview of chatconllu}
 
-The behaviour of chatconllu can be described in plain English: For all files or files with name specifications in the given directory, depending on the input file format, convert it to the other format and save the output as a different file. There are also options to finetune the desired output. chatconllu uses argparse to process input commands, the optional commands are listed in the Appendix\todo{list optional commands in the Appendix}. All commands of chatconllu can be found via the \texttt{chatconllu --help} command.
+The behaviour of chatconllu can be described in plain English: For all files or files with name specifications in the given directory, depending on the input file format, convert them to the other format and save the output as different files. I used the \emph{pyconll} \sidenote{pyconll is a low-level API for processing CoNLL-U formatted files.} package developed by (\cite{pyconll}) for parsing the converted CoNLL-U files and accessing the values of token fields. I chose to use it instead of writing my own script because I want to quickly validate the general structure of the converted files. By using the load method from a distributed package, I can get instant feedback if the file is malformed. chatconllu uses argparse to process inputs from the command line. With optional arguments, it's also possible to finetune the desired output by asking chatconllu to generate new dependent tiers, or to omit existing dependent tiers during format conversion. All commands of chatconllu can be found via the \texttt{chatconllu --help} command after proper installation. The optional commands are listed in the Appendix\todo{list optional commands in the Appendix}.
 
 \section{CHAT to CoNLL-U}
 
 The conversion from CHAT to CoNLL-U is outlined as follows:
 \begin{enumerate}
 	\item parse the CHAT file to obtain utterances grouped with dependent tiers
-	\item clean the utterance by removing CHAT speech codes
-	\item extract token information from the groups to construct \texttt{Token} objects
-	\item construct \texttt{Sentence} object with the created tokens
-	\item write sentence in CoNLL-U format to output file
+	\item clean the utterance by removing CHAT transcription codes
+	\item extract token information from the utterance-tiers group to construct \texttt{Token} objects
+	\item construct \texttt{Sentence} object with the created \texttt{Token} objects and other utterance-level information
+	\item write the sentences in CoNLL-U format to an output file
 \end{enumerate}
 
 \subsection{Normalising Utterances}
 
-The \texttt{normalise\_utterances} method is a simple parser by itself. The input of this method is a string, which is the utterance with CHAT transcription codes. The output is a tuple where the first value is a list of tokens contained in the utterance. The length of the list should match that of the \texttt{MOR} tier, if \texttt{MOR} is given. The second value is simply the line itself, to be stored as is in the output file as a sentence comment, allowing the recovery of the original utterance during back-conversion.
+To clean the utterances, I wrote a helper method \texttt{normalise\_utterances}. This method is a simple parser by itself. The input of this method is an utterance with CHAT transcription codes. The output is a tuple where the first value is a list of tokens in the utterance. After the removal of transcription codes, if the \texttt{\%mor} is given, the length of the list should match the number of strings in the \texttt{\%mor} tier. The second value is simply the line itself, which is to be stored as is as a sentence comment  in the output file, allowing for the recovery of the original utterance in the back-conversion process.
 
 \paragraph{regular expressions} To remove the CHAT speech codes, one has to first identify them in the string. Regular expressions are designed for the transcription codes described in the CHAT manual and are tested on the chosen corpora. It is worth noticing that although some cases can be merged into a single regular expression, they are deliberately left as separate ones to keep the regular expression manageable for future case-wise debugging and editing.
 
@@ -57,6 +57,19 @@ The challenge of nested angle brackets can be illustrated using the following ex
 
 \subsection{Extracting Information from the MOR tier}
 
+\lstset{
+numbers = none,
+frame = single,
+}
+
+\begin{lstlisting}[caption={Example to show the different number of strings in \texttt{\%mor} and \texttt{\&gra} tiers due to contracted form \emph{that's}.}, label={lst:chatsent3}]
+*CHI:   dat's [: that's] hard .
+%mor:   pro:dem|that~cop|be&3S adv|hard .
+%gra:   1|2|SUBJ 2|0|ROOT 3|2|JCT 4|2|PUNCT
+\end{lstlisting}
+
+
+Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing \ref{lst:chatsent3} \sidenote{from the same file in the Brown Corpus as Listing\ref{lst:chatsent1}}. Clitics, like the English contracted forms with auxiliary verbs \emph{I've}, the English possessive \emph{Mercury's}, and contractions, like the English negation particle \emph{don't} or the French \emph{articles composés}--\emph{du} \sidenote{"du" is the contraction of "de" and "le"}, are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.
 
 
 \paragraph{MOR syntax}
@@ -94,30 +107,25 @@ Listing \ref{lst:chatsent3} is an example of an utterance with dependent tiers.\
 
 \subsection{Extracting Information from the GRA tier}
 
-\lstset{
-numbers = none,
-frame = single,
-}
+\paragraph{GRA syntax}
+Example:
 
-\begin{lstlisting}[caption={Example to show the different number of strings in \texttt{\%mor} and \texttt{\&gra} tiers due to contracted form \emph{that's}.}, label={lst:chatsent3}]
-*CHI:   dat's [: that's] hard .
-%mor:   pro:dem|that~cop|be&3S adv|hard .
-%gra:   1|2|SUBJ 2|0|ROOT 3|2|JCT 4|2|PUNCT
-\end{lstlisting}
-
-
-Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing \ref{lst:chatsent3} \sidenote{from the same file in the Brown Corpus as Listing\ref{lst:chatsent1}}. Clitics, like the English contracted forms with auxiliary verbs \emph{I've}, the English possessive \emph{Mercury's}, and contractions, like the English negation particle \emph{don't} or the French \emph{articles composés}--\emph{du} \sidenote{"du" is the contraction of "de" and "le"}, are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.
 
 \subsection{Sentence-level Information}
 Sentence-level info can also be stored in the comments in CoNLL-U. Meta-information given in the headers of CHAT files are saved as file-initial comments before the first sentence because they are file-specific.
 However, one has to admit that storing information like this reduces readability. Another thing is that information stored in this way are susceptible to changes accidentally made which cannot be detected by format validators. One possible solution is to validate the respective format before and after conversion is performed.
 
 
-\paragraph{GRA syntax}
-Example:
-
-
 \section{CoNLL-U to CHAT}
+
+The conversion from CoNLL-U back to CHAT is described in the following steps:
+\begin{enumerate}
+	\item load the CoNLL-U file with pyconll to obtain sentences
+	\item clean the utterance by removing CHAT speech codes
+	\item extract token information from the groups to construct \texttt{Token} objects
+	\item construct \texttt{Sentence} object with the created tokens
+	\item write sentence in CoNLL-U format to output file
+\end{enumerate}
 
 \subsection{Reconstruct Dependent Tiers}
 
