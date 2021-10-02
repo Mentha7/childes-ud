@@ -6,6 +6,9 @@
 
 Both annotation formalisms support the storage of morphosyntactic information, although in different ways. In this chapter, I show the general structure of these formats using minimal examples, compare their ways of organising information and point out issues that I found worth discussing during the implementation process of chatconllu.
 
+%?
+There are also many tools developed to process CoNLL-U formatted files, like UDPipe \cite{straka-etal-2016-udpipe}, with which additional information can be augmented to the CHAT files. As a format converter, chatconllu strives to serve as an initial (and sometimes final) procesisng step in this pipeline of information augmentation via the other format. Moreover, chatconllu can generate CHAT-style dependent tiers to represent augmented information. By comparing the augmented information with the original annotations, one can compare the performance of different parsers.
+
 
 \begin{table}[h!]
 \caption {Information organisation in CHAT and CoNLL-U files} \label{tab:grmap}
