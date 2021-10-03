@@ -18,9 +18,9 @@ For a CHAT file to be well-formed, there are some basic structural requirements.
 % describe only relevant minCHAT structure
 First of all, each CHAT file should have at least two parts:
 \begin{itemize}
-    \item \emph{headers} preceded by the \texttt{@} symbol that stores metadata like language and participants. Some headers are obligatory \sidenote{Obligatory headers include: the file-initial header @Begin, @Languages, @Participants, @ID and the file-final header @End.}, some are optional.\\
-    Despite its name, headers can be added in the middle of a CHAT file to represent information like tape locations. It is likely that \emph{header} is a misnomer, and they should be called \emph{meta} as they gernally preserve higher-level information and are not confined to file-inital positions.
-    \item the \emph{main line}---utterances led by the asterisk symbol \texttt{*}, which are the actual sentences being said.
+	\item \emph{headers} preceded by the \texttt{@} symbol that stores metadata like language and participants. Some headers are obligatory \sidenote{Obligatory headers include: the file-initial header @Begin, @Languages, @Participants, @ID and the file-final header @End.}, some are optional.\\
+	Despite its name, headers can be added in the middle of a CHAT file to represent information like tape locations. It is likely that \emph{header} is a misnomer, and they should be called \emph{meta} as they gernally preserve higher-level information and are not confined to file-inital positions.
+	\item the \emph{main line}---utterances led by the asterisk symbol \texttt{*}, which are the actual sentences being said.
 \end{itemize}
 
 Then, additional information can be \emph{optionally} added as dependent tiers. Annotations of morphological, syntactical, and phonological information or general remarks of the transcriber's choice all go into separate dependent tiers of the main utterance. Dependent tiers are preceded by the percent symbol \texttt{\%}.
@@ -31,8 +31,8 @@ The inclusiveness and extensibility of the CHAT format is demonstrated by the us
 
 A dependent tier can contain one of two types of information:
 \begin{itemize}
-    \item utterance-level information
-    \item word-level information
+	\item utterance-level information
+	\item word-level information
 \end{itemize}
 
 \paragraph{utterance-level information}
@@ -79,26 +79,26 @@ The CoNLL-U format (\textcolor{orange}{cite Zeman? here}) is modified from the C
 
 Each CoNLL-U sentence can be divided into two parts:
 \begin{itemize}
-    \item comment lines \sidenote{Meta-information about the entire document is stored in the comment lines of the first sentence.} start with the hash symbol \texttt{\#} with obligatory fields \texttt{sent\_id} and \texttt{text}. \texttt{sent\_id} corresponds to a unique index in the conllu file and \texttt{text} the text of the sentence. A minimal example is shown below:
-    \begin{flalign*}
-    \conllu{\# sent\_id = 1}&\\
-    \conllu{\# text = why ?}&
-    \end{flalign*}
-    \item token lines where each line represent one token or punctuation in the sentence.
+	\item comment lines \sidenote{Meta-information about the entire document is stored in the comment lines of the first sentence.} start with the hash symbol \texttt{\#} with obligatory fields \texttt{sent\_id} and \texttt{text}. \texttt{sent\_id} corresponds to a unique index in the conllu file and \texttt{text} the text of the sentence. A minimal example is shown below:
+	\begin{flalign*}
+	\conllu{\# sent\_id = 1}&\\
+	\conllu{\# text = why ?}&
+	\end{flalign*}
+	\item token lines where each line represent one token or punctuation in the sentence.
 \end{itemize}
 \paragraph{token representation} \sidenote{For more information visit: \url{https://universaldependencies.org/format.html}}
 Each token \sidenote{with the exceptions of multi-word tokens} in the text should possess one line, and each line is tab-separated into 10 fields:
 \begin{enumerate}
-    \item \texttt{ID:} word index starting from 1 for each new sentence \sidenote{With the exception of empty nodes, which can be a decimal number greater than 0.}.
-    \item \texttt{FORM:} word form or punctuation as indicated in the sentence comment.
-    \item \texttt{LEMMA:} lemma of the word
-    \item \texttt{UPOS:} one of the 17 Universal part-of-speech tags \sidenote{The UPOS tags are listed in \Cref{tab:uposset} in \Cref{appendixa}}.
-    \item \texttt{XPOS:} language-specific part-of-speech tags
-    \item \texttt{FEATS:} a list of morphological features \sidenote{They have to be from UD's universal feature inventory or from a predefined language-specific set accepted by UD. } separated by \texttt{|}.
-    \item \texttt{HEAD:} index of the head word of the current token, or \textlf{0} if the current token is the root.
-    \item \texttt{DEPREL:} one of the 37 universal syntactic relations in UD \sidenote{The 37 universal syntactic relations can be found on: \url{https://universaldependencies.org/u/dep/index.html}}, or one of its subtypes.
-    \item \texttt{DEPS:} head-deprel pair in the form of \texttt{head:deprel}.
-    \item \texttt{MISC:} any other information related to the current token.
+	\item \texttt{ID:} word index starting from 1 for each new sentence \sidenote{With the exception of empty nodes, which can be a decimal number greater than 0.}.
+	\item \texttt{FORM:} word form or punctuation as indicated in the sentence comment.
+	\item \texttt{LEMMA:} lemma of the word
+	\item \texttt{UPOS:} one of the 17 Universal part-of-speech tags \sidenote{The UPOS tags are listed in \Cref{tab:uposset} in \Cref{appendixa}}.
+	\item \texttt{XPOS:} language-specific part-of-speech tags
+	\item \texttt{FEATS:} a list of morphological features \sidenote{They have to be from UD's universal feature inventory or from a predefined language-specific set accepted by UD. } separated by \texttt{|}.
+	\item \texttt{HEAD:} index of the head word of the current token, or \textlf{0} if the current token is the root.
+	\item \texttt{DEPREL:} one of the 37 universal syntactic relations in UD \sidenote{The 37 universal syntactic relations can be found on: \url{https://universaldependencies.org/u/dep/index.html}}, or one of its subtypes.
+	\item \texttt{DEPS:} head-deprel pair in the form of \texttt{head:deprel}.
+	\item \texttt{MISC:} any other information related to the current token.
 \end{enumerate}
 \paragraph{additional constraints} The fields cannot be empty, if any information \sidenote{with the exception of word index} is not specified for a field, an underscore \texttt{\_} is used in place as a placeholder.
 
