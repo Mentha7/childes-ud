@@ -37,3 +37,54 @@ There are also many tools developed to process CoNLL-U formatted files, like UDP
 \end{tabularx}
 \end{table}
 
+
+\begin{table}[h!]
+\caption {Information organisation in CHAT and CoNLL-U files} \label{tab:info}
+\centering
+% \begin{tabularx}{\linewidth}{@{}llXl@{}}
+\begin{tabularx}{\linewidth}{@{}Xll@{}}
+\toprule
+\multicolumn{2}{c}{\textbf{CHAT}}& \multicolumn{1}{c}{\multirow{2}{*}{\textbf{CoNLL-U}}}\\
+\cmidrule(lr){1-2}
+Information & Storage &\multicolumn{1}{l}{}\\\midrule
+lemma & \texttt{MOR}& \texttt{LEMMA} \\
+part-of-speech & \texttt{MOR}& \texttt{UPOS} and \texttt{XPOS}\\
+features & \texttt{MOR}& \texttt{FEATS} \\\addlinespace
+clitic type & \texttt{MOR} & \texttt{MISC} \\
+compound components & \texttt{MOR} & \texttt{MISC} \\
+translation & \texttt{MOR} & \texttt{MISC} \\
+prefix & \texttt{MOR} & \texttt{MISC} \\\bottomrule
+\end{tabularx}
+\end{table}
+
+
+\begin{table}[h!]
+\caption {Information organisation in CHAT and CoNLL-U files} \label{tab:info}
+\centering
+% \begin{tabularx}{\linewidth}{@{}llXl@{}}
+\begin{tabularx}{\linewidth}{@{}Xll@{}}
+\toprule
+\textbf{MOR} & \textbf{Field}\\\midrule
+lemma & \texttt{LEMMA} \\
+part-of-speech & \texttt{UPOS}, \texttt{XPOS}\\
+features & \texttt{FEATS} \\\addlinespace
+clitic type & \texttt{MISC} \\
+compound components & \texttt{MISC} \\
+translation & \texttt{MISC} \\
+prefix & \texttt{MISC} \\\bottomrule
+\end{tabularx}
+\end{table}
+
+
+\begin{table}[h!]
+\caption {Information organisation in CHAT and CoNLL-U files} \label{tab:info}
+\centering
+% \begin{tabularx}{\linewidth}{@{}llXl@{}}
+\begin{tabularx}{\linewidth}{@{}Xll@{}}
+\toprule
+\textbf{GRA} & \textbf{Field}\\\midrule
+word index & \texttt{ID} \\
+head & \texttt{HEAD}\\
+syntactic relation & \texttt{DEPREL} \\\bottomrule
+\end{tabularx}
+\end{table}

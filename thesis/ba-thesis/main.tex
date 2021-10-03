@@ -153,6 +153,7 @@ consistentlayout, % layout of declaration, abstract and acknowledgements pages m
 % \hfill Dave Barry
 
 
+
 %----------------------------------------------------------------------------------------
 % ABSTRACT PAGE
 %----------------------------------------------------------------------------------------
@@ -190,13 +191,13 @@ To improve the interoperability between CoNLL-U and CHAT, a deterministic mappin
 
 % Table of Contents uses a wider layout than the main content
 \newgeometry{
-        head=13.6pt,
-        top=27.4mm,
-        bottom=27.4mm,
-        inner=24.8mm,
-        outer=24.8mm,
-        marginparsep=0mm,
-        marginparwidth=0mm,
+		head=13.6pt,
+		top=27.4mm,
+		bottom=27.4mm,
+		inner=24.8mm,
+		outer=24.8mm,
+		marginparsep=0mm,
+		marginparwidth=0mm,
 }
 {
 \hypersetup{linkcolor=black}
@@ -276,16 +277,16 @@ To improve the interoperability between CoNLL-U and CHAT, a deterministic mappin
 
 % Bibliography has no wide margins:
 \newgeometry{
-    inner=2cm, % Inner margin
-    outer=2cm, % Outer margin
-    marginparwidth=0cm,
-    marginparsep=0mm,
-    bindingoffset=.5cm, % Binding offset
-    top=1.5cm, % Top margin
-    bottom=2.5cm, % Bottom margin,
-    includehead,
-    includefoot
-    % showframe, % Uncomment to show how the type block is set on the page
+	inner=2cm, % Inner margin
+	outer=2cm, % Outer margin
+	marginparwidth=0cm,
+	marginparsep=0mm,
+	bindingoffset=.5cm, % Binding offset
+	top=1.5cm, % Top margin
+	bottom=2.5cm, % Bottom margin,
+	includehead,
+	includefoot
+	% showframe, % Uncomment to show how the type block is set on the page
 }
 
 \addchap{References}
@@ -293,11 +294,11 @@ To improve the interoperability between CoNLL-U and CHAT, a deterministic mappin
 % enables two-column layout for bibliography
 \setlength\columnsep{2em}
 \begin{multicols}{2}
-    \begin{refcontext}[sorting=nyt] % sort bibliography by last name, year, title
-        \renewcommand*{\bibfont}{\small\RaggedRight}
-        \linespread{1.0}\selectfont % increase linespread if desired (not recommended)
-        \printbibliography[heading=none]
-    \end{refcontext}
+	\begin{refcontext}[sorting=nyt] % sort bibliography by last name, year, title
+		\renewcommand*{\bibfont}{\small\RaggedRight}
+		\linespread{1.0}\selectfont % increase linespread if desired (not recommended)
+		\printbibliography[heading=none]
+	\end{refcontext}
 \end{multicols}
 
 %----------------------------------------------------------------------------------------
@@ -318,13 +319,13 @@ Ich erkläre hiermit gemä\ss\ \S~17 Abs.\,2 APO, dass ich die vorstehende {\the
 \bigskip
 
 \begin{tabular}{@{}l@{}}
-    T\"ubingen, den \rule[-0.8em]{10em}{0.5pt}\\[2ex]
-    ~
+	T\"ubingen, den \rule[-0.8em]{10em}{0.5pt}\\[2ex]
+	~
 \end{tabular}
 \hspace{\fill}%
 \begin{tabular}{@{}c@{}}
-    \rule[-0.8em]{20em}{0.5pt}\\[2ex]
-    \authorname
+	\rule[-0.8em]{20em}{0.5pt}\\[2ex]
+	\authorname
 \end{tabular}\hspace{\fill}
 
 \end{declaration}
