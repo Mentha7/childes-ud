@@ -61,65 +61,6 @@ To better understand the examples, I also introduce two operations triggered by 
 
 With these two operations defined, it soon becomes clear to the human eye that the two examples should be normalised to \emph{here monkey} and \emph{yeah} after being cleaned. However, the same parses can only be achieved by a computer program using a stack. A stack is used to remember the number of opening angle brackets that have been seen so that the current nesting level is known. With the help of a stack, the first \texttt{>} is correctly associated with the second \texttt{<} in the first sentence and the first {<} in the second example.
 
-\begin{algorithm}
-  \SetAlgoLined\LinesNumberedHidden
-  \DontPrintSemicolon
-  \SetKwFunction{FMain}{Push}
-  \SetKwProg{Fn}{Function}{:}{}
-  \Fn{\FMain{$object$, $list$, $depth$}}{
-	\If{$depth < 0$}{
-		raise error: mismatch\;
-	}
-	\While{$depth > 0$}{
-		$list$ $\leftarrow$ last element of $list$\;
-		$depth$ $\leftarrow$ $depth - 1$\;
-	}
-	$list$.append($object$)
-  }
-  \;
-  \SetKwBlock{kwInit}{Initialization}{end}
-  \SetKwFunction{FMain}{Normalise}
-  \SetKwProg{Fn}{Function}{:}{}
-  \Fn{\FMain{$line$}}{
-  \KwInit{
-  $i \leftarrow 0$\;
-  $depth \leftarrow 0$\;
-  $tokens \leftarrow []$\;
-  $chars \leftarrow []$\;
-  }
-
-	\While{$i < len(line)$}{
-		\If{$line[i]$ == <}{
-			$push([], tokens, depth)$\;
-			$depth \leftarrow depth + 1$\;
-			$i \leftarrow i + 1$\;
-		}
-		\ElseIf{$line[i]$ == <}{
-			$token \leftarrow join(chars)$ \;
-			$chars \leftarrow []$ \;
-			\If{$token$}{
-				$push(token, tokens, depth)$\;
-			}
-			$depth \leftarrow depth - 1$\;
-			$i \leftarrow i + 1$\;
-		}
-		...\;
-		\Else{
-			$chars \leftarrow line[i]$ \;
-		}
-		\If{$i == len(line)$}{
-			$token \leftarrow join(chars)$ \;
-			$chars \leftarrow []$ \;
-			\If{$token$}{
-				$push(token, tokens, depth)$\;
-			}
-			$i \leftarrow i + 1$\;
-		}
-	}
-	\KwRet $tokens$\;
-  }
-\end{algorithm}
-
 
 % \begin{algorithm}[H]
 % \SetAlgoLined\LinesNumberedHidden
@@ -136,8 +77,70 @@ With these two operations defined, it soon becomes clear to the human eye that t
 % $list$.append($object$)
 % \end{algorithm}
 
-In chatconllu, nested expressions like the examples above are translated into nested lists with the help of a depth counter and a push operation. The depth counter is like a stack and keep the current level of nesting, and the push operation push the word to the list of the current depth. After that, a recursive delete method is used to start removing unwanted words from the innermost list. Then, the list is flattened and scanned for other operations like omit. The remaining list is then the list of all tokens to keep.
+In chatconllu, nested expressions like the examples above are translated into nested lists with the help of a depth counter and a push operation. The depth counter is like a stack and keep the current level of nesting, and the push operation push the word to the list of the current depth. The algorithm for processing nested structures is listed in Algorithm \ref{alg:nested}. After the utterance string is processed by the \texttt{normalise} method, a nested list corresponding to the structure of the scopes in the utterance is returned. Then, a recursive delete method is used to start removing unwanted elements from the innermost list. Then, the list is flattened and scanned for other operations like omit. The final remaining list is then the list of all tokens to keep.
 \clearpage
+\SetKwComment{Comment}{\color{green!50!black}// }{}
+\renewcommand{\CommentSty}[1]{\textnormal{\ttfamily\color{blue!50!black}#1}\unskip}
+\LinesNotNumbered
+\DontPrintSemicolon
+% \SetKwBlock{kwInit}{Initialization}{end}
+\begin{algorithm}[H]\label{alg:nested}
+\caption{Dealing with nested angle brackets}
+\SetKwFunction{FMain}{Push}
+\SetKwProg{Fn}{Function}{:}{}
+\Fn{\FMain{$object$, $list$, $depth$}}{
+	\If(\tcc*[f]{mismatch}){$depth < 0$}{
+		raise error\;
+	}
+	\While{$depth > 0$}{
+		$list$ $\leftarrow$ last element of $list$ \tcc*[f]{go one level deeper}\;
+		$depth$ $\leftarrow$ $depth - 1$\;
+	}
+	$list$.append($object$)
+  }
+  \;
+\SetKwFunction{FMain}{Normalise}
+\SetKwProg{Fn}{Function}{:}{}
+\Fn{\FMain{$line$}}{
+\KwInit{
+  $i \leftarrow 0$\;
+  $depth \leftarrow 0$\;
+  $tokens \leftarrow []$\;
+  $chars \leftarrow []$\;
+}
+
+	\While{$i < len(line)$}{
+		\If{$line[i]$ == <}{
+			$push([], tokens, depth)$\;
+			$depth \leftarrow depth + 1$\tcc*[f]{stack}\;
+			% $i \leftarrow i + 1$\;
+		}
+		\ElseIf{$line[i]$ == >}{
+			$token \leftarrow join(chars)$ \;
+			$chars \leftarrow []$ \;
+			\If{$token$}{
+				$push(token, tokens, depth)$\;
+			}
+			$depth \leftarrow depth - 1$\tcc*[f]{pop from stack}\;
+			% $i \leftarrow i + 1$\;
+		}
+		...\;
+		\Else(\tcc*[f]{reads normal character}){
+			$chars \leftarrow line[i]$ \;
+		}
+		\If(\tcc*[f]{add final token}){$i == len(line)$}{
+			$token \leftarrow join(chars)$ \;
+			$chars \leftarrow []$ \;
+			\If{$token$}{
+				$push(token, tokens, depth)$\;
+			}
+		$i \leftarrow i + 1$\;
+		}
+	}
+	\KwRet $tokens$\;
+  }
+\end{algorithm}
+
 \paragraph{to normalise or not} Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the \emph{clean} version of the utterance. On the one hand, word-based information in \texttt{\%mor} and \texttt{\%gra} tiers is only associated with tokens in the cleaned utterance. Therefore, to use the information provided in these tiers, one has to remove unannotated words (or nonwords). On the other hand, removing things like speech errors makes spontaneous conversational data less speech-like. Or worse, it could make the real sentence structure of the sometimes already ungrammatical utterance even less obvious, at least for dependency parsers. In his study of creating a dependency treebank using Dutch CHILDES corpora, during the process of cleaning the encoded utterances, (\cite{odijk2018anncor}) observed that blindly removing unintelligible words results in a decrease in the performance of the dependency parser they used. For example, although \texttt{xxx} is a nonword, it still functions as a placeholder \sidenote{Think of it as 0 in digits or as a masked token.}. The Alpino parser (\cite{bouma}) they used seems to depend on the positional information, despite the word is unknown. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable in dependency parsing and affected the performance of the dependency parser. Therefore when it comes to preprocessing spoken data like the CHILDES corpora. The degree of normalisation depends on the intended use case.
 
 \subsection{Extracting Information from Dependent Tiers}
@@ -170,20 +173,20 @@ A word can have any number of prefixes, each followed by a hash \texttt{\#}, fus
 A word group has the word annotation of each word in the word group joined by one of three types of delimiter: the dollar sign \texttt{\$} for preclitics, tilda \texttt{\~{}} for postclitics, and the plus sign \texttt{+} for compounds. Compounds, however, has not only each component word annotation preceded by \texttt{+}, but also receives an additional POS tag which is attached to the beginning of the MOR annotation for the word group. For example, \emph{peanut+butter} in the main line has the MOR annotation \texttt{n|+n|peanut+n|butter}.
 
 % what information needs to be extracted (table)
-\begin{margintable}[1\baselineskip]
-\begin{tabularx}{1\textwidth}{@{}ll@{}}
-\toprule
-\textbf{MOR} & \textbf{Field}\\\midrule
-lemma & \texttt{LEMMA} \\
-part-of-speech & \texttt{UPOS}, \texttt{XPOS}\\
-features & \texttt{FEATS} \\\addlinespace
-clitic type & \texttt{MISC} \\
-compound & \texttt{MISC} \\
-translation & \texttt{MISC} \\\bottomrule
-\end{tabularx}
-\caption{\label{tab:martabmor}Information contained in MOR strings that needs to be extracted, and the corresponding CoNLL-U field to store this information.}
-\footnotesize
-\end{margintable}
+% \begin{margintable}[1\baselineskip]
+% \begin{tabularx}{1\textwidth}{@{}ll@{}}
+% \toprule
+% \textbf{MOR} & \textbf{Field}\\\midrule
+% lemma & \texttt{LEMMA} \\
+% part-of-speech & \texttt{UPOS}, \texttt{XPOS}\\
+% features & \texttt{FEATS} \\\addlinespace
+% clitic type & \texttt{MISC} \\
+% compound & \texttt{MISC} \\
+% translation & \texttt{MISC} \\\bottomrule
+% \end{tabularx}
+% \caption{\label{tab:martabmor}Information contained in MOR strings that needs to be extracted, and the corresponding CoNLL-U field to store this information.}
+% \footnotesize
+% \end{margintable}
 
 Morphological information encoded in the \texttt{\%mor} tier is listed in \Cref{tab:martabmor}. The part-of-speech and features can be extracted directly by parsing the MOR annotation string. They are converted to UD-style values using a deterministic mapping which will be introduced in the next chapter. To reconstruct the MOR annotation during back-conversion from CoNLL-U format, chatconllu keep the original MOR POS tags as language-specific tags in \texttt{XPOS}. In the future, they should be moved to the MISC field as well. Other information require more processing and organisation, which I explain below:
 

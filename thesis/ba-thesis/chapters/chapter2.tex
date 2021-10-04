@@ -66,7 +66,19 @@ frame = single,
 \end{lstlisting}
 
 \paragraph{common tiers}
-The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} tiers \sidenote{As shown in Listing \ref{lst:chatsent2}.}, which can be generated automatically by the use of a series of CLAN programs\todo{table: program functions} \sidenote{MOR, POST, POSTMORTEM and GRASP}. The \texttt{\%mor} tier encodes morpgological information including affixes, the stem and part-of-speech category of a word, while the \texttt{\%gra} tier keeps the dependency structure of the utterance and the grammatical relations between head and dependent words.
+\begin{margintable}[1\baselineskip]
+\begin{tabularx}{1\textwidth}{@{}ll@{}}
+\toprule
+\textbf{Program} & \textbf{Function}\\\midrule
+MOR & part-of-speech tagging \\
+POST & disambiguate MOR analyses\\
+GRASP & syntactic analysis\\\bottomrule
+\end{tabularx}
+\caption{\label{tab:martabmor}Information contained in MOR strings that needs to be extracted, and the corresponding CoNLL-U field to store this information.}
+\footnotesize
+\end{margintable}
+
+The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} tiers \sidenote{As shown in Listing \ref{lst:chatsent2}.}, which can be generated automatically by the use of a series of CLAN programs. The \texttt{\%mor} tier encodes morpgological information including affixes, the stem and part-of-speech category of a word, while the \texttt{\%gra} tier keeps the dependency structure of the utterance and the grammatical relations between head and dependent words.
 
 \newcommand{\conllu}[1]{&\footnotesize\texttt{#1}}
 \newcommand{\tab}{&\hspace{0.1em}}
