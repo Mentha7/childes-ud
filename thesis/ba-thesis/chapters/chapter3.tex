@@ -6,12 +6,11 @@
 \section{Data Structures}
 From \Cref{Chapter2} we know that CoNLL-U files are collections of sentences, where each sentence has comment lines and token lines. With \Cref{tab:info}, I also showed that to keep as much information from CHAT files as possible, information exclusively relevant to CHAT had to be stored in sentence comments.
 
-chatconllu took the idea from the CoNLL-U sentence and propose to use two object classes---\texttt{Sentence} and \texttt{Token}---to organise the diverse types of information in CHAT files. The benefit of using these two uncomplicated structures is that they correspond well to the CoNLL-U way of information organisation, making writing to CoNLL-U strings straightforward.
+chatconllu takes the idea from the CoNLL-U sentence and proposes to use two object classes---\texttt{Sentence} and \texttt{Token}---to organise the diverse types of information in CHAT files. The benefit of using these two uncomplicated structures is that they correspond well to the CoNLL-U way of information organisation, making writing to CoNLL-U strings straightforward.
 
 \paragraph{\texttt{Sentence}}
 
-Each \texttt{Sentence} object is comprised of a list of \texttt{Token} objects and several additional attributes to store sentence-level information like dependent tiers and file-level meta data like headers preceding the current utterance. The list of \texttt{Token} objects corresponds to the words in the normalised utterance. A normalised utterance is an utterance with the CHAT transcription codes removed. When a \texttt{MOR} tier is present, the tokens should have a one-to-one correspondence with the strings in the \texttt{MOR} tier.
-
+Each \texttt{Sentence} object is comprised of a list of \texttt{Token} objects and several additional attributes to store sentence-level information like dependent tiers and file-level metadata like headers preceding the current utterance. The list of \texttt{Token} objects corresponds to the words in the normalised utterance. A normalised utterance is an utterance with the CHAT transcription codes removed. When a \texttt{MOR} tier is present, the tokens should have a one-to-one correspondence with the strings in the \texttt{MOR} tier.
 \paragraph{\texttt{Token}}
 
 The attributes of the \texttt{Token} object include the \textlf{10} fields of a normal CoNLL-U token, with two additional attributes:
@@ -24,7 +23,9 @@ Since \texttt{Token} is organised parallel to the UD-style token, it can be dire
 
 \section{Overview of chatconllu}
 
-The behaviour of chatconllu can be described in plain English: For all files or files with name specifications in the given directory, depending on the input file format, convert them to the other format and save the output as different files. I used the \emph{pyconll} \sidenote{pyconll is a low-level API for processing CoNLL-U formatted files.} package developed by (\cite{pyconll}) for parsing the converted CoNLL-U files and accessing the values of token fields. I chose to use it instead of writing my own script because I want to quickly validate the general structure of the converted files. By using the load method from a distributed package, I can get instant feedback if the file is malformed. chatconllu uses argparse to process inputs from the command line. With optional arguments \todo{list optional commands in the Appendix}\sidenote{All commands of chatconllu can be found via the \texttt{chatconllu --help} command after proper installation. The optional commands are listed in the Appendix (\textcolor{orange}{ref}).}, it's also possible to finetune the desired output by asking chatconllu to generate new dependent tiers, or to omit existing dependent tiers during format conversion.
+
+The behaviour of chatconllu can be described in plain English: For all files or files with name specifications in the given directory, depending on the input file format, convert them to the other format and save the output as different files. I used the \emph{pyconll} \sidenote{pyconll is a low-level API for processing CoNLL-U formatted files.} package developed by (\cite{pyconll}) for parsing the converted CoNLL-U files and accessing the values of token fields. I chose to use it instead of writing my own script because I want to quickly validate the general structure of the converted files. Using the load method from a distributed package allows me to get instant feedback if the file is malformed. chatconllu uses argparse to process inputs from the command line. With optional arguments \sidenote{All commands of chatconllu can be found via the \texttt{chatconllu --help} command after proper installation.}, it's also possible to finetune the desired output by asking chatconllu to generate new dependent tiers or omit existing dependent tiers during format conversion.
+
 % All commands of chatconllu can be found via the \texttt{chatconllu --help} command after proper installation. The optional commands are listed in the Appendix\todo{list optional commands in the Appendix}.
 
 \section{CHAT to CoNLL-U}
@@ -40,13 +41,15 @@ The conversion from CHAT to CoNLL-U is outlined as follows:
 
 \subsection{Normalising Utterances}\label{sec:normalise}
 
-To clean the utterances, I wrote a helper method \texttt{normalise\_utterances}. This method is a simple parser by itself. The input of this method is an utterance with CHAT transcription codes. The output is a tuple where the first value is a list of tokens in the utterance. After the removal of transcription codes, if the \texttt{\%mor} is given, the length of the list should match the number of strings in the \texttt{\%mor} tier. The second value is simply the line itself, which is to be stored as is as a sentence comment  in the output file, allowing for the recovery of the original utterance in the back-conversion process.
+To clean the utterances, I wrote a helper method \texttt{normalise\_utterances}. This method is a simple parser by itself. The input of this method is an utterance with CHAT transcription codes. The output is a tuple where the first value is a list of tokens in the utterance. After the removal of transcription codes, if the \texttt{\%mor} is given, the length of the list should match the number of strings in the \texttt{\%mor} tier. The second value is simply the line itself, which is to be stored as-is as a sentence comment in the output file, allowing for the recovery of the original utterance in the back-conversion process.
 
-\paragraph{regular expressions} To remove the CHAT transcription codes, one has to first identify them in the utterance string. Regular expressions are designed for the codes described in the CHAT manual and are tested on the chosen corpora. It is worth noticing that although some regular expressions can be merged into one, they are deliberately left not to, to keep the them manageable for future human inspection, addition, editing, and case-wise debugging.
 
-\paragraph{nested angle brackets} The original algorithm I used was simply parsing the string by incrementing the index of the current character and matching the remaining line with defined regular expressions. It was successful in processing flat structures, but not nested structures. Although nested structures are argurably rare in the corpora and the max level of nesting is just one, I still wanted a better solution to the problem.
+\paragraph{regular expressions}
+To remove the CHAT transcription codes, one has to first identify them in the utterance string. Regular expressions are designed for the codes described in the CHAT manual and are tested on the chosen corpora. It is worth noticing that although some regular expressions can be merged into one, they are deliberately left not to, to keep them manageable for future human inspection, addition, editing, and case-wise debugging.
 
-In CHAT, nested structures occur with \emph{scoped symbols} (\cite{Macwhinney2000}, Part 1, p.72). A scoped symbol is a marked segment of speech. The tokens in the segment are enclosed in angle brackets, while the markers which describe the segment are enclosed in the square brackets that follows. There can be more than one square-bracket-enclosed descriptors following a angle-bracketed speech segment, but no other materials are allowed between the scope enclosed in angle brackets and the symbols enclosed in square brackets.
+\paragraph{nested angle brackets} The original algorithm I used was simply parsing the string by incrementing the index of the current character and matching the remaining line with defined regular expressions. It was successful in processing flat structures, but not nested structures. Although nested structures are arguably rare in the corpora and the max level of nesting is just one, I still wanted a better solution to the problem.
+
+In CHAT, nested structures occur with \emph{scoped symbols} (\cite{Macwhinney2000}, Part 1, p.72). A scoped symbol is a marked segment of speech. The tokens in the segment are enclosed in angle brackets, while the markers which describe the segment are enclosed in the square brackets that follow. There can be more than one square-bracket-enclosed descriptor following an angle-bracketed speech segment, but no other materials are allowed between the scope enclosed in angle brackets and the symbols enclosed in square brackets.
 
 The challenge of nested angle brackets can be illustrated using two example utterances from the Brown Corpus (\cite{brown1973}):
 
@@ -55,8 +58,8 @@ The challenge of nested angle brackets can be illustrated using two example utte
 
 To better understand the examples, I also introduce two operations triggered by the markers:
 \begin{itemize}
-	\item \emph{deletion}: the previous word or scoped element as well as this marker should be removed, triggered by markers like \texttt{[/]}.
-	\item \emph{keep}: keep the previous word or the words in the scoped element, remove this marker after that, triggered by markers like \texttt{[?]} and \texttt{[>]}. Note that the \texttt{>} character also appears as a descriptor, making things more complecated.
+	\item \emph{deletion}: the previous word or scoped element, as well as this marker, should be removed, triggered by markers like \texttt{[/]}.
+	\item \emph{keep}: keep the previous word or the words in the scoped element, remove this marker after that, triggered by markers like \texttt{[?]} and \texttt{[>]}. Note that the \texttt{>} character also appears as a descriptor, making things more complicated.
 \end{itemize}
 
 With these two operations defined, it soon becomes clear to the human eye that the two examples should be normalised to \emph{here monkey} and \emph{yeah} after being cleaned. However, the same parses can only be achieved by a computer program using a stack. A stack is used to remember the number of opening angle brackets that have been seen so that the current nesting level is known. With the help of a stack, the first \texttt{>} is correctly associated with the second \texttt{<} in the first sentence and the first {<} in the second example.
@@ -77,7 +80,7 @@ With these two operations defined, it soon becomes clear to the human eye that t
 % $list$.append($object$)
 % \end{algorithm}
 
-In chatconllu, nested expressions like the examples above are translated into nested lists with the help of a depth counter and a push operation. The depth counter is like a stack and keep the current level of nesting, and the push operation push the word to the list of the current depth. The algorithm for processing nested structures is listed in Algorithm \ref{alg:nested}. After the utterance string is processed by the \texttt{normalise} method, a nested list corresponding to the structure of the scopes in the utterance is returned. Then, a recursive delete method is used to start removing unwanted elements from the innermost list. Then, the list is flattened and scanned for other operations like omit. The final remaining list is then the list of all tokens to keep.
+In chatconllu, nested expressions like the examples above are translated into nested lists with the help of a depth counter and a push operation. The depth counter is like a stack and keeps the current level of nesting, and the push operation pushes the word to the list of the current depth. The algorithm for processing nested structures is listed in Algorithm \ref{alg:nested}. After the utterance string is processed by the \texttt{normalise} method, a nested list corresponding to the structure of the scopes in the utterance is returned. Then, a recursive delete method is used to start removing unwanted elements from the innermost list. Then, the list is flattened and scanned for other operations like omit. The final remaining list is then the list of all tokens to keep.
 \clearpage
 \SetKwComment{Comment}{\color{green!50!black}// }{}
 \renewcommand{\CommentSty}[1]{\textnormal{\ttfamily\color{blue!50!black}#1}\unskip}
@@ -141,7 +144,7 @@ In chatconllu, nested expressions like the examples above are translated into ne
   }
 \end{algorithm}
 
-\paragraph{to normalise or not} Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the \emph{clean} version of the utterance. On the one hand, word-based information in \texttt{\%mor} and \texttt{\%gra} tiers is only associated with tokens in the cleaned utterance. Therefore, to use the information provided in these tiers, one has to remove unannotated words (or nonwords). On the other hand, removing things like speech errors makes spontaneous conversational data less speech-like. Or worse, it could make the real sentence structure of the sometimes already ungrammatical utterance even less obvious, at least for dependency parsers. In his study of creating a dependency treebank using Dutch CHILDES corpora, during the process of cleaning the encoded utterances, (\cite{odijk2018anncor}) observed that blindly removing unintelligible words results in a decrease in the performance of the dependency parser they used. For example, although \texttt{xxx} is a nonword, it still functions as a placeholder \sidenote{Think of it as 0 in digits or as a masked token.}. The Alpino parser (\cite{bouma}) they used seems to depend on the positional information, despite the word is unknown. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable in dependency parsing and affected the performance of the dependency parser. Therefore when it comes to preprocessing spoken data like the CHILDES corpora. The degree of normalisation depends on the intended use case.
+\paragraph{to normalise or not} Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the \emph{clean} version of the utterance. On the one hand, word-based information in \texttt{\%mor} and \texttt{\%gra} tiers is only associated with tokens in the cleaned utterance. Therefore, to use the information provided in these tiers, one has to remove unannotated words (or nonwords). On the other hand, removing things like speech errors makes spontaneous conversational data less speech-like. Or worse, it could make the real sentence structure of the sometimes already ungrammatical utterance even less obvious, at least for dependency parsers. In the study of creating a dependency treebank using Dutch CHILDES corpora, during the process of cleaning the encoded utterances, (\cite{odijk2018anncor}) observed that blindly removing unintelligible words results in a decrease in the performance of the dependency parser they used. For example, although \texttt{xxx} is a nonword, it still functions as a placeholder \sidenote{Think of it as 0 in digits or as a masked token.}. The Alpino parser (\cite{bouma}) they used seems to depend on the positional information, despite the word is unknown. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable in dependency parsing and affected the performance of the dependency parser. Therefore when it comes to preprocessing spoken data like the CHILDES corpora. The degree of normalisation depends on the intended use case.
 
 \subsection{Extracting Information from Dependent Tiers}
 
@@ -160,12 +163,12 @@ frame = single,
 
 \subsubsection{Morphological information from \%mor}
 
-The syntax of the MOR annotations is complicated by the existence of \emph{word groups}. Word groups are the root cause of the sometimes inconsistent number of annotation strings between \texttt{\%mor} and \texttt{\%gra}. Since the strings in the \texttt{\%mor} tier has a strict one-to-one correspondence with words on the main line, annotations of clitics and contractions like \emph{that's} also have to be single strings.
+The syntax of the MOR annotations is complicated by the existence of \emph{word groups}. Word groups are the root cause of the sometimes inconsistent number of annotation strings between \texttt{\%mor} and \texttt{\%gra}. Since the strings in the \texttt{\%mor} tier have a strict one-to-one correspondence with words on the main line, annotations of clitics and contractions like \emph{that's} also have to be single strings.
 
 Here, I introduce the syntax of the MOR annotations for words and word groups, which include clitics and compounds.
 
 \paragraph{word}
-The core structure of an individual word is \texttt{pos|stem}, giving only the part-of-speech and stem of the word, but usually words receive more complex morphological analysis, following the structure below:
+The core structure of an individual word is \texttt{pos|stem}, giving only the part-of-speech and stem of the word, but words ususally receive more complex morphological analysis, following the structure below:
 $$\texttt{prefix\#pos|stem\&fusionalsuffix-suffix=translation}$$
 A word can have any number of prefixes, each followed by a hash \texttt{\#}, fusional suffixes, each preceded by an ampersand \texttt{\&} and suffixes, each preceded by a dash \texttt{-} (\cite{Macwhinney2000}, Part 3, p.7).
 
@@ -188,13 +191,13 @@ A word group has the word annotation of each word in the word group joined by on
 % \footnotesize
 % \end{margintable}
 
-Morphological information encoded in the \texttt{\%mor} tier is listed in \Cref{tab:martabmor}. The part-of-speech and features can be extracted directly by parsing the MOR annotation string. They are converted to UD-style values using a deterministic mapping which will be introduced in the next chapter. To reconstruct the MOR annotation during back-conversion from CoNLL-U format, chatconllu keep the original MOR POS tags as language-specific tags in \texttt{XPOS}. In the future, they should be moved to the MISC field as well. Other information require more processing and organisation, which I explain below:
+Morphological information encoded in the \texttt{\%mor} tier is listed in \Cref{tab:martabmor}. The part-of-speech and features can be extracted directly by parsing the MOR annotation string. They are converted to UD-style values using a deterministic mapping which will be introduced in the next chapter.  During back-conversion from CoNLL-U format, chatconllu keep the original MOR POS tags as language-specific tags in \texttt{XPOS} to reconstruct the MOR annotation. In the future, they should be moved to the MISC field as well. Other information requires more processing and organisation, which I explain below:
 
 \paragraph{lemma} The syntax of the MOR annotations shows that getting the lemma out of a MOR string is not as trivial as it seems. There are several pitfalls to avoid:
 \begin{itemize}
 	\item The semantics of the symbols may be ambiguous. Take the dash symbol \texttt{-} as an example, for words like \texttt{tic-tac-toe}, the \texttt{-} merely connect parts of the word, but in the example of \texttt{part|get-PRESP} for the word \emph{getting}, \texttt{-} could be an indicator for the present participle suffix \texttt{-ing}.
 	\item One should also notice that the stem is not always the lemma, just that for English, these two share the same form in most cases. For instance, for \emph{untied}, we have the MOR segment \texttt{un\#v|tie-PASTP}, which means in plain English that the word has a stem \emph{tie} with prefix \emph{un}, its part-of-speech is verb and this word form is the past participle of the verb. Since in CoNLL-U, the \texttt{LEMMA} field is reserved for lemma and not word stem, the prefix should be put back in place to produce the real lemma.
-	\item Compound strings are structured differently and cannot be parsed in the same way. For word like \texttt{n|+n|peanut+n|butter}, instead of parsing this string using a different method, chatconllu simply use the word form as lemma. In this example, the word form and the lemma should both be \texttt{peanutbutter}.
+	\item Compound strings are structured differently and cannot be parsed in the same way. For words like \texttt{n|+n|peanut+n|butter}, instead of parsing this string using a different method, chatconllu simply use the word form as lemma. In this example, the word form and the lemma should both be \texttt{peanutbutter}.
 \end{itemize}
 
 \paragraph{misc}
@@ -217,7 +220,7 @@ syntactic relation & \texttt{DEPREL} \\\bottomrule
 \footnotesize
 \end{margintable}
 
-The grammarical relation (GR) annotaion in \texttt{\%gra} is represented in a simpler form than the annotation in \texttt{\%mor}, as shown in \Cref{tab:martabgra}. And since the annotaions in GRA are not affect in form by compounds or multi-word tokens, they can be parsed uniformly. Therefore, I only explain the GRA annotation syntax here for completeness.
+The grammatical relation (GR) annotation in \texttt{\%gra} is represented in a simpler form than the annotation in \texttt{\%mor}, as shown in \Cref{tab:martabgra}. And since the annotations in GRA are not affected in form by compounds or multi-word tokens, they can be parsed uniformly. Therefore, I only explain the GRA annotation syntax here for completeness.
 
 A triple, $(\text{dependent}, \text{head}, \text{relation type})$, is used to denote a dependency relation. In the \texttt{\%gra} tier, the annotation of such an relation is of the form \texttt{i|j|g}, where:
 \begin{itemize}
@@ -228,15 +231,16 @@ A triple, $(\text{dependent}, \text{head}, \text{relation type})$, is used to de
 
 
 \subsection{Sentence-level Information}
+
 Sentence-level info can also be stored in the comments in CoNLL-U. Meta-information given in the headers of CHAT files are saved as file-initial comments before the first sentence because they are file-specific.
-However, one has to admit that storing information like this reduces readability. Another thing is that information stored in this way are susceptible to changes accidentally made which cannot be detected by format validators. One possible solution is to validate the respective format before and after conversion is performed.
+However, one has to admit that storing information like this reduces readability. Another thing is that information stored in this way are susceptible to changes accidentally made, which cannot be detected by format validators. One possible solution is to validate the respective format before and after conversion is performed.
 
 
 \section{CoNLL-U to CHAT}
 
-The back-conversion from CoNLL-U to CHAT is more straightforward than from CHAT to CoNLL-U because CoNLL-U format has a clear structure of organising information. All file- and sentence-level meta data are stored in the comments and all morphosyntactic information is already categorised and organised into the ten fields of UD token representation discussed in \Cref{sec:conllu}. I describe the processes involved below.
+The back-conversion from CoNLL-U to CHAT is more straightforward than from CHAT to CoNLL-U because CoNLL-U format has a clear structure of organising information. All file- and sentence-level metadata are stored in the comments, and all morphosyntactic information is already categorised and organised into the ten fields of UD token representation discussed in \Cref{sec:conllu}. I describe the processes involved below.
 
-First, with the help of pyconll (\cite{pyconll}), chatconllu loads the CoNLL-U file to obtain pyconll sentences, each of which is composed of comments and tokens. The comments are read as a dictionary with the field names like \texttt{sent\_id} and \texttt{text} being the keys. Then chatconllu opens an output file, extract and write information in the same order as it would appear in a CHAT file, first headers, then the utterances and dependent tiers and finally the last utterances with no tokens and the file-final headers. During the process of writing data to the output file, if \texttt{\%gra} or \texttt{\%mor} are detected, information are reorganised using the syntax of the respective dependent tiers explained earlier. The user can optionally ask chatconllu to generate new empty \texttt{\%gra} or \texttt{\%mor} tiers, with the unspecified values being replaced by an underscore \texttt{\_}. It the converted CoNLL-U files are processed by other tools like UDPipe (\cite{straka-etal-2016-udpipe}) to add or change information, the user can choose to generate new tiers to represent the added information. Both or one of the following new tiers can be added by chatconllu:
+First, with the help of pyconll (\cite{pyconll}), chatconllu loads the CoNLL-U file to obtain pyconll sentences, each of which is composed of comments and tokens. The comments are read as a dictionary with the field names like \texttt{sent\_id} and \texttt{text} being the keys. Then chatconllu opens an output file, extract and write information in the same order as it would appear in a CHAT file, first headers, then the utterances and dependent tiers and finally the last utterances with no tokens and the file-final headers. During the process of writing data to the output file, if \texttt{\%gra} or \texttt{\%mor} is detected, information is reorganised using the syntax of the respective dependent tiers explained earlier. The user can optionally ask chatconllu to generate new empty \texttt{\%gra} or \texttt{\%mor} tiers, with the unspecified values being replaced by an underscore \texttt{\_}. If the converted CoNLL-U files are processed by other tools like UDPipe (\cite{straka-etal-2016-udpipe}) to add or change information, the user can choose to generate new tiers to represent the added information. Both or one of the following new tiers can be added by chatconllu:
 \begin{itemize}
 	\item \texttt{\%pos}---mirrors the \texttt{\%mor} tier in CHAT but without converting back UPOS tags to the POS tags used by MO
 	R. No morphemes are identified by the UD features as well.

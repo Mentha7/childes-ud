@@ -19,7 +19,7 @@ For a CHAT file to be well-formed, there are some basic structural requirements.
 First of all, each CHAT file should have at least two parts:
 \begin{itemize}
 	\item \emph{headers} preceded by the \texttt{@} symbol that stores metadata like language and participants. Some headers are obligatory \sidenote{Obligatory headers include: the file-initial header @Begin, @Languages, @Participants, @ID and the file-final header @End.}, some are optional.\\
-	Despite its name, headers can be added in the middle of a CHAT file to represent information like tape locations. It is likely that \emph{header} is a misnomer, and they should be called \emph{meta} as they gernally preserve higher-level information and are not confined to file-inital positions.
+	Despite its name, headers can be added in the middle of a CHAT file to represent information like tape locations. \emph{Header} is likely a misnomer, and they should be called \emph{meta} as they generally preserve higher-level information and are not confined to file-initial positions.
 	\item the \emph{main line}---utterances led by the asterisk symbol \texttt{*}, which are the actual sentences being said.
 \end{itemize}
 
@@ -27,7 +27,7 @@ Then, additional information can be \emph{optionally} added as dependent tiers. 
 
 % describe mor and gra tiers
 \subsection{Dependent Tiers}
-The inclusiveness and extensibility of the CHAT format is demonstrated by the use of dependent tiers, since almost any type of information can be organised into separate dependent tiers and added to the relevant utterances. The CHAT manual defines a standard list of dependent tiers (\cite{Macwhinney2000}, pp. 81-87). The tier names are mostly lowercase three-letter codes, but with the exceptions of tier names preceded by an \texttt{x}, like \texttt{\%xmor}. With the active use of dependent tiers, researchers can adjust the level of specificity in the CHAT files to meet their individual needs. At the same time, since dependent tiers are optional, they do not interfere with other obligatory parts of the file.
+Since almost any type of information can be organised into separate dependent tiers and added to the relevant utterances, the use of dependent tiers demonstrates the inclusiveness and extensibility of the CHAT format. The CHAT manual defines a standard list of dependent tiers (\cite{Macwhinney2000}, pp. 81-87). The tier names are mostly lowercase three-letter codes, but with the exceptions of tier names preceded by an \texttt{x}, like \texttt{\%xmor}. With the active use of dependent tiers, researchers can adjust the level of specificity in the CHAT files to meet their individual needs. At the same time, since dependent tiers are optional, they do not interfere with other obligatory parts of the file.
 
 A dependent tier can contain one of two types of information:
 \begin{itemize}
@@ -78,7 +78,7 @@ GRASP & syntactic analysis\\\bottomrule
 \footnotesize
 \end{margintable}
 
-The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} tiers \sidenote{As shown in Listing \ref{lst:chatsent2}.}, which can be generated automatically by the use of a series of CLAN programs. The \texttt{\%mor} tier encodes morpgological information including affixes, the stem and part-of-speech category of a word, while the \texttt{\%gra} tier keeps the dependency structure of the utterance and the grammatical relations between head and dependent words.
+The two most commonly seen tiers are \texttt{\%mor} and \texttt{\%gra} tiers \sidenote{As shown in Listing \ref{lst:chatsent2}.}, which can be generated automatically by the use of a series of CLAN programs. The \texttt{\%mor} tier encodes morphological information, including affixes, the stem and part-of-speech category of a word, while the \texttt{\%gra} tier keeps the dependency structure of the utterance and the grammatical relations between head and dependent words.
 
 \newcommand{\conllu}[1]{&\footnotesize\texttt{#1}}
 \newcommand{\tab}{&\hspace{0.1em}}
@@ -155,11 +155,11 @@ Example taken from \url{https://universaldependencies.org/format.html}. Fields o
 % between normalised utterance and %mor.
 Understanding how the same type of information is organised and represented in these two formats is crucial to format conversion.
 
-As discussed above, both CHAT and CoNLL-U store meta-information as well as morphosyntactic information of tokens in the utterance. However, upon reading the manuals of both formalisms, it seems that CHAT encompasses a broader range of information types otherwise not present in CoNLL-U formats, like the required headers of a CHAT file. Therefore, although meta data in CHAT is meaningless for CoNLL-U, to reproduce CHAT from a converted file in CoNLL-U format, it must be stored in such a way that it can be put back to the right place.
+As discussed above, both CHAT and CoNLL-U store meta-information as well as morphosyntactic information of tokens in the utterance. However, upon reading the manuals of both formalisms, it seems that CHAT encompasses a broader range of information types otherwise not present in CoNLL-U formats, like the required headers of a CHAT file. Therefore, although metadata in CHAT is meaningless for CoNLL-U, to reproduce CHAT from a converted file in CoNLL-U format, it must be stored in such a way that it can be put back to the right place.
 
-Since CHAT is more encompassing than CoNLL-U and CoNLL-U files have no exclusive information that require previously non-exist tiers or headers, data contained in CoNLL-U files can be seen as a subset of that of the CHAT files.
+Since CHAT is more encompassing than CoNLL-U and CoNLL-U files have no exclusive information that requires previously non-existent tiers or headers, data contained in CoNLL-U files can be seen as a subset of that of the CHAT files.
 
-The general information types contained in CHAT files are summarised in \Cref{tab:info}. It is clear from the table that file- and sentence-level meta data distributed in diverse places of a CHAT file are all stored as sentence comments in CoNLL-U.
+The general information types contained in CHAT files are summarised in \Cref{tab:info}. It is clear from the table that file- and sentence-level metadata distributed in diverse places of a CHAT file are all stored as sentence comments in CoNLL-U.
 \clearpage
 
 \begin{table}[h!]
@@ -199,4 +199,4 @@ The general information types contained in CHAT files are summarised in \Cref{ta
 \end{tabularx}
 \end{table}
 
-As for the shared morphosyntactic information, while CHAT uses dependent tiers parallel to the main line, UD takes a token-based approach. Nevertheless, both formalisms use word as the basic unit for morphosyntactic analyses. Thus, although placed in separate tiers, morphological information in the \texttt{\%mor} tier and syntactic relations between words in the \texttt{\%gra} tier can be associated with tokens in the utterance. Similarly, by combining information separated in different fields of the CoNLL-U token line, one can group and reorganise the fields to produce string representations similar to those assigned by MOR and GRASP.
+As for the shared morphosyntactic information, while CHAT uses dependent tiers parallel to the main line, UD takes a token-based approach. Nevertheless, both formalisms use the \emph{word} as the basic unit for morphosyntactic analyses. Thus, although placed in separate tiers, morphological information in the \texttt{\%mor} tier and syntactic relations between words in the \texttt{\%gra} tier can be associated with tokens in the utterance. Similarly, by combining information separated in different fields of the CoNLL-U token line, one can group and reorganise the fields to produce string representations similar to those assigned by MOR and GRASP.
