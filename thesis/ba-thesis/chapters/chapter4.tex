@@ -41,10 +41,10 @@ UD's UPOS is developed based on Petrov's \emph{A Universal Part-of-Speech Tagset
 
 The adaptation from MOR POS categories to UD's UPOS can be achieved in the following ways:
 \begin{itemize}
-	\item create a direct mapping between two tags if they share the same semantics or have a straightforward relationship
-	\item collapse MOR POS categories into one UPOS tag when applicable
-	\item make best-effort decisions based on the description of the POS cetegories by both formalisms
-	\item map MOR POS categories with no UPOS counterparts to \texttt{X}
+    \item create a direct mapping between two tags if they share the same semantics or have a straightforward relationship
+    \item collapse MOR POS categories into one UPOS tag when applicable
+    \item make best-effort decisions based on the description of the POS cetegories by both formalisms
+    \item map MOR POS categories with no UPOS counterparts to \texttt{X}
 \end{itemize}
 
 An example of a straightforward mapping between MOR POS codes and UPOS tags is shown in Table \ref{tab:martabpos}. A total of 16 out of the 17 UPOS tags are used in the tagset mapping, with the exception of \texttt{SYM}, which is reserved for symbols.
@@ -71,10 +71,10 @@ Despite the similarity between the MOR \texttt{conj} and UD \texttt{CCONJ}, they
 \paragraph{special form markers}
 It is worth noticing that some MOR codes do not correspond to any grammatical categories. For example, in CHAT, the so-called \emph{special form markers} have unique POS tags independent of the part-of-speech category to which the word belongs (\cite{Macwhinney2000}, Part 1, pp. 45-47). Nevertheless, some of these tags can still be mapped to UPOS.The tags \texttt{sing} for singing, \texttt{bab} for babbling and \texttt{wplay} for wordplay can all be mapped to \texttt{INTJ}, which stands for \emph{interjection}. The definition of interjection, however, is vague (\cite{ameka1992}). UD defines interjection descriptively \sidenote{"An interjection is a word that is used most often as an exclamation or part of an exclamation. It typically expresses an emotional reaction, is not syntactically related to other accompanying expressions, and may include a combination of sounds not otherwise found in the language." Excerpt from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}. Following UD's definition for \texttt{INTJ}, the core criteria for a word \sidenote{or non-word in this case} to be an interjection include:
 \begin{itemize}
-	\item that it is often used exclamatorily
-	\item that it typically expresses emotions
-	\item that it plays no syntactic role in the utterance
-	\item that it might not be a recognised word in the language
+    \item that it is often used exclamatorily
+    \item that it typically expresses emotions
+    \item that it plays no syntactic role in the utterance
+    \item that it might not be a recognised word in the language
 \end{itemize}
 Since singing, babbling and wordplay satisfy these criteria, along with the MOR code \texttt{co} for interjections , they are granted the \texttt{INTJ} tag. Other special form markers, on the other hand, have no corresponding UPOS tags whatsoever, for example \texttt{dia} for dialect forms. Unfortunately they have to be assigned to \texttt{X}, as words that does not belong to the other 16 categories.
 
@@ -107,15 +107,15 @@ Since \texttt{MOR} uses a morpheme-based approach to analyse individual words, m
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
 \textbf{CHILDES database} & \textbf{Language}\\ \midrule
-	Belfast & eng\\
-	Brown & eng\\
-	English-MiamiBiling & eng\\
-	Wells & eng\\
-	Geneva & fra\\
-	Leveille & fra\\
-	MTLN & fra\\
-	vioncolas & fra\\
-	Tonelli & ita\\\bottomrule
+    Belfast & eng\\
+    Brown & eng\\
+    English-MiamiBiling & eng\\
+    Wells & eng\\
+    Geneva & fra\\
+    Leveille & fra\\
+    MTLN & fra\\
+    vioncolas & fra\\
+    Tonelli & ita\\\bottomrule
 \end{tabularx}
 \caption{\label{tab:martabdb}CHILDES databases chosen for this project.}
 \footnotesize
@@ -123,24 +123,42 @@ Since \texttt{MOR} uses a morpheme-based approach to analyse individual words, m
 
 These two fundamentally different views of words are reflected in the different ways of structuring morphological information. CoNLL-U format keeps all relevant features of a word in the token's \texttt{FEATS} field. And although each language in UD has its subset of morphological features, the feature types and values are by convention the same. Compared with UD, CHILDES's way of handling features is less direct. Not all features are explicit as UD's feature-value pairs. Instead, they have to be inferred from the morpheme codes or POS tags.
 
-Listing of all possible MOR codes for grammatical morphemes is, again, unlikely. Therefore, I chose the easier path of collecting these codes from the CHILDES databases that I decided to work with, listed in \Cref{tab:martabdb}. Of all the morpheme codes found in these corpora, not all of them correspond to UD features. Since morphological features are not mandatory, I only created mappings for those with a corresponding UD feature-value pair. An example mapping is given in Table \ref{tab:martabfeats} on the right-hand side. Only 9 types of features can be obtained directly from the morpheme codes I encountered: \texttt{Number}, \texttt{Person}, \texttt{Gender}, \texttt{Mood}, \texttt{Degree}, \texttt{Tense}, \texttt{Verbform}, \texttt{Voice}, and \texttt{Poss}. All possible UD features and values allowed for Engish, French, and Italian can be found in Table \ref{tab:featsmap} in \Cref{appendixa}. The codes are sometimes capitalised and sometimes not due to language- or corpus-specific conventions. They are all converted to lowercase for easy comparison. The original morpheme codes are kept in the \texttt{MISC} field.
+Listing of all possible MOR codes for grammatical morphemes is, again, unlikely. Therefore, I chose the easier path of collecting these codes from the CHILDES databases that I decided to work with, listed in \Cref{tab:martabdb}.
 \begin{margintable}[1\baselineskip]
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
-\textbf{MOR code} & \textbf{UD feats}\\ \midrule
-	3s & Number=Sing|Person=3\\
-	cp & Degree=Cmp\\
-	f & Gender=Fem\\
-	inf & VerbForm=Inf\\
-	imp & Mood=Imp\\
-	impf & Tense=Imp\\
-	pass & Voice=Pass\\
-	pastp & Tense=Past|VerbForm=Part\\
-	poss & Poss=Yes\\\bottomrule
+\textbf{MOR} & \textbf{UD feats}\\ \midrule
+    3s & Number=Sing|Person=3\\
+    cp & Degree=Cmp\\
+    f & Gender=Fem\\
+    inf & VerbForm=Inf\\
+    imp & Mood=Imp\\
+    impf & Tense=Imp\\
+    pass & Voice=Pass\\
+    pastp & Tense=Past|VerbForm=Part\\
+    poss & Poss=Yes\\\bottomrule
 \end{tabularx}
 \caption{\label{tab:martabfeats}Example MOR grammatical morpheme codes and their corresponding UD featue-value pairs.}
 \footnotesize
 \end{margintable}
+Of all the morpheme codes found in these corpora, not all of them correspond to UD features. Since morphological features are not mandatory, I only created mappings for those with a corresponding UD feature-value pair. An example mapping is given in Table \ref{tab:martabfeats} on the right-hand side. Only 9 types of features can be obtained directly from the morpheme codes I encountered: \texttt{Number}, \texttt{Person}, \texttt{Gender}, \texttt{Mood}, \texttt{Degree}, \texttt{Tense}, \texttt{Verbform}, \texttt{Voice}, and \texttt{Poss}. All possible UD features and values allowed for Engish, French, and Italian can be found in Table \ref{tab:featsmap} in \Cref{appendixa}. The codes are sometimes capitalised and sometimes not due to language- or corpus-specific conventions. They are all converted to lowercase for easy comparison. The original morpheme codes are kept in the \texttt{MISC} field.
+% \begin{margintable}[1\baselineskip]
+% \begin{tabularx}{1\textwidth}{@{}ll@{}}
+% \toprule
+% \textbf{MOR code} & \textbf{UD feats}\\ \midrule
+%     3s & Number=Sing|Person=3\\
+%     cp & Degree=Cmp\\
+%     f & Gender=Fem\\
+%     inf & VerbForm=Inf\\
+%     imp & Mood=Imp\\
+%     impf & Tense=Imp\\
+%     pass & Voice=Pass\\
+%     pastp & Tense=Past|VerbForm=Part\\
+%     poss & Poss=Yes\\\bottomrule
+% \end{tabularx}
+% \caption{\label{tab:martabfeats}Example MOR grammatical morpheme codes and their corresponding UD featue-value pairs.}
+% \footnotesize
+% \end{margintable}
 
 
 % converting GRA codes to UD deprels
@@ -149,12 +167,10 @@ Listing of all possible MOR codes for grammatical morphemes is, again, unlikely.
 
 In CHAT annotations, syntactic relations are represented by Grammatical Relations (GRs). They were first devised by Kenji Sagae (\cite{sagae-etal-2004-adding}) for the English language. After later revisions in 2007, CHAT now has 37 grammatical relation types (\cite{sagae2007}). They correspond to dependency relations stored in the \texttt{DEPRELS} field in CoNLL-U files. However, CHILDES and UD use different labels for these dependency relations and quite different parsing schemes. Sometimes, a conversion from GR to deprel also introduces a change in the structure of the dependency tree.
 
-Defining a deterministic mapping between GRs and UD dependency relations thus ranges from direct label translation to linguistically-informed decisions. Direct mappings are listed in Table \ref{tab:martabgr}. Explanations of the adaptations made will be elaborated below and detailed examples for a selected few hard-to-decide cases are provided.
-
 \begin{margintable}[1\baselineskip]
 \begin{tabularx}{1\textwidth}{@{}Ll@{}}
 \toprule
-\textbf{GRA code} & \textbf{UD deprel}\\ \midrule
+\textbf{GRA} & \textbf{UD deprel}\\ \midrule
 SUBJ & nsubj\\
 CSUBJ & csubj\\
 OBJ & obj\\
@@ -171,70 +187,76 @@ ROOT & root\\\bottomrule
 \footnotesize
 \end{margintable}
 
-\subsection{Direct Label Translation}
+Defining a deterministic mapping between GRs and UD dependency relations thus ranges from direct label translation to linguistically-informed decisions. \Cref{tab:martabgr} gives examples of direct label conversions. The full mapping for the current version of chatconllu can be found in \Cref{tab:grmap}.
 
-\paragraph{\texttt{INCROOT}}
-Since CHAT transcripts tries to faithfully transcribe conversational speech, the utterances in CHILDES corpora may not be fully grammatical. This ungrammaticality problem becomes even more apparent when dealing with child speech. For incomplete utterances or sentences missing the main verb, a substitute root \texttt{INCROOT} is given by GRASP. Most of the time, it does not hurt to give it the regular \texttt{ROOT} label directly.
-\clearpage
+ A solid mapping requires both familiarity with the grammatical relations defined in the two formalisms and profound linguistic knowledge for the languages involved, this mapping I created is only a first attempt with many inprecisions. Therefore, instead of explaining the decision process with my limited linguistic knowledge, I choose to identify and discuss several hard-to-decide cases and cases where CHILDES and UD provide different dependency parses. Since only the English databases are annotated with syntactic relations, all labels and discussions here apply only to the English language.
+
+The current version of chatconllu does not handle most of the cases discussed below, because it does not seek to produce gold-standard UD-style dependency parses, but only convert the files to CoNLL-U format, which can then be processed by other dependency parsers, for example those trained on UD treebanks. Therefore, my best effort in designing this mapping goes to transforming existing GR labels to UD labels without changing the dependency structures produced by GRASP in most cases to aid comparison between the two parsing schemes.
+
+
+% \subsection{Direct Label Translation}
+
+% \paragraph{\texttt{INCROOT}}
+% Since CHAT transcripts tries to faithfully transcribe conversational speech, the utterances in CHILDES corpora may not be fully grammatical. This ungrammaticality problem becomes even more apparent when dealing with child speech. For incomplete utterances or sentences missing the main verb, a substitute root \texttt{INCROOT} is given by GRASP. Most of the time, it does not hurt to give it the regular \texttt{ROOT} label directly.
 
 \begin{minipage}{\widefigurewidth}
 \begin{dependency}[edge slant=3pt]
-	\begin{deptext}[column sep=0.7cm]
-	well \& ‡ \& that \& 's \& life \& .\\
-	% \textlf{1}|\textlf{0}|BEG \& \textlf{2}|\textlf{1}|BEGP \& \textlf{3}|\textlf{4}|SUBJ \& \textlf{4}|\textlf{0}|ROOT \& \textlf{5}|\textlf{4}|OBJ \& \textlf{6}|\textlf{4}|PUNCT\\
-	\end{deptext}
-	\depedge{1}{2}{BEGP}
-	\depedge{4}{3}{SUBJ}
-	\depedge{4}{5}{OBJ}
-	\depedge{4}{6}{PUNCT}
-	\deproot{1}{BEG}
-	\deproot{4}{ROOT}
+    \begin{deptext}[column sep=0.7cm]
+    well \& ‡ \& that \& 's \& life \& .\\
+    % \textlf{1}|\textlf{0}|BEG \& \textlf{2}|\textlf{1}|BEGP \& \textlf{3}|\textlf{4}|SUBJ \& \textlf{4}|\textlf{0}|ROOT \& \textlf{5}|\textlf{4}|OBJ \& \textlf{6}|\textlf{4}|PUNCT\\
+    \end{deptext}
+    \depedge{1}{2}{BEGP}
+    \depedge{4}{3}{SUBJ}
+    \depedge{4}{5}{OBJ}
+    \depedge{4}{6}{PUNCT}
+    \deproot{1}{BEG}
+    \deproot{4}{ROOT}
 \end{dependency}
 \hfill
 \begin{dependency}[edge slant=3pt]
-	\begin{deptext}[column sep=0.7cm]
-	well \& , \& that \& 's \& life \& .\\
-	\end{deptext}
-	\depedge{5}{1}{discourse}
-	\depedge{5}{2}{punct}
-	\depedge{5}{3}{nsubj}
-	\depedge{5}{4}{cop}
-	\depedge{5}{6}{punct}
-	\deproot[edge unit distance=4ex]{5}{root}
+    \begin{deptext}[column sep=0.7cm]
+    well \& , \& that \& 's \& life \& .\\
+    \end{deptext}
+    \depedge{5}{1}{discourse}
+    \depedge{5}{2}{punct}
+    \depedge{5}{3}{nsubj}
+    \depedge{5}{4}{cop}
+    \depedge{5}{6}{punct}
+    \deproot[edge unit distance=4ex]{5}{root}
 \end{dependency}
 \end{minipage}
 \captionof{figure}{CHILDES vs UD dependency graphs: interjections}\label{fig:intj}
 
 \begin{minipage}{\widefigurewidth}
 \begin{dependency}[edge slant=3pt]
-	\begin{deptext}[column sep=0.7cm]
-	son \& ‡ \& that \& 's \& life \& .\\
-	% \textlf{1}|\textlf{0}|BEG \& \textlf{2}|\textlf{1}|BEGP \& \textlf{3}|\textlf{4}|SUBJ \& \textlf{4}|\textlf{0}|ROOT \& \textlf{5}|\textlf{4}|OBJ \& \textlf{6}|\textlf{4}|PUNCT\\
-	\end{deptext}
-	\depedge{1}{2}{BEGP}
-	\depedge{4}{3}{SUBJ}
-	\depedge{4}{5}{OBJ}
-	\depedge{4}{6}{PUNCT}
-	\deproot{1}{BEG}
-	\deproot{4}{ROOT}
+    \begin{deptext}[column sep=0.7cm]
+    son \& ‡ \& that \& 's \& life \& .\\
+    % \textlf{1}|\textlf{0}|BEG \& \textlf{2}|\textlf{1}|BEGP \& \textlf{3}|\textlf{4}|SUBJ \& \textlf{4}|\textlf{0}|ROOT \& \textlf{5}|\textlf{4}|OBJ \& \textlf{6}|\textlf{4}|PUNCT\\
+    \end{deptext}
+    \depedge{1}{2}{BEGP}
+    \depedge{4}{3}{SUBJ}
+    \depedge{4}{5}{OBJ}
+    \depedge{4}{6}{PUNCT}
+    \deproot{1}{BEG}
+    \deproot{4}{ROOT}
 \end{dependency}
 \hfill
 \begin{dependency}[edge slant=3pt]
-	\begin{deptext}[column sep=0.7cm]
-	son \& , \& that \& 's \& life \& .\\
-	\end{deptext}
-	\depedge{5}{1}{vocative}
-	\depedge{5}{2}{punct}
-	\depedge{5}{3}{nsubj}
-	\depedge{5}{4}{cop}
-	\depedge{5}{6}{punct}
-	\deproot[edge unit distance=4ex]{5}{root}
+    \begin{deptext}[column sep=0.7cm]
+    son \& , \& that \& 's \& life \& .\\
+    \end{deptext}
+    \depedge{5}{1}{vocative}
+    \depedge{5}{2}{punct}
+    \depedge{5}{3}{nsubj}
+    \depedge{5}{4}{cop}
+    \depedge{5}{6}{punct}
+    \deproot[edge unit distance=4ex]{5}{root}
 \end{dependency}
 \end{minipage}
 \captionof{figure}{CHILDES vs UD dependency graphs: vocatives}\label{fig:voc}
 
-\subsection{Difficult Cases}\label{sec:grdifficult}
-\subsubsection{The multiple-root problem}
+% \subsection{Difficult Cases}\label{sec:grdifficult}
+\subsection{The Multiple-Root Problem}
 In UD, every sentence has exactly one root, represented by a single-root dependency tree. The dependency analysis generated by GRASP is, however, not always like that.
 
 After processed by GRASP, sentences with non-final punctuations, like after an exclamation, a vocative expression or, close to the end of the utterance, before the tag question, receives multiple roots. Although usually only one \texttt{ROOT} or \texttt{INCROOT} label is assigned, there can be multiple words whose head is marked \textlf{0}, which, in effect, corrupts the single-root tree structure.
@@ -253,36 +275,36 @@ Consider the following sentences:
 After running GRASP, sentences like (\ref{intj}) and (\ref{voc}) will be analysed like the left-hand side dependency graph of \Cref{fig:intj} and \Cref{fig:voc}, while UD-style dependeny analyses are shown on the right-hand side.\\
 
 
-It is clear from the dependency graphs that the CHILDES dependency trees are broken. Therefore, to produce a proper dependency tree from that, one must changes the head index of the token identified as the fake root (indicated by the GR label \texttt{BEG}) to that of the sentence's true root.
+It is clear from the dependency graphs that the CHILDES dependency trees are broken. Therefore, to produce a proper dependency tree from that, one must change the head index of the token identified as the fake root (indicated by the GR label \texttt{BEG}) to that of the sentence's true root.
 
 After the change-head operation is applied, the current token with GR label \texttt{BEG} is connected to the only one root remained. Now the two examples in \Cref{fig:intj} and \Cref{fig:voc} share the same dependency structures. However, dependency relation labels for vocatives and interjections should be different. To make the final decision, chatconllu needs POS tag of the token with \texttt{BEG}. The decision process is outlined below:\\
 
 \begin{itemize}
-	\item If the token has a POS tag and it is not \texttt{INTJ}, \texttt{PROPN}, or \texttt{NOUN}, the corresponding \texttt{deprel} \sidenote{Definition for \texttt{parataxis} can be found from \url{https://universaldependencies.org/u/dep/parataxis.html}} label should be \texttt{parataxis} for a loose side-by-side placement of the affected elements.
-	\item If the POS tag is \texttt{INTJ}, then the first part of the sentence is considered as an exclamation. The corresponding UD-style label should be \texttt{discourse} \sidenote{Definition for \texttt{discourse} can be found from \url{https://universaldependencies.org/u/dep/discourse.html}}.
-	\item If the POS tag is \texttt{PROPN} or \texttt{NOUN}, the first part of the sentence is considered as an expression in vocative. Therefore, the corresponding \texttt{deprel} label should be \texttt{vocative} \sidenote{Definition for \texttt{vocative} can be found from \url{https://universaldependencies.org/u/dep/vocative.html}}.
+    \item If the token has a POS tag and it is not \texttt{INTJ}, \texttt{PROPN}, or \texttt{NOUN}, the corresponding \texttt{deprel} \sidenote{Definition for \texttt{parataxis} can be found from \url{https://universaldependencies.org/u/dep/parataxis.html}} label should be \texttt{parataxis} for a loose side-by-side placement of the affected elements.
+    \item If the POS tag is \texttt{INTJ}, then the first part of the sentence is considered as an exclamation. The corresponding UD-style label should be \texttt{discourse} \sidenote{Definition for \texttt{discourse} can be found from \url{https://universaldependencies.org/u/dep/discourse.html}}.
+    \item If the POS tag is \texttt{PROPN} or \texttt{NOUN}, the first part of the sentence is considered as an expression in vocative. Therefore, the corresponding \texttt{deprel} label should be \texttt{vocative} \sidenote{Definition for \texttt{vocative} can be found from \url{https://universaldependencies.org/u/dep/vocative.html}}.
 \end{itemize}
 
 % For instance, the sentence "well, son, that's just life, isn't it ?" will be analysed by GRASP as this:
-\subsubsection{Inconsistent Dependency Parses}
+\subsection{Inconsistent Dependency Parses}
 
 When searching for cases of tag questions, I noticed that the same tag question are parsed differently by GRASP. Right now chatconllu cannot change them into UD-style dependency structures automatically so the structures, although problematic, are kept as they are. Only the dependency labels are na\"{\i}vely changed to their UD counterparts according to the mapping I created. \todo{Optional: example trees}\\
 
 % \begin{minipage}{\widefigurewidth}
 \begin{minipage}{\widefigurewidth}
 \begin{dependency}[edge slant=3pt]
-	\begin{deptext}[column sep=1cm]
-	that \& 's \& life \& „ \& is \& n't \& it \& ?\\
-	% \textlf{1}|\textlf{2}|SUBJ \& \textlf{2}|\textlf{0}|ROOT \& \textlf{3}|\textlf{2}|OBJ \& \textlf{4}|\textlf{5}|ENDP \& \textlf{5}|\textlf{2}|END \& \textlf{6}|\textlf{2}|PUNCT\\
-	\end{deptext}
-	\depedge{2}{1}{SUBJ}
-	\depedge{2}{3}{PRED}
-	\depedge{5}{4}{ENDP}
-	\depedge[edge unit distance=1.8ex]{2}{5}{END}
-	\depedge{5}{6}{NEG}
-	\depedge[edge unit distance=2.5ex]{5}{7}{PRED}
-	\depedge[edge unit distance=1.5ex]{2}{8}{PUNCT}
-	\deproot[edge unit distance=4ex]{2}{ROOT}
+    \begin{deptext}[column sep=1cm]
+    that \& 's \& life \& „ \& is \& n't \& it \& ?\\
+    % \textlf{1}|\textlf{2}|SUBJ \& \textlf{2}|\textlf{0}|ROOT \& \textlf{3}|\textlf{2}|OBJ \& \textlf{4}|\textlf{5}|ENDP \& \textlf{5}|\textlf{2}|END \& \textlf{6}|\textlf{2}|PUNCT\\
+    \end{deptext}
+    \depedge{2}{1}{SUBJ}
+    \depedge{2}{3}{PRED}
+    \depedge{5}{4}{ENDP}
+    \depedge[edge unit distance=1.8ex]{2}{5}{END}
+    \depedge{5}{6}{NEG}
+    \depedge[edge unit distance=2.5ex]{5}{7}{PRED}
+    \depedge[edge unit distance=1.5ex]{2}{8}{PUNCT}
+    \deproot[edge unit distance=4ex]{2}{ROOT}
 \end{dependency}
 % \captionof{figure}{CHILDES}
 \end{minipage}
@@ -293,17 +315,17 @@ When searching for cases of tag questions, I noticed that the same tag question 
 \begin{minipage}{\linewidth}
 % \begin{dependency}[arc edge, arc angle=70, text only label, label style={above}]
 \begin{dependency}[edge slant=3pt]
-	\begin{deptext}[column sep=1cm]
-	that \& 's \& life \& , \& is \& n't \& it \& ?\\
-	\end{deptext}
-	\depedge{3}{1}{nsubj}
-	\depedge{3}{2}{cop}
-	\depedge{3}{4}{punct}
-	\depedge{3}{5}{parataxis}
-	\depedge{5}{6}{advmod}
-	\depedge{5}{7}{nsubj}
-	\depedge[edge unit distance=1.8ex]{3}{8}{punct}
-	\deproot[edge unit distance=3ex]{3}{root}
+    \begin{deptext}[column sep=1cm]
+    that \& 's \& life \& , \& is \& n't \& it \& ?\\
+    \end{deptext}
+    \depedge{3}{1}{nsubj}
+    \depedge{3}{2}{cop}
+    \depedge{3}{4}{punct}
+    \depedge{3}{5}{parataxis}
+    \depedge{5}{6}{advmod}
+    \depedge{5}{7}{nsubj}
+    \depedge[edge unit distance=1.8ex]{3}{8}{punct}
+    \deproot[edge unit distance=3ex]{3}{root}
 \end{dependency}
 % \captionof{figure}{UD}
 \end{minipage}
@@ -314,54 +336,54 @@ When searching for cases of tag questions, I noticed that the same tag question 
 \subsection{Predicate Relations}
 \begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
-	\begin{deptext}[column sep=0.5cm]
-	She \& is \& a \& student \& .\\
-	% PRON \& AUX \& DET \& NOUN \& PUNCT\\
-	\end{deptext}
-	\depedge{4}{1}{nsubj}
-	\depedge{4}{2}{aux}
-	\depedge{4}{3}{det}
-	\depedge{4}{5}{punct}
-	\deproot{4}{root}
+    \begin{deptext}[column sep=0.5cm]
+    She \& is \& a \& student \& .\\
+    % PRON \& AUX \& DET \& NOUN \& PUNCT\\
+    \end{deptext}
+    \depedge{4}{1}{nsubj}
+    \depedge{4}{2}{aux}
+    \depedge{4}{3}{det}
+    \depedge{4}{5}{punct}
+    \deproot{4}{root}
 \end{dependency}
 \end{minipage}
 \hfill
 \begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
-	\begin{deptext}[column sep=0.5cm]
-	She \& is \& a \& student \& .\\
-	% PRON \& AUX \& DET \& NOUN \& PUNCT\\
-	\end{deptext}
-	\depedge{2}{1}{SUBJ}
-	\depedge{2}{4}{PRED}
-	\depedge{4}{3}{DET}
-	\depedge{2}{5}{PUNCT}
-	\deproot{2}{ROOT}
+    \begin{deptext}[column sep=0.5cm]
+    She \& is \& a \& student \& .\\
+    % PRON \& AUX \& DET \& NOUN \& PUNCT\\
+    \end{deptext}
+    \depedge{2}{1}{SUBJ}
+    \depedge{2}{4}{PRED}
+    \depedge{4}{3}{DET}
+    \depedge{2}{5}{PUNCT}
+    \deproot{2}{ROOT}
 \end{dependency}
 \end{minipage}
 
 \begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
-	\begin{deptext}[column sep=0.5cm]
-	She \& became \& happier \& .\\
-	% PRON \& VERB \& ADJ \& PUNCT\\
-	\end{deptext}
-	\depedge{2}{1}{nsubj}
-	\depedge{2}{3}{xcomp}
-	\depedge{2}{5}{punct}
-	\deproot{2}{root}
+    \begin{deptext}[column sep=0.5cm]
+    She \& became \& happier \& .\\
+    % PRON \& VERB \& ADJ \& PUNCT\\
+    \end{deptext}
+    \depedge{2}{1}{nsubj}
+    \depedge{2}{3}{xcomp}
+    \depedge{2}{5}{punct}
+    \deproot{2}{root}
 \end{dependency}
 \end{minipage}
 \begin{minipage}[b]{0.5\linewidth}
 \begin{dependency}
-	\begin{deptext}[column sep=0.5cm]
-	She \& became \& happier \& .\\
-	% PRON \& VERB \& ADJ \& PUNCT\\
-	\end{deptext}
-	\depedge{2}{1}{SUBJ}
-	\depedge{2}{3}{PRED}
-	\depedge{2}{5}{PUNCT}
-	\deproot{2}{ROOT}
+    \begin{deptext}[column sep=0.5cm]
+    She \& became \& happier \& .\\
+    % PRON \& VERB \& ADJ \& PUNCT\\
+    \end{deptext}
+    \depedge{2}{1}{SUBJ}
+    \depedge{2}{3}{PRED}
+    \depedge{2}{5}{PUNCT}
+    \deproot{2}{ROOT}
 \end{dependency}
 \end{minipage}
 
