@@ -133,11 +133,11 @@ GR2DEPREL = {
 		'lp':'punct',
 		# ---- undecided ----
 		'om':'discourse:omission',
-		'cpobj':'obj',
-		'cobj':'obj',
-		'njct':'obj',
-		'pobj':'obj',
-		'inf':'obj',
+		'cpobj':'acl:relcl',
+		'cobj':'ccomp',
+		'njct':'nmod',
+		'pobj':'obl',
+		'inf':'mark',
 	}
 
 

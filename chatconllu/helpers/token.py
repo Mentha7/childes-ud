@@ -13,7 +13,7 @@ class Token(object):
                  'misc',
                  'multi',
                  'type',
-                 'surface',
+                 # 'surface',
                  ]
 
     def __init__(self,
@@ -29,7 +29,7 @@ class Token(object):
                  misc=None,
                  multi=None,
                  type=None,
-                 surface=None,
+                 # surface=None,
                  ):
 
         self.index = index
@@ -44,7 +44,7 @@ class Token(object):
         self.misc = None if not misc else misc
         self.multi = multi
         self.type = type
-        self.surface = surface
+        # self.surface = surface
 
     def __str__(self):
         fields = [str(getattr(self, x)) for x in self.__slots__[:]]
@@ -53,8 +53,8 @@ class Token(object):
     def text(self):
         return self.form
 
-    def surface_form(self):
-        return self.surface
+    # def surface_form(self):
+    #   return self.surface
 
     def conllu_str(self, clear_mor=False, clear_gra=False, clear_misc=False):
         """Writes token as one line in conllu file. If Token is multi, write span.
@@ -141,12 +141,3 @@ class Token(object):
 
     def assign_ud_deprel(self, deprel):
         self.deprel = deprel
-
-    def ud_upos():
-        pass
-
-    def ud_xpos():
-        pass
-
-    def ud_feats():
-        pass

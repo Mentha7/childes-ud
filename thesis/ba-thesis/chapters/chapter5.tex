@@ -6,27 +6,11 @@
 
 After using chatconllu to convert the CoNLL-U files back to CHAT format, the user may want to validate that the resulting CHAT files are well-formed and accepted by the CLAN program. CLAN has a CHECK program \sidenote{CLAN can be downloaded via \url{https://dali.talkbank.org/clan/}} that can validate the CHAT transcription format. Alternatively, if the user wants to stick to the command line, they can download Chatter \sidenote{Chatter - CHAT format validator: \url{https://talkbank.org/software/chatter.html}}, a Java program from TalkBank, and follow the instructions on the website.\\
 
-% include a use case.
-
-For the chosen corpora, CHAT files produced by chatconllu pass the CHECK program in CLAN but not Chatter for the reason of missing tabs. Long lines in the original cha files generated from the CLAN program are broken into separate lines after a certain amount of characters is reached. Continuations of the line are preceded by an initial tab. However, the current version of chatconllu does not handle the maximum length of a line, and because of that, it fails the Chatter validation process.\\
-
+For the chosen corpora, CHAT files produced by chatconllu pass the CHECK program in CLAN but not Chatter for the reason of missing tabs. Long lines in the original cha files generated from the CLAN program are broken into separate lines after a certain amount of characters is reached. Continuations of the line are preceded by an initial tab. However, the current version of chatconllu does not handle the maximum length of a line, and because of that, it fails the Chatter validation process.
+\vspace{-0.4em}
 \section{Validating CoNLL-U using UD Tools}
 
-UD also provides tools for format validation. One of the UD maintained tools is the script \emph{validate.py} \sidenote{link to file on GitHub: \url{https://github.com/UniversalDependencies/tools/blob/master/validate.py}}. Its validation are in five levels. To run the script, one has to input a language code because in high-level tests, this script also check whether the values in the fields are allowed for that language. Currently, chatconllu only pass the first two levels at best, which does not check if the values are accepted by UD or specifications of the given language.
-
+UD also provides tools for format validation. One of the UD maintained tools is the script \emph{validate.py} \sidenote{link to file on GitHub: \url{https://github.com/UniversalDependencies/tools/blob/master/validate.py}}. Its validation is in five levels. To run the script, one has to input a language code because in high-level tests, this script also check whether the values in the fields are allowed for that language. Currently, chatconllu only pass the first two levels at best, which does not check if the values are accepted by UD or specifications of the given language.
+\vspace{-0.4em}
 \section{Comparison with Original Files}
-The differences between the original and back-converted cha files can be visually inspected using \emph{icdiff}. With this command, a side-by-side display of the two cha files selected is displayed in the terminal, with the differences coloured. As mentioned above, most visible differences are the results of the missing leading tabs. Unfortunately, I haven't figured out a way to solve this problem programmatically.
-
-% \section{Related Work}
-
-% \paragraph{Dependency Parsing for Low-resource Spontaneous Speech} % (fold)
-% \label{par:zoey}
-% (\cite{liu2021}) used a low-resource setting, focusing on one child from the Brown Corpus (\cite{brown1973}) and tested the performance of dependency parsers on parent-child conversations. The out-domain parser was trained on written text and performed well on adult speech but not so well on child speech, while the parser trained on a limited amount of in-domain spoken data improved the parsing result of child speech to be comparable with adult speech. As part of their study, they created a semi-automatic adaptation of annotation formats from CHILDES to UD.
-
-% \paragraph{The AnnCor CHILDES Treebank}
-% (\cite{odijk2018anncor}) preprocessed the Dutch CHILDES corpora, augmented them with syntactic annotations using the Alpino parser, and performed partial manual verification. While creating this treebank, they noticed the many disadvantages of annotation discrepancies and argued that annotation guidelines should be explicit and should be strictly followed to produce consistency. They suggest combining human annotations with automatic checks by computer programs. They also pointed out that although the grammar used in child speech is limited since the child is still acquiring the language, assigning adult syntactic structures to their utterances is still valid.
-
-% \todo{add comments}
-
-\section{Future Improvements}
-\todo{add areas of improvements}
+The differences between the original and back-converted cha files can be visually inspected using terminal tools like \emph{icdiff} \sidenote{icdiff: \url{https://www.jefftk.com/icdiff}}. A side-by-side view of the two cha files selected is displayed in the terminal, with the differences coloured. As mentioned above, most visible differences are the results of the missing leading tabs. Unfortunately, I haven't figured out a way to solve this problem programmatically.
