@@ -16,3 +16,13 @@ The aim of this thesis project is to explore and experiment with format conversi
 
 The thesis is structured as follows: \Cref{Chapter2} gives necessary background information of both annotation schemes. \Cref{Chapter3} introduces the converter and its implementation. \Cref{Chapter4} discusses the mappings from CHILDES to UD. \Cref{Chapter5} explains the validation process and results, outlines related work and propose future improvements for chatconllu. Finally, with \Cref{Chapter6} I conclude this thesis and outlines related work.
 
+\section{Related Work}
+
+\paragraph{Dependency Parsing for Low-resource Spontaneous Speech} % (fold)
+\label{par:zoey}
+(\cite{liu2021}) used a low-resource setting, focusing on one child from the Brown Corpus (\cite{brown1973}) and tested the performance of dependency parsers on parent-child conversations. The out-domain parser was trained on written text and performed well on adult speech but not so well on child speech, while the parser trained on a limited amount of in-domain spoken data improved the parsing result of child speech to be comparable with adult speech. As part of their study, they created a semi-automatic adaptation of annotation formats from CHILDES to UD.
+
+\paragraph{The AnnCor CHILDES Treebank}
+(\cite{odijk2018anncor}) preprocessed the Dutch CHILDES corpora, augmented them with syntactic annotations using the Alpino parser, and performed partial manual verification. While creating this treebank, they noticed the many disadvantages of annotation discrepancies and argued that annotation guidelines should be explicit and should be strictly followed to produce consistency. They suggest combining human annotations with automatic checks by computer programs. They also pointed out that although the grammar used in child speech is limited since the child is still acquiring the language, assigning adult syntactic structures to their utterances is still valid.
+
+\todo{add comments}
