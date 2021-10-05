@@ -235,6 +235,27 @@ def replace_token(flat):
 
 	return results
 
+# def combine_elements(flat):
+# 	results = []
+# 	tmp = []
+# 	keep = False
+
+# 	for i, f in enumerate(flat):
+# 		if re.match(start_bracket, f):
+# 			keep = True
+
+# 		if keep:
+# 			tmp.append(f)
+
+# 		if keep and f.endswith(']'):
+# 			results.append(' '.join(tmp))
+# 			keep = False
+
+# 		if not keep:
+# 			results.append(f)
+
+# 	return results
+
 def omit(flat):
 	result = flat.copy()
 	for i, f in enumerate(flat):
@@ -267,6 +288,9 @@ def delete(groups):
 		elif re.match(delete_prev, g):
 			# print(f"{g} match delete previous")
 			# print(f"{results}")
+			if results and not isinstance(results[-1], list) and results[-1].endswith(']') and not results[-1].startswith('['):
+				# print("remove elements on results.")
+				results = remove_elements(results)
 			if "[:" in results or "[::" in results:
 				results = replace_token(results)
 				# logger.info(results)
