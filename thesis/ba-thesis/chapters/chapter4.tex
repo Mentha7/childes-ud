@@ -9,6 +9,7 @@ The previous chapter talked about how CHAT and CoNLL-U use \texttt{MOR} and \tex
 % left-aligned table columns with automated line breaks
 \newcolumntype{L}{>{\RaggedRight\arraybackslash}X}
 \begin{margintable}[1\baselineskip] % move figure down by 1 line
+\caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See Table \ref{tab:posmap1} and Table \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
 \begin{tabularx}{\textwidth}{@{}Ll@{}}
 \toprule
 \textbf{MOR} & \textbf{UD}\\ \midrule
@@ -29,15 +30,15 @@ aux, cop, mod & AUX\\
 beg, end & PUNCT\\
 inf, neg, part & PART\\\bottomrule
 \end{tabularx}
-\caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See Table \ref{tab:posmap1} and Table \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
-\footnotesize
+% \caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See Table \ref{tab:posmap1} and Table \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
+% \footnotesize
 % Examples of MOR POS categories that can be directly converted to UPOS tags. See \ref{tab:posmap1} and \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.
 \end{margintable}
 
 
 The CHAT manual lists 39 POS tags for English (\cite{Macwhinney2000}, Part 3, p.8). This set can be extended with language-specific tags for other languages. UD, on the other hand, uses a universal POS (UPOS) tagset with only 17 tags for all languages in the UD project.
 
-UD's UPOS is developed based on Petrov's \emph{A Universal Part-of-Speech Tagset}, where the crosslinguistic universality of the UPOS tags stems from their operational definitions instead of presupposing the existence of actual grammatical categories (\cite{petrov2012}). In CHAT, however, POS tags are much less universal across languages. Typologically different languages may use quite different tagsets than that prescribed by the MOR program for English (\cite{Macwhinney2000}, Part3, p.7). Additionally, researchers can define their own POS tagsets, which not only means that, in terms of POS tags, CHILDES took an opposite approach from UD, but also makes an exhaustive mapping between POS tags used in the two annotation schemes impossible. Therefore, the mapping I define here concerns only the standard POS tagset given by the MOR grammar for English, French and Italian.
+UD's UPOS is developed based on Petrov's \emph{A Universal Part-of-Speech Tagset}, where the crosslinguistic universality of the UPOS tags stems from their operational definitions instead of presupposing the existence of actual grammatical categories (\cite{petrov2012}). In CHAT, however, POS tags are much less universal across languages. Typologically different languages may use quite different tagsets than those prescribed by the MOR program for English (\cite{Macwhinney2000}, Part3, p.7). Additionally, researchers can define their own POS tagsets, which not only means that, in terms of POS tags, CHILDES took an opposite approach from UD, but also makes an exhaustive mapping between POS tags used in the two annotation schemes impossible. Therefore, the mapping I define here concerns only the standard POS tagset given by the MOR grammar for English, French and Italian.
 
 The adaptation from MOR POS categories to UD's UPOS can be achieved in the following ways:
 \begin{itemize}
@@ -69,7 +70,7 @@ Preverb/verb particles are tagged with \texttt{vpfx}. Although they are particle
 Despite the similarity between the MOR \texttt{conj} and UD \texttt{CCONJ}, they represent different things. UD distinguishes between \texttt{CCONJ} \sidenote{Definition for \texttt{CCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/CCONJ.html}} and \texttt{SCONJ} \sidenote{Definition for \texttt{SCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}, the former is for coordinating conjunctions like \emph{and} and \emph{but}, which are tagged \texttt{coord} by MOR, and the latter marks subordinating conjunctions with complementizers like \emph{that} or \emph{if}, or adverbial clause introducers like \emph{when}, these are tagged \texttt{conj} by MOR. Therefore, the suitable UPOS tag for the MOR POS tag \texttt{conj} is \texttt{SCONJ}.
 
 \paragraph{special form markers}
-It is worth noticing that some MOR codes do not correspond to any grammatical categories. For example, in CHAT, the so-called \emph{special form markers} have unique POS tags independent of the part-of-speech category to which the word belongs (\cite{Macwhinney2000}, Part 1, pp. 45-47). Nevertheless, some of these tags can still be mapped to UPOS.The tags \texttt{sing} for singing, \texttt{bab} for babbling and \texttt{wplay} for wordplay can all be mapped to \texttt{INTJ}, which stands for \emph{interjection}. The definition of interjection, however, is vague (\cite{ameka1992}). UD defines interjection descriptively \sidenote{"An interjection is a word that is used most often as an exclamation or part of an exclamation. It typically expresses an emotional reaction, is not syntactically related to other accompanying expressions, and may include a combination of sounds not otherwise found in the language." Excerpt from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}. Following UD's definition for \texttt{INTJ}, the core criteria for a word \sidenote{or non-word in this case} to be an interjection include:
+It is worth noticing that some MOR codes do not correspond to any grammatical categories. For example, in CHAT, the so-called \emph{special form markers} have unique POS tags independent of the part-of-speech category to which the word belongs (\cite{Macwhinney2000}, Part 1, pp. 45-47). Nevertheless, some of these tags can still be mapped to UPOS. The tags \texttt{sing} for singing, \texttt{bab} for babbling and \texttt{wplay} for wordplay can all be mapped to \texttt{INTJ}, which stands for \emph{interjection}. The definition of interjection, however, is vague (\cite{ameka1992}). UD defines interjection descriptively \sidenote{"An interjection is a word that is used most often as an exclamation or part of an exclamation. It typically expresses an emotional reaction, is not syntactically related to other accompanying expressions, and may include a combination of sounds not otherwise found in the language." Excerpt from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}. Following UD's definition for \texttt{INTJ}, the core criteria for a word \sidenote{or non-word in this case} to be an interjection include:
 \begin{itemize}
 	\item that it is often used exclamatorily
 	\item that it typically expresses emotions
@@ -79,6 +80,7 @@ It is worth noticing that some MOR codes do not correspond to any grammatical ca
 Since singing, babbling and wordplay satisfy these criteria, along with the MOR code \texttt{co} for interjections , they are granted the \texttt{INTJ} tag. Other special form markers, on the other hand, have no corresponding UPOS tags whatsoever, for example \texttt{dia} for dialect forms. Unfortunately they have to be assigned to \texttt{X}, as words that does not belong to the other 16 categories.
 
 \begin{margintable}[1\baselineskip] % move figure down by 1 line
+\caption{\label{tab:martabpunct}MOR punctuation marks and their corresponding MOR codes.}
 \begin{tabularx}{\textwidth}{@{}cl@{}}
 \toprule
 \textbf{Punctuations} & \textbf{MOR code}\\\midrule
@@ -90,8 +92,6 @@ Since singing, babbling and wordplay satisfy these criteria, along with the MOR 
 ‘ & bq2\\
 ’ & eq2\\\bottomrule
 \end{tabularx}
-\caption{\label{tab:martabpunct}MOR punctuation marks and their corresponding MOR codes.}
-\footnotesize
 \end{margintable}
 
 \paragraph{punctuation marks}
@@ -104,6 +104,7 @@ Finally, MOR also defines a set of punctuation marks with string representations
 Since \texttt{MOR} uses a morpheme-based approach to analyse individual words, morphological features like \emph{tense} and \emph{mood} are encoded by morpheme codes. Unlike MOR's dissecting analysis of a word, UD takes a lexicalist view on morphology and treats word as a whole lexical item. Features are thus considered properties of the word. The existence of morphemes is not presupposed.
 
 \begin{margintable}[1\baselineskip]
+\caption{\label{tab:martabdb}CHILDES databases chosen for this project.}
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
 \textbf{CHILDES database} & \textbf{Language}\\ \midrule
@@ -117,14 +118,13 @@ Since \texttt{MOR} uses a morpheme-based approach to analyse individual words, m
 	vioncolas & fra\\
 	Tonelli & ita\\\bottomrule
 \end{tabularx}
-\caption{\label{tab:martabdb}CHILDES databases chosen for this project.}
-\footnotesize
 \end{margintable}
 
 These two fundamentally different views of words are reflected in the different ways of structuring morphological information. CoNLL-U format keeps all relevant features of a word in the token's \texttt{FEATS} field. And although each language in UD has its subset of morphological features, the feature types and values are by convention the same. Compared with UD, CHILDES's way of handling features is less direct. Not all features are explicit as UD's feature-value pairs. Instead, they have to be inferred from the morpheme codes or POS tags.
 
 Listing of all possible MOR codes for grammatical morphemes is, again, unlikely. Therefore, I chose the easier path of collecting these codes from the CHILDES databases that I decided to work with, listed in \Cref{tab:martabdb}.
 \begin{margintable}[1\baselineskip]
+\caption{\label{tab:martabfeats}Example MOR grammatical morpheme codes and their corresponding UD featue-value pairs.}
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
 \textbf{MOR} & \textbf{UD feats}\\ \midrule
@@ -138,8 +138,6 @@ Listing of all possible MOR codes for grammatical morphemes is, again, unlikely.
 	pastp & Tense=Past|VerbForm=Part\\
 	poss & Poss=Yes\\\bottomrule
 \end{tabularx}
-\caption{\label{tab:martabfeats}Example MOR grammatical morpheme codes and their corresponding UD featue-value pairs.}
-\footnotesize
 \end{margintable}
 Of all the morpheme codes found in these corpora, not all of them correspond to UD features. Since morphological features are not mandatory, I only created mappings for those with a corresponding UD feature-value pair. An example mapping is given in Table \ref{tab:martabfeats} on the right-hand side. Only 9 types of features can be obtained directly from the morpheme codes I encountered: \texttt{Number}, \texttt{Person}, \texttt{Gender}, \texttt{Mood}, \texttt{Degree}, \texttt{Tense}, \texttt{Verbform}, \texttt{Voice}, and \texttt{Poss}. All possible UD features and values allowed for Engish, French, and Italian can be found in Table \ref{tab:featsmap} in \Cref{appendixa}. The codes are sometimes capitalised and sometimes not due to language- or corpus-specific conventions. They are all converted to lowercase for easy comparison. The original morpheme codes are kept in the \texttt{MISC} field.
 % \begin{margintable}[1\baselineskip]
@@ -168,6 +166,7 @@ Of all the morpheme codes found in these corpora, not all of them correspond to 
 In CHAT annotations, syntactic relations are represented by Grammatical Relations (GRs). They were first devised by Kenji Sagae (\cite{sagae-etal-2004-adding}) for the English language. After later revisions in 2007, CHAT now has 37 grammatical relation types (\cite{sagae2007}). They correspond to dependency relations stored in the \texttt{DEPRELS} field in CoNLL-U files. However, CHILDES and UD use different labels for these dependency relations and quite different parsing schemes. Sometimes, a conversion from GR to deprel also introduces a change in the structure of the dependency tree.
 
 \begin{margintable}[1\baselineskip]
+\caption{\label{tab:martabgr}Example CHILDES grammatical relations and their corresponding UD dependency relations.}
 \begin{tabularx}{1\textwidth}{@{}Ll@{}}
 \toprule
 \textbf{GRA} & \textbf{UD deprel}\\ \midrule
@@ -183,8 +182,6 @@ COORD & cc\\
 PUNCT & punct\\
 ROOT & root\\\bottomrule
 \end{tabularx}
-\caption{\label{tab:martabgr}Example CHILDES grammatical relations and their corresponding UD dependency relations.}
-\footnotesize
 \end{margintable}
 
 Defining a deterministic mapping between GRs and UD dependency relations thus ranges from direct label translation to linguistically-informed decisions. \Cref{tab:martabgr} gives examples of direct label conversions. The full mapping for the current version of chatconllu can be found in \Cref{tab:grmap}.

@@ -19,12 +19,12 @@ The attributes of the \texttt{Token} object include the \textlf{10} fields of a 
 	\item \texttt{type}---to store the clitics type
 \end{itemize}
 
-Since \texttt{Token} is organised parallel to the UD-style token, it can be directly converted to a token line \sidenote{Or lines for multi-word tokens}.
+Since \texttt{Token} is organised parallel to the UD-style token, it can be directly converted to a token line.\sidenote{Or lines for multi-word tokens}
 
 \section{Overview of chatconllu}
 
 
-The behaviour of chatconllu can be described in plain English: For all files or files with name specifications in the given directory, depending on the input file format, convert them to the other format and save the output as different files. I used the \emph{pyconll} \sidenote{pyconll is a low-level API for processing CoNLL-U formatted files.} package developed by (\cite{pyconll}) for parsing the converted CoNLL-U files and accessing the values of token fields. I chose to use it instead of writing my own script because I want to quickly validate the general structure of the converted files. Using the load method from a distributed package allows me to get instant feedback if the file is malformed. chatconllu uses argparse to process inputs from the command line. With optional arguments \sidenote{All commands of chatconllu can be found via the \texttt{chatconllu --help} command after proper installation.}, it's also possible to finetune the desired output by asking chatconllu to generate new dependent tiers or omit existing dependent tiers during format conversion.
+The behaviour of chatconllu can be described in plain English: For all files or files with name specifications in the given directory, depending on the input file format, convert them to the other format and save the output as different files. I used the \emph{pyconll}\sidenote{pyconll is a low-level API for processing CoNLL-U formatted files.} package developed by (\cite{pyconll}) for parsing the converted CoNLL-U files and accessing the values of token fields. I chose to use it instead of writing my own script because I want to quickly validate the general structure of the converted files. Using the load method from a distributed package allows me to get instant feedback if the file is malformed. chatconllu uses argparse to process inputs from the command line. With optional arguments,\sidenote{All commands of chatconllu can be found via the \texttt{chatconllu --help} command after proper installation.} it is also possible to finetune the desired output by asking chatconllu to generate new dependent tiers or omit existing dependent tiers during format conversion.
 
 % All commands of chatconllu can be found via the \texttt{chatconllu --help} command after proper installation. The optional commands are listed in the Appendix\todo{list optional commands in the Appendix}.
 
@@ -51,12 +51,22 @@ To remove the CHAT transcription codes, one has to first identify them in the ut
 
 In CHAT, nested structures occur with \emph{scoped symbols} (\cite{Macwhinney2000}, Part 1, p.72). A scoped symbol is a marked segment of speech. The tokens in the segment are enclosed in angle brackets, while the markers which describe the segment are enclosed in the square brackets that follow. There can be more than one square-bracket-enclosed descriptor following an angle-bracketed speech segment, but no other materials are allowed between the scope enclosed in angle brackets and the symbols enclosed in square brackets.
 
-The challenge of nested angle brackets can be illustrated using two example utterances from the Brown Corpus (\cite{brown1973}):
+The challenge of nested angle brackets can be illustrated using two example utterances from the Brown Corpus (\cite{brown1973}):\\
+\vspace{-1em}
+\lstset{
+numbers = none,
+frame = single,
+}
 
-\texttt{<here <monk(ey)> [/] monkey> [>]}\\  % Sarah/020906 sent 210
-\texttt{<<yeah yeah> [/] yeah> [?]} % example from Brown/Sarah/21024, sentence 733
+\begin{lstlisting}[caption={Example utterances with nested angle brackets}, label={lst:nested}]
+<here <monk(ey)> [/] monkey> [>]}
+<<yeah yeah> [/] yeah> [?]}
+\end{lstlisting}
 
-To better understand the examples, I also introduce two operations triggered by the markers:
+% \texttt{<here <monk(ey)> [/] monkey> [>]}\\  % Sarah/020906 sent 210
+% \texttt{<<yeah yeah> [/] yeah> [?]} % example from Brown/Sarah/21024, sentence 733
+
+To better understand the examples in Listing~\ref{lst:nested}, I also introduce two operations triggered by the markers:
 \begin{itemize}
 	\item \emph{deletion}: the previous word or scoped element, as well as this marker, should be removed, triggered by markers like \texttt{[/]}.
 	\item \emph{keep}: keep the previous word or the words in the scoped element, remove this marker after that, triggered by markers like \texttt{[?]} and \texttt{[>]}. Note that the \texttt{>} character also appears as a descriptor, making things more complicated.
@@ -80,7 +90,7 @@ With these two operations defined, it soon becomes clear to the human eye that t
 % $list$.append($object$)
 % \end{algorithm}
 
-In chatconllu, nested expressions like the examples above are translated into nested lists with the help of a depth counter and a push operation. The depth counter is like a stack and keeps the current level of nesting, and the push operation pushes the word to the list of the current depth. The algorithm for processing nested structures is listed in Algorithm \ref{alg:nested}. After the utterance string is processed by the \texttt{normalise} method, a nested list corresponding to the structure of the scopes in the utterance is returned. Then, a recursive delete method is used to start removing unwanted elements from the innermost list. Then, the list is flattened and scanned for other operations like omit. The final remaining list is then the list of all tokens to keep.
+In chatconllu, nested expressions like the examples above are translated into nested lists with the help of a depth counter and a push operation. The depth counter is like a stack and keeps the current level of nesting, and the push operation pushes the word to the list of the current depth. The algorithm for processing nested structures is listed in Algorithm~\ref{alg:nested}. After the utterance string is processed by the \texttt{normalise} method, a nested list corresponding to the structure of the scopes in the utterance is returned. Then, a recursive delete method is used to start removing unwanted elements from the innermost list. Then, the list is flattened and scanned for other operations like omit. The final remaining list is then the list of all tokens to keep.
 \clearpage
 \SetKwComment{Comment}{\color{green!50!black}// }{}
 \renewcommand{\CommentSty}[1]{\textnormal{\ttfamily\color{blue!50!black}#1}\unskip}
@@ -113,22 +123,22 @@ In chatconllu, nested expressions like the examples above are translated into ne
 }
 
 	\While{$i < len(line)$}{
-		\If{$line[i]$ == <}{
+		\If{$line[i] == "<"$}{
 			$push([], tokens, depth)$\;
-			$depth \leftarrow depth + 1$\tcc*[f]{stack}\;
+			$depth \leftarrow depth + 1$\tcc*[f]{stack push}\;
 			% $i \leftarrow i + 1$\;
 		}
-		\ElseIf{$line[i]$ == >}{
+		\ElseIf{$line[i] == ">"$}{
 			$token \leftarrow join(chars)$ \;
 			$chars \leftarrow []$ \;
 			\If{$token$}{
 				$push(token, tokens, depth)$\;
 			}
-			$depth \leftarrow depth - 1$\tcc*[f]{pop from stack}\;
+			$depth \leftarrow depth - 1$\tcc*[f]{stack pop}\;
 			% $i \leftarrow i + 1$\;
 		}
 		...\;
-		\Else(\tcc*[f]{reads normal character}){
+		\Else(\tcc*[f]{read normal character}){
 			$chars \leftarrow line[i]$ \;
 		}
 		\If(\tcc*[f]{add final token}){$i == len(line)$}{
@@ -144,11 +154,11 @@ In chatconllu, nested expressions like the examples above are translated into ne
   }
 \end{algorithm}
 
-\paragraph{to normalise or not} Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the \emph{clean} version of the utterance. On the one hand, word-based information in \texttt{\%mor} and \texttt{\%gra} tiers is only associated with tokens in the cleaned utterance. Therefore, to use the information provided in these tiers, one has to remove unannotated words (or nonwords). On the other hand, removing things like speech errors makes spontaneous conversational data less speech-like. Or worse, it could make the real sentence structure of the sometimes already ungrammatical utterance even less obvious, at least for dependency parsers. In the study of creating a dependency treebank using Dutch CHILDES corpora, during the process of cleaning the encoded utterances, (\cite{odijk2018anncor}) observed that blindly removing unintelligible words results in a decrease in the performance of the dependency parser they used. For example, although \texttt{xxx} is a nonword, it still functions as a placeholder \sidenote{Think of it as 0 in digits or as a masked token.}. The Alpino parser (\cite{bouma}) they used seems to depend on the positional information, despite the word is unknown. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable in dependency parsing and affected the performance of the dependency parser. Therefore when it comes to preprocessing spoken data like the CHILDES corpora. The degree of normalisation depends on the intended use case.
+\paragraph{to normalise or not} Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the \emph{clean} version of the utterance. On the one hand, word-based information in \texttt{\%mor} and \texttt{\%gra} tiers is only associated with tokens in the cleaned utterance. Therefore, to use the information provided in these tiers, one has to remove unannotated words (or nonwords). On the other hand, removing things like speech errors makes spontaneous conversational data less speech-like. Or worse, it could make the real sentence structure of the sometimes already ungrammatical utterance even less obvious, at least for dependency parsers. In the study of creating a dependency treebank using Dutch CHILDES corpora, during the process of cleaning the encoded utterances, (\cite{odijk2018anncor}) observed that blindly removing unintelligible words results in a decrease in the performance of the dependency parser they used. For example, although \texttt{xxx} is a nonword, it still functions as a placeholder.\sidenote{Think of it as 0 in digits or as a masked token.} The Alpino parser (\cite{bouma}) they used seems to depend on the positional information, despite the word is unknown. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable in dependency parsing and affected the performance of the dependency parser. Therefore when it comes to preprocessing spoken data like the CHILDES corpora. The degree of normalisation depends on the intended use case.
 
 \subsection{Extracting Information from Dependent Tiers}
 
-Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing \ref{lst:chatsent3} \sidenote{from the same file in the Brown Corpus as Listing\ref{lst:chatsent1}}. Clitics, like expressions involving English auxiliary verb \emph{'ve}, the possessive \emph{'s}, and contractions, like the English negation particle \emph{n't} or the French \emph{articles composés}--\emph{du} \sidenote{"du" is the contraction of "de" and "le"}, are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.\\
+Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing~\ref{lst:chatsent3}\sidenote{from the same file in the Brown Corpus as Listing~\ref{lst:chatsent1}}. Clitics, like expressions involving English auxiliary verb \emph{'ve}, the possessive \emph{'s}, and contractions, like the English negation particle \emph{n't} or the French \emph{articles composés}--\emph{du}\sidenote{"du" is the contraction of "de" and "le"}, are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.\\
 
 \lstset{
 numbers = none,
@@ -176,22 +186,21 @@ A word can have any number of prefixes, each followed by a hash \texttt{\#}, fus
 A word group has the word annotation of each word in the word group joined by one of three types of delimiter: the dollar sign \texttt{\$} for preclitics, tilda \texttt{\~{}} for postclitics, and the plus sign \texttt{+} for compounds. Compounds, however, has not only each component word annotation preceded by \texttt{+}, but also receives an additional POS tag which is attached to the beginning of the MOR annotation for the word group. For example, \emph{peanut+butter} in the main line has the MOR annotation \texttt{n|+n|peanut+n|butter}.
 
 % what information needs to be extracted (table)
-% \begin{margintable}[1\baselineskip]
-% \begin{tabularx}{1\textwidth}{@{}ll@{}}
-% \toprule
-% \textbf{MOR} & \textbf{Field}\\\midrule
-% lemma & \texttt{LEMMA} \\
-% part-of-speech & \texttt{UPOS}, \texttt{XPOS}\\
-% features & \texttt{FEATS} \\\addlinespace
-% clitic type & \texttt{MISC} \\
-% compound & \texttt{MISC} \\
-% translation & \texttt{MISC} \\\bottomrule
-% \end{tabularx}
-% \caption{\label{tab:martabmor}Information contained in MOR strings that needs to be extracted, and the corresponding CoNLL-U field to store this information.}
-% \footnotesize
-% \end{margintable}
+\begin{margintable}[1\baselineskip]
+\caption{\label{tab:martabmor}Information contained in MOR strings that needs to be extracted, and the corresponding CoNLL-U field to store this information.}
+\begin{tabularx}{1\textwidth}{@{}ll@{}}
+\toprule
+\textbf{MOR} & \textbf{Field}\\\midrule
+lemma & \texttt{LEMMA} \\
+part-of-speech & \texttt{UPOS}, \texttt{XPOS}\\
+features & \texttt{FEATS} \\\addlinespace
+clitic type & \texttt{MISC} \\
+compound & \texttt{MISC} \\
+translation & \texttt{MISC} \\\bottomrule
+\end{tabularx}
+\end{margintable}
 
-Morphological information encoded in the \texttt{\%mor} tier is listed in \Cref{tab:martabmor}. The part-of-speech and features can be extracted directly by parsing the MOR annotation string. They are converted to UD-style values using a deterministic mapping which will be introduced in the next chapter.  During back-conversion from CoNLL-U format, chatconllu keep the original MOR POS tags as language-specific tags in \texttt{XPOS} to reconstruct the MOR annotation. In the future, they should be moved to the MISC field as well. Other information requires more processing and organisation, which I explain below:
+Morphological information encoded in the \texttt{\%mor} tier is listed in \Cref{tab:martabmor}. The part-of-speech and features can be extracted directly by parsing the MOR annotation string. They are converted to UD-style values using a deterministic mapping which will be introduced in the next chapter.  During back-conversion from CoNLL-U format, chatconllu keeps the original MOR POS tags as language-specific tags in \texttt{XPOS} to reconstruct the MOR annotation. In the future, they should be moved to the MISC field as well. Other information requires more processing and organisation, which I explain below:
 
 \paragraph{lemma} The syntax of the MOR annotations shows that getting the lemma out of a MOR string is not as trivial as it seems. There are several pitfalls to avoid:
 \begin{itemize}
@@ -209,6 +218,7 @@ One should also take care not to use reserved symbols like the field-value separ
 
 % what information needs to be extracted (table)
 \begin{margintable}[1\baselineskip]
+\caption{\label{tab:martabgra}Information contained in GRA strings that needs to be extracted, and the corresponding CoNLL-U field to store this information.}
 \begin{tabularx}{1\textwidth}{@{}ll@{}}
 \toprule
 \textbf{GRA} & \textbf{Field}\\\midrule
@@ -216,8 +226,6 @@ word index & \texttt{ID} \\
 head & \texttt{HEAD}\\
 syntactic relation & \texttt{DEPREL} \\\bottomrule
 \end{tabularx}
-\caption{\label{tab:martabgra}Information contained in GRA strings that needs to be extracted, and the corresponding CoNLL-U field to store this information.}
-\footnotesize
 \end{margintable}
 
 The grammatical relation (GR) annotation in \texttt{\%gra} is represented in a simpler form than the annotation in \texttt{\%mor}, as shown in \Cref{tab:martabgra}. And since the annotations in GRA are not affected in form by compounds or multi-word tokens, they can be parsed uniformly. Therefore, I only explain the GRA annotation syntax here for completeness.
