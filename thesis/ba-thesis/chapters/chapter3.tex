@@ -51,7 +51,7 @@ To remove the CHAT transcription codes, one has to first identify them in the ut
 
 In CHAT, nested structures occur with \emph{scoped symbols} (\cite{Macwhinney2000}, Part 1, p.72). A scoped symbol is a marked segment of speech. The tokens in the segment are enclosed in angle brackets, while the markers which describe the segment are enclosed in the square brackets that follow. There can be more than one square-bracket-enclosed descriptor following an angle-bracketed speech segment, but no other materials are allowed between the scope enclosed in angle brackets and the symbols enclosed in square brackets.
 
-The challenge of nested angle brackets can be illustrated using two example utterances from the Brown Corpus (\cite{brown1973}):\\
+The challenge of nested angle brackets can be illustrated using two example utterances:\sidenote{These examples are taken from the CHILDES databse of the Brown Corpus (\cite{brown1973}). }\\
 \vspace{-1em}
 \lstset{
 numbers = none,
@@ -123,12 +123,12 @@ In chatconllu, nested expressions like the examples above are translated into ne
 }
 
 	\While{$i < len(line)$}{
-		\If{$line[i] == "<"$}{
+		\If{$line[i] == "$<$"$}{
 			$push([], tokens, depth)$\;
 			$depth \leftarrow depth + 1$\tcc*[f]{stack push}\;
 			% $i \leftarrow i + 1$\;
 		}
-		\ElseIf{$line[i] == ">"$}{
+		\ElseIf{$line[i] == "$>$"$}{
 			$token \leftarrow join(chars)$ \;
 			$chars \leftarrow []$ \;
 			\If{$token$}{
@@ -154,11 +154,11 @@ In chatconllu, nested expressions like the examples above are translated into ne
   }
 \end{algorithm}
 
-\paragraph{to normalise or not} Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the \emph{clean} version of the utterance. On the one hand, word-based information in \texttt{\%mor} and \texttt{\%gra} tiers is only associated with tokens in the cleaned utterance. Therefore, to use the information provided in these tiers, one has to remove unannotated words (or nonwords). On the other hand, removing things like speech errors makes spontaneous conversational data less speech-like. Or worse, it could make the real sentence structure of the sometimes already ungrammatical utterance even less obvious, at least for dependency parsers. In the study of creating a dependency treebank using Dutch CHILDES corpora, during the process of cleaning the encoded utterances, (\cite{odijk2018anncor}) observed that blindly removing unintelligible words results in a decrease in the performance of the dependency parser they used. For example, although \texttt{xxx} is a nonword, it still functions as a placeholder.\sidenote{Think of it as 0 in digits or as a masked token.} The Alpino parser (\cite{bouma}) they used seems to depend on the positional information, despite the word is unknown. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable in dependency parsing and affected the performance of the dependency parser. Therefore when it comes to preprocessing spoken data like the CHILDES corpora. The degree of normalisation depends on the intended use case.
+\paragraph{to normalise or not} Although chatconllu can clean the CHAT annotation codes relatively well, it remains a question whether one really wants to obtain the \emph{clean} version of the utterance. On the one hand, word-based information in \texttt{\%mor} and \texttt{\%gra} tiers is only associated with tokens in the cleaned utterance. Therefore, to use the information provided in these tiers, one has to remove unannotated words (or nonwords). On the other hand, removing things like speech errors makes spontaneous conversational data less speech-like. Or worse, it could make the real sentence structure of the sometimes already ungrammatical utterance even less obvious, at least for dependency parsers. In the study of creating a dependency treebank using Dutch CHILDES corpora, during the process of cleaning the encoded utterances, Odijk et al.\,observed that blindly removing unintelligible words results in a decrease in the performance of the dependency parser they used (\cite{odijk2018anncor}). For example, although \texttt{xxx} is a nonword, it still functions as a placeholder.\sidenote{Think of it as 0 in digits or as a masked token.} The Alpino parser (\cite{bouma}) they used seems to depend on the positional information, despite the word is unknown. This was again confirmed in a way by (\cite{liu2021}), where they found utterances with omissions are more undesirable in dependency parsing and affected the performance of the dependency parser. Therefore when it comes to preprocessing spoken data like the CHILDES corpora. The degree of normalisation depends on the intended use case.
 
 \subsection{Extracting Information from Dependent Tiers}
 
-Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing~\ref{lst:chatsent3}\sidenote{from the same file in the Brown Corpus as Listing~\ref{lst:chatsent1}}. Clitics, like expressions involving English auxiliary verb \emph{'ve}, the possessive \emph{'s}, and contractions, like the English negation particle \emph{n't} or the French \emph{articles composés}--\emph{du}\sidenote{"du" is the contraction of "de" and "le"}, are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.\\
+Since morphosyntactic information in \texttt{\%mor} and \texttt{\%gra} is kept with individual tokens in CoNLL-U files, they have to be processed in such a way that all relevant information from both tiers (if present) are associated with the respective token in the utterance. It can be more complicated with clitics and contractions, which results in different lengths of the \texttt{\%mor} and \texttt{\%gra} tiers, shown in Listing~\ref{lst:chatsent3}.\sidenote{The examples in Listing~\ref{lst:chatsent3} are taken from the same file with Listing~\ref{lst:chatsent1}} Clitics, like expressions involving English auxiliary verb \emph{'ve}, the possessive \emph{'s}, and contractions, like the English negation particle \emph{n't} or the French \emph{articles composés}--\emph{du},\sidenote{"du" is the contraction of "de" and "le"} are treated by the \texttt{MOR} grammar as one word group and assigned a single string with MOR codes, while \texttt{GRASP} gives a separate string representation for each of its parts.\\
 
 \lstset{
 numbers = none,

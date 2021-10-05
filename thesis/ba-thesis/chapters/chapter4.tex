@@ -9,7 +9,7 @@ The previous chapter talked about how CHAT and CoNLL-U use \texttt{MOR} and \tex
 % left-aligned table columns with automated line breaks
 \newcolumntype{L}{>{\RaggedRight\arraybackslash}X}
 \begin{margintable}[1\baselineskip] % move figure down by 1 line
-\caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See Table \ref{tab:posmap1} and Table \ref{tab:posmap2} in \Cref{appendixa} for the full mapping.}
+\caption{\label{tab:martabpos}Examples of MOR POS categories that can be directly converted to UPOS tags. See Table~\ref{tab:posmap1}, Table~\ref{tab:posmap2}, and Table~\ref{tab:posmap3} in \Cref{appendixa} for the full mapping.}
 \begin{tabularx}{\textwidth}{@{}Ll@{}}
 \toprule
 \textbf{MOR} & \textbf{UD}\\ \midrule
@@ -55,22 +55,22 @@ Collapsing of POS categories can be illustrated by the example of auxiliary verb
 The following MOR POS codes require more thought during the creation of a deterministic mapping, partially because they do not exist in all languages. For tags like these, UD usually raises them to a more coarse category and represents the exact type using morphological features instead.
 
 \paragraph{\texttt{art}}
-Articles are ganerally marked as \texttt{DET} in UD Treebanks with feature \texttt{PronType=Art} \sidenote{Definition for \texttt{DET} can be found from \url{https://universaldependencies.org/docs/u/pos/DET.html}}.
+Articles are ganerally marked as \texttt{DET} in UD Treebanks with feature \texttt{PronType=Art}\sidenote{Definition for \texttt{DET} can be found from \url{https://universaldependencies.org/docs/u/pos/DET.html}}.
 
 \paragraph{\texttt{preart}}
 \texttt{preart} are contractions of prepositions and articles, for instance the Italian \emph{alla} is the contraction of \emph{a} and \emph{la}. In UD-style annotations, words like \emph{alla} are treated as multi-word tokens, and a POS tag is given to each part of the token. However, CHAT considers them to be single words with forms of their own. To keep the alignment with the \texttt{\%mor} tier, here \texttt{preart} is mapped to \texttt{DET} because the word functions as a determiner.
 
 \paragraph{\texttt{vimp}}
-Imperatives are tagged with \texttt{vimp} in \%mor tier. However, in UD, imperatives are tagged with \texttt{VERB}, which is the category for all finite verb forms \sidenote{Definition for \texttt{VERB} can be found from \url{https://universaldependencies.org/docs/u/pos/VERB.html}} . In UD, gender, person, number, tense, aspect, mood and voice are all specified as features. Therefore \texttt{vimp}, listed here as an example for finite verbs, is mapped to \texttt{VERB} with feature \texttt{MOOD=Imp}.
+Imperatives are tagged with \texttt{vimp} in \%mor tier. However, in UD, imperatives are tagged with \texttt{VERB}, which is the category for all finite verb forms.\sidenote{Definition for \texttt{VERB} can be found from \url{https://universaldependencies.org/docs/u/pos/VERB.html}} In UD, gender, person, number, tense, aspect, mood and voice are all specified as features. Therefore \texttt{vimp}, listed here as an example for finite verbs, is mapped to \texttt{VERB} with feature \texttt{MOOD=Imp}.
 
 \paragraph{\texttt{vpfx}}
-Preverb/verb particles are tagged with \texttt{vpfx}. Although they are particles, according to UD's definition \sidenote{Definition for \texttt{ADP} can be found from \url{https://universaldependencies.org/docs/u/pos/ADP.html}}, they belong to \texttt{ADP}.
+Preverb/verb particles are tagged with \texttt{vpfx}. Although they are particles, according to UD's definition,\sidenote{Definition for \texttt{ADP} can be found from \url{https://universaldependencies.org/docs/u/pos/ADP.html}} they belong to \texttt{ADP}.
 
 \paragraph{\texttt{conj}}
-Despite the similarity between the MOR \texttt{conj} and UD \texttt{CCONJ}, they represent different things. UD distinguishes between \texttt{CCONJ} \sidenote{Definition for \texttt{CCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/CCONJ.html}} and \texttt{SCONJ} \sidenote{Definition for \texttt{SCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}, the former is for coordinating conjunctions like \emph{and} and \emph{but}, which are tagged \texttt{coord} by MOR, and the latter marks subordinating conjunctions with complementizers like \emph{that} or \emph{if}, or adverbial clause introducers like \emph{when}, these are tagged \texttt{conj} by MOR. Therefore, the suitable UPOS tag for the MOR POS tag \texttt{conj} is \texttt{SCONJ}.
+Despite the similarity between the MOR \texttt{conj} and UD \texttt{CCONJ}, they represent different things. UD distinguishes between \texttt{CCONJ}\sidenote{Definition for \texttt{CCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/CCONJ.html}} and \texttt{SCONJ}\sidenote{Definition for \texttt{SCONJ} can be found from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}, the former is for coordinating conjunctions like \emph{and} and \emph{but}, which are tagged \texttt{coord} by MOR, and the latter marks subordinating conjunctions with complementizers like \emph{that} or \emph{if}, or adverbial clause introducers like \emph{when}, these are tagged \texttt{conj} by MOR. Therefore, the suitable UPOS tag for the MOR POS tag \texttt{conj} is \texttt{SCONJ}.
 
 \paragraph{special form markers}
-It is worth noticing that some MOR codes do not correspond to any grammatical categories. For example, in CHAT, the so-called \emph{special form markers} have unique POS tags independent of the part-of-speech category to which the word belongs (\cite{Macwhinney2000}, Part 1, pp. 45-47). Nevertheless, some of these tags can still be mapped to UPOS. The tags \texttt{sing} for singing, \texttt{bab} for babbling and \texttt{wplay} for wordplay can all be mapped to \texttt{INTJ}, which stands for \emph{interjection}. The definition of interjection, however, is vague (\cite{ameka1992}). UD defines interjection descriptively \sidenote{"An interjection is a word that is used most often as an exclamation or part of an exclamation. It typically expresses an emotional reaction, is not syntactically related to other accompanying expressions, and may include a combination of sounds not otherwise found in the language." Excerpt from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}}. Following UD's definition for \texttt{INTJ}, the core criteria for a word \sidenote{or non-word in this case} to be an interjection include:
+It is worth noticing that some MOR codes do not correspond to any grammatical categories. For example, in CHAT, the so-called \emph{special form markers} have unique POS tags independent of the part-of-speech category to which the word belongs (\cite{Macwhinney2000}, Part 1, pp. 45-47). Nevertheless, some of these tags can still be mapped to UPOS. The tags \texttt{sing} for singing, \texttt{bab} for babbling and \texttt{wplay} for wordplay can all be mapped to \texttt{INTJ}, which stands for \emph{interjection}. The definition of interjection, however, is vague (\cite{ameka1992}). UD defines interjection descriptively.\sidenote{"An interjection is a word that is used most often as an exclamation or part of an exclamation. It typically expresses an emotional reaction, is not syntactically related to other accompanying expressions, and may include a combination of sounds not otherwise found in the language." Excerpt from \url{https://universaldependencies.org/docs/u/pos/SCONJ.html}} Following UD's definition for \texttt{INTJ}, the core criteria for a word\sidenote{or non-word in this case} to be an interjection include:
 \begin{itemize}
 	\item that it is often used exclamatorily
 	\item that it typically expresses emotions
@@ -257,18 +257,18 @@ The current version of chatconllu does not handle most of the cases discussed be
 
 In UD, every sentence has exactly one root, represented by a single-root dependency tree. The dependency analysis generated by GRASP is, however, not always like that. After being processed by GRASP, sentences with non-final punctuations, like after an exclamation, a vocative expression or, close to the end of the utterance, before the tag question, receives multiple roots. Although usually only one \texttt{ROOT} or \texttt{INCROOT} label is assigned, there can be multiple words whose head is marked \textlf{0}, which, in effect, corrupts the single-root tree structure.
 
-This problem occurs because exclamations and vocatives are not considered part of the clause. Tag markers are, however, for the chosen few corpora, not so much of a problem and usually have their head marked to the functional root \sidenote{Although from my observations, tag questions present a different problem of inconsistent parses of the same structure.}(\texttt{ROOT} or \texttt{INCROOT}), like in \Cref{fig:taggr}.
+This problem occurs because exclamations and vocatives are not considered part of the clause. Tag markers are, however, for the chosen few corpora, not so much of a problem and usually have their head marked to the functional root (\texttt{ROOT} or \texttt{INCROOT}), like in \Cref{fig:taggr}.\sidenote{Although from my observations, tag questions present a different problem of inconsistent parses of the same structure.}
 
 Consider the following sentences:
 
-\pex~ Sentences with non-final punctuations\label{roots}
+\pex~ Sentences with non-final punctuations\label{grp:roots}
 \a {[\sl Well\/}]$_{\text{\sc intj}}$, that's life.        \hfill {\sl interjection}\label{intj}
 \a {[\sl  Son\/}]$_{\text{\sc voc}}$, that's life.         \hfill {\sl vocative}\label{voc}
 \a That's life , {[\sl isn't it}]$_{\text{\sc tag}}$?    \hfill {\sl tag question}\label{tagq}
 \xe
 
 
-After running GRASP, sentences like (\ref{intj}) and (\ref{voc}) will be analysed like the left-hand side dependency graph of \Cref{fig:intj} and \Cref{fig:voc}, while UD-style dependeny analyses are shown on the right-hand side.\\
+After running GRASP, sentences like (1)\,a.\,and (1)\,b.\,will be analysed like the left-hand side dependency graph of \Cref{fig:intj} and \Cref{fig:voc}, while UD-style dependeny analyses are shown on the right-hand side.\\
 
 \begin{minipage}{\widefigurewidth}
 \begin{dependency}[edge slant=3pt]
@@ -296,9 +296,9 @@ It is clear from the dependency graphs that the CHILDES dependency trees are bro
 After the change-head operation is applied, the current token with GR label \texttt{BEG} is connected to the remaining single root. Now the two examples in \Cref{fig:intj} and \Cref{fig:voc} share the same dependency structures. However, dependency relation labels for vocatives and interjections should be different. To make the final decision, chatconllu needs the POS tag of the token with \texttt{BEG}. The decision process is outlined below:\\
 
 \begin{itemize}
-	\item If the token has a POS tag and it is not \texttt{INTJ}, \texttt{PROPN}, or \texttt{NOUN}, the corresponding \texttt{deprel} \sidenote{Definition for \texttt{parataxis} can be found from \url{https://universaldependencies.org/u/dep/parataxis.html}} label should be \texttt{parataxis} for a loose side-by-side placement of the affected elements.
-	\item If the POS tag is \texttt{INTJ}, then the first part of the sentence is considered as an exclamation. The corresponding UD-style label should be \texttt{discourse} \sidenote{Definition for \texttt{discourse} can be found from \url{https://universaldependencies.org/u/dep/discourse.html}}.
-	\item If the POS tag is \texttt{PROPN} or \texttt{NOUN}, the first part of the sentence is considered as an expression in vocative. Therefore, the corresponding \texttt{deprel} label should be \texttt{vocative} \sidenote{Definition for \texttt{vocative} can be found from \url{https://universaldependencies.org/u/dep/vocative.html}}.
+	\item If the token has a POS tag and it is not \texttt{INTJ}, \texttt{PROPN}, or \texttt{NOUN}, the corresponding \texttt{deprel}\sidenote{Definition for \texttt{parataxis} can be found from \url{https://universaldependencies.org/u/dep/parataxis.html}} label should be \texttt{parataxis} for a loose side-by-side placement of the affected elements.
+	\item If the POS tag is \texttt{INTJ}, then the first part of the sentence is considered as an exclamation. The corresponding UD-style label should be \texttt{discourse}.\sidenote{Definition for \texttt{discourse} can be found from \url{https://universaldependencies.org/u/dep/discourse.html}}
+	\item If the POS tag is \texttt{PROPN} or \texttt{NOUN}, the first part of the sentence is considered as an expression in vocative. Therefore, the corresponding \texttt{deprel} label should be \texttt{vocative}.\sidenote{Definition for \texttt{vocative} can be found from \url{https://universaldependencies.org/u/dep/vocative.html}}
 \end{itemize}
 
 % For instance, the sentence "well, son, that's just life, isn't it ?" will be analysed by GRASP as this:
@@ -379,8 +379,8 @@ In fact, although CHILDES' analyses of copula structures are consistent, always 
 
 This shows that to obtain UD dependency parses require not only a mapping of the labels used for the grammatical relations but also a case-by-case analysis with the annotation conventions of both formalisms in mind, which presents a problem for automatic conversion.\\
 
-Many other cases that are challenging for adapting CHILDES syntactic annotations to UD-style are discussed and implemented in (\cite{liu2021}), which are not handled by chatconllu. They have made the code for conversion public on GitHub \sidenote{\url{https://github.com/zoeyliu18/Parsing_Speech/tree/main/code}}.\\
+Many other cases that are challenging for adapting CHILDES syntactic annotations to UD-style are discussed and implemented in (\cite{liu2021}), which are not handled by chatconllu. They have made the code for conversion public on GitHub.\sidenote{\url{https://github.com/zoeyliu18/Parsing_Speech/tree/main/code}}\\
 
-Apart from that, Liu and Prud’hommeaux observed that depending on the actual meaning of the child, the utterance \emph{man no spoon} can be interpreted in at least three different ways (\cite{liu2021}). Odijk et al. also reported various reasons for a child to produce speech different from the conventional form used by adult speakers. Sometimes the true meanings are concealed by the exact transcriptions, which requires \emph{intensive investigation of each phenomenon} by researchers. It seems that for spoken data like child speech, information like context and tones that help us disambiguate meanings are not conveyed by literal transcriptions. Merely looking at utterance texts, it is even hard for a human to decide the real meaning of the utterance. Even if rules are defined for each grammatical relation, incomplete utterances can still produce unintended results in a decision making process. Therefore, instead of coming up with case-based rules to convert the syntactic relation labels and structures, chatconllu stores the original label in the token's \texttt{MISC} field and uses a direct mapping to convert the dependency label while keeping the tree structure produced by GRASP, except for sentences with multiple roots.
+Apart from that, Liu el al.\,observed that depending on the actual meaning of the child, the utterance \emph{man no spoon} can be interpreted in at least three different ways (\cite{liu2021}). Odijk et al.\,also reported various reasons for a child to produce speech different from the conventional form used by adult speakers. Sometimes the true meanings are concealed by the exact transcriptions, which requires \emph{intensive investigation of each phenomenon} by researchers (\cite{odijk2018anncor}). It seems that for spoken data like child speech, information like context and tones that help us disambiguate meanings are not conveyed by literal transcriptions. Merely looking at utterance texts, it is even hard for a human to decide the real meaning of the utterance. Even if rules are defined for each grammatical relation, incomplete utterances can still produce unintended results in a decision making process. Therefore, instead of coming up with case-based rules to convert the syntactic relation labels and structures, chatconllu stores the original label in the token's \texttt{MISC} field and uses a direct mapping to convert the dependency label while keeping the tree structure produced by GRASP, except for sentences with multiple roots.
 
 
