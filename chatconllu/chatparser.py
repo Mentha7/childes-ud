@@ -518,6 +518,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 	if mor:
 		idx = [x for x, g in enumerate(mor) if '~' in g or '$' in g]  # get multi-word tokens' indices in mor tier
+		span = [len(re.split(r'~|\$', mor[i])) for i in idx]
 		try:
 			assert len(clean) == len(mor)  # one-to-one correspondance between tokens and mor segments
 		except AssertionError:
@@ -536,7 +537,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 
 	for c in clean:  # index, (surface, clean)
 		# ---- initialise all Token attributes ----
-		index = j + 1
+		index = tok_index
 		form = c  # don't remove `+` seen in compounds yet, should keep the dash for words like "qu'est-ce" in French
 		lemma = None
 		upos = None
@@ -562,10 +563,10 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 			# create Tokens
 		# ---------------------------
 		if j in idx:  # multi-word tokens, implies has mor tier
-			m = idx.index(j)  # the current token is the m th multi-word token in this utterance
-			index = index + m
+			# m = idx.index(j)  # the current token is the m th multi-word token in this utterance
+			# index = index + m
 			num = len(re.split(r'~|\$', mor[j]))  # number of components in mwt
-			multi = index + num - 1
+			multi = tok_index + num - 1
 			# logger.debug(f"j:{j}\tindex:{index}\tnum:{num}\tend:{multi}")
 			# ---- get clitics type, for reconstruction of %mor  ----
 			if re.findall(r'~|\$', mor[j]):
