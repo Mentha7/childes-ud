@@ -15,7 +15,7 @@ from logger import logger
 from helpers.sentence import Sentence
 from helpers.token import Token
 from helpers.clean_utterance import normalise_utterance
-from features import mor2feats
+from features import mor2feats, is_key
 
 all_feats = set()
 
@@ -449,32 +449,49 @@ def get_lemma_and_feats(mor_segment: str, is_multi=False) -> Union[List[Tuple], 
 	else:
 		return parse_mor(mor_segment)
 
-def modify_dashed_tokens(t: Token):
-	t.lemma = t.form
-	miscs = t.misc.split('|')
+def new_misc_value(form:str, misc:str):
+	if not misc:
+		return misc
+	miscs = misc.split('|')
 	new_miscs = []
 	for m in miscs:
 		if m.startswith('feats='):
-			logger.info(m)
-			feats = re.findall(r'\-\w+', m)
-			# print(feats)
-			for f in feats:
-				if f in t.form:
+			feats = re.findall(r'\-\w+', m[6:])
+			print(feats)
+			if not feats:
+				return '|'.join(miscs)
+			for f in feats:  # process each feature string
+				print(f)
+				if f in form:
 					feats.remove(f)
+					logger.info(f"removed {f}")
 					if not feats:
-						pass
+						return None
 					else:
 						new = re.sub(r'\-\w+', '', m)
 						new = re.sub(r'\^', '', new)
 						new = new.replace('feats=', '')
 						if new:
 							new_miscs.append(new)
-		else:
+				else:
+					new_miscs.append(f)  # keep feat
+		elif m:
 			new_miscs.append(m)
-	t.misc = '|'.join(new_miscs)
-	# logger.debug(t.form)
-	# logger.debug(t.lemma)
-	# logger.debug(t.misc)
+	return '|'.join(new_miscs)
+
+def modify_dashed_tokens(t: Token):
+	t.lemma = t.form
+	# print(t.form)
+	# print(t.misc)
+	if isinstance(t.misc, tuple):
+		tup = []
+		for m in t.misc:
+			tup.append(new_misc_value(t.form, m))
+		t.misc = tuple(tup)
+		# print(t.misc)
+	else:
+		t.misc = new_misc_value(t.form, t.misc)
+	# logger.info(t)
 	return t
 
 
@@ -496,7 +513,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 	if not checked_tokens:  # if provided empty list or None, return []
 		return tokens
 
-	surface, clean = zip(*checked_tokens)
+	_, clean = zip(*checked_tokens)
 	clean = list(filter(None, clean))  # remove empty strings
 
 	if mor:
@@ -531,7 +548,7 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 		misc = None
 		multi = None
 		type = None
-		surface = None  # don't need this attribute, to be removed in Token
+		# surface = None  # don't need this attribute, to be removed in Token
 		translation=None
 
 		# ---- simplified logic ----
@@ -613,8 +630,9 @@ def extract_token_info(checked_tokens: List[Tuple[str, str]], gra: Union[List[st
 					deps=deps,
 					misc=misc,
 					multi=multi,
-					type=type,
-					surface=surface)
+					type=type
+					# surface=surface,
+					)
 		# ---- lemma, misc for dashed words ----
 		if '-' in tok.form:
 			tok = modify_dashed_tokens(tok)

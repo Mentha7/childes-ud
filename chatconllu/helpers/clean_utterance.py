@@ -3,7 +3,7 @@ Utilities to obtain clean utterances from CHAT.
 """
 
 import re
-from logger import logger
+# from logger import logger
 
 until_eow = re.compile(r"[^,.;?!”<>\[\] ]+")
 
@@ -324,3 +324,5 @@ if __name__ == '__main__':
 	print(normalise_utterance("volo [: voglio] fare <la cala> [//] la scala [>] ."))
 	print(normalise_utterance("vanno la notte rin [: in] giro <le mamme> [/] le mamme ca@wp sono xxx . [+ r]"))
 	print(normalise_utterance("ardalo [: guardalo] <perché ba(lla)> [//] perché balla ?"))
+	print(normalise_utterance("I [x 3] [//] oh ‡ I hafta look for the sun (.) sun (.) nope ."))
+	print(normalise_utterance("he [x 3] [//] he's a real one ."))
