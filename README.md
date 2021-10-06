@@ -1,5 +1,10 @@
 # chatconllu
   Conversion scripts between CHILDES CHAT format and UD CoNLL-U format.
+  
+## Known Issues
+----
+- repetitive feature strings in Italian Corpus
+- header organisation needs to be revised
 
 ## Installation
 ----
@@ -85,9 +90,9 @@ However, if you pass .conllu files through [UDPipe](https://ufal.mff.cuni.cz/udp
 ```
 chatconllu <CHILDES databases dir> <database name> -f conllu -fn <processed conllu file> --cnl --pos
 ```
-`-fn`: specifies a filename (without extension)
-`--cnl`: generates a `%cnl` tier, handles syntax (dependency relations), it's similar to `%gra` 
-`--pos`: generates a `%pos` tier, handles morphology (without features), it's similar to `%mor` 
+- `-fn`: specifies a filename (without extension)
+- `--cnl`: generates a `%cnl` tier, handles syntax (dependency relations), it's similar to `%gra` 
+- `--pos`: generates a `%pos` tier, handles morphology (without features), it's similar to `%mor` 
 
 ----
 
