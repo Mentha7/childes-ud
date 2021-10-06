@@ -718,6 +718,7 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 		sent = create_sentence(final_idx, utterances[final_idx])
 	# print(final_empty)
 	with open(filename, mode='w', encoding='utf-8') as f:
+		# ==== write headers ====
 		for m in metas[0]:
 			f.write(f"# {m}\n")
 		empty = []
@@ -728,7 +729,7 @@ def to_conllu(filename: 'pathlib.PosixPath', metas: List[List[str]], utterances:
 				logger.exception(e)
 				logger.info(f"writing sent {utterance} to {filename}...")
 				raise
-			if metas[idx] and not sent.text() in EMPTY:  # if has comments/headers
+			if idx != 0 and metas[idx] and not sent.text() in EMPTY:  # if has comments/headers
 				for m in metas[idx]:
 					f.write(f"# {m}\n")
 			if idx == 0:
