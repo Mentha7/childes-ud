@@ -29,6 +29,15 @@ STANDARD = [  # names to ignore
 	'final_sents',
 	'final_comments'
 	]
+CHAT_PUNCT = [
+	'„',
+	'‡',
+	',',
+	'“',
+	'”',
+	'‘',
+	'’',
+	]
 
 def construct_mwe(sentence, tier):
 	# -------- construct tier for multi-word tokens--------
@@ -101,7 +110,7 @@ def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra
 				for v in word.misc['components']:
 					tmp = '+' + v.replace('@', '|').replace('^', '+')  # reverse to MOR coding
 					m = '|'.join([word.xpos, tmp])
-			elif word.lemma and word.xpos and word.xpos != 'punct':
+			elif word.lemma and word.xpos and word.xpos != 'punct' and not word.form in CHAT_PUNCT:
 				m = '|'.join([word.xpos, word.lemma])
 				if 'feats' in word.misc.keys():
 					for f in word.misc['feats']:
@@ -110,7 +119,7 @@ def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra
 				if 'translation' in word.misc.keys():
 					for t in word.misc['translation']:
 						m += '=' + t
-			if word.lemma and re.match(PUNCT, word.lemma) and len(word.lemma)==1:  # punctuation's mor is form
+			if word.lemma and re.match(PUNCT, word.lemma) and len(word.lemma)==1 and not word.form in CHAT_PUNCT:  # punctuation's mor is form
 				m = word.lemma
 			if 'form' in word.misc.keys():
 				# print("has key1")
@@ -149,7 +158,7 @@ def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra
 				for v in word.misc['components']:
 					tmp = '+' + v.replace('@', '|').replace('^', '+')
 					m = '|'.join([word.xpos, tmp])
-			elif word.lemma and word.xpos != 'punct':
+			elif word.lemma and word.xpos != 'punct' and not word.form in CHAT_PUNCT:
 				m = '|'.join([word.xpos, word.lemma])
 				if 'feats' in word.misc.keys():
 					for f in word.misc['feats']:
@@ -158,7 +167,7 @@ def construct_tiers(sentence, has_mor, has_gra, generate_mor=False, generate_gra
 				if 'translation' in word.misc.keys():
 					for t in word.misc['translation']:
 						m += '=' + t
-			if word.lemma and re.match(PUNCT, word.lemma) and len(word.lemma)==1:  # punctuations mor is form
+			if word.lemma and re.match(PUNCT, word.lemma) and len(word.lemma)==1 and not word.form in CHAT_PUNCT:  # punctuations mor is form
 				m = word.lemma
 			if 'form' in word.misc.keys():
 				# print("has key2")
