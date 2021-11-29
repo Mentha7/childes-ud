@@ -1,9 +1,0 @@
-\chapter{Conclusion} % Main chapter title
-
-\label{Chapter6} % For referencing the chapter elsewhere, use \ref{Chapter6}
-
-This thesis project implements a two-way converter, chatconllu, as a command-line tool written in Python for CHILDES CHAT and UD CoNLL-U format. Conversion from CHAT to CoNLL-U cleans the utterances with CHAT transcription codes, extracts information from the dependent tiers, associates them with their corresponding words in the cleaned sentences, and writes the sentences in CoNLL-U format. Back-conversion from CoNLL-U files outputs the original CHAT files, but the tabs for line continuations are missed during this process. Additionally, chatconllu can be used as an intermediate step to augment information to either annotation format. For instance, one can start with converting CHAT files to CoNLL-U format and pass them to any type of dependency parsers that work with this format. After that, the files can either be exported as a preliminary spoken treebank for human inspection, or converted back to CHAT format with added dependent tiers when asked to do so.\\
-
-Moreover, as an attempt, a deterministic mapping to transform CHILDES morphosyntactic codes to UD values is created. Currently, this mapping oversimplifies the problem of tagset conversion by ignoring many non-deterministic cases and assigning uniform values, even though they can be decided using rule-based procedures.\\
-
-In the future, chatconllu can be extended to support visualisations of dependency trees, which will ease the process of designing rules for tagset conversions by helping users experienced in dependency annotations to identify mal-formed and atypical dependency trees. Furthermore, in the hope of aiding independent researchers to tailor the program according to their needs, chatconllu can also be improved by giving the user more control over the output content.
